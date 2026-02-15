@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantitative Imaging Methods in Disease Characterization</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/white.css">
+    <style>
+        .reveal h1 { font-size: 2.2em; margin-bottom: 0.5em; }
+        .reveal h2 { font-size: 1.8em; margin-bottom: 0.5em; color: #2c3e50; }
+        .reveal h3 { font-size: 1.4em; margin-bottom: 0.5em; }
+        .reveal p { font-size: 0.95em; margin-bottom: 0.5em; line-height: 1.4; }
+        .reveal ul { font-size: 0.9em; }
+        .reveal li { margin-bottom: 0.3em; }
+        .subtitle { color: #666; font-size: 0.7em; margin-top: 1em; }
+        .citation { font-size: 0.65em; color: #666; margin-top: 2em; font-style: italic; }
+        .slide-number { font-size: 0.7em; }
+        .reveal section { padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <section>
+                <h2>Quantitative Imaging Methods In Disease Characterization</h2>
+                <p>Michael Liu<br>3/21/2024</p>
+            </section>
+
+            <section>
+                <h2>What is DCE MRI</h2>
+                <p>Intravenous injection of T1 shortening Contrast Agent<br><br>T1 weighted scans taken at various timepoints<br><br>Calculate contrast agent concentration based on change in intensity values</p>
+            </section>
+
+            <section>
+                <h2>DCE can be applied to many anatomy</h2>
+                <p>DCE within Body MRI is difficult due to the often non breath-hold acquisition of study</p>
+            </section>
+
+            <section>
+                <p>As you can see, the DCE exam is anatomy agnostic, it can be used in the breast, liver, or any other body part.</p>
+            </section>
+
+            <section>
+                <h2>Example Data</h2>
+            </section>
+
+            <section>
+                <h2>Highly vascular and permeable structures will wash out quickly after peak enhancement</h2>
+            </section>
+
+            <section>
+                <h2>Fitting Kinetic Models</h2>
+                <p>Fit the data to simple two compartment model, such as the Tofts Model(1999)</p>
+            </section>
+
+            <section>
+                <h2>DCE MRI for response assessment of inoperable lung tumors for patients undergoing SBRT</h2>
+            </section>
+
+            <section>
+                <h2>Setup</h2>
+                <p>Patients with inoperable lung tumors planned for SBRT recruited<br>Patients receive DCE-MRI scans at four time points:<br>During Simulation<br>Immediately after first fraction<br>Immediately after last fraction<br>Four weeks after treatment<br>Longitudinally examine the changes in quantitative and qualitative kinetic parameters Ktrans, kep , which describe the rate of contrast in and out of the vasculature into the extravascular, extracellular space</p>
+                <p class="citation">Liu, M., Yorke E., Hunt M., Deasy, J., Rimner, A., Tyagi, N., "Dynamic Contrast Enhanced MRI for Response Assessment of Inoperable NSCLC for patients undergoing SBRT," AAPM Annual Meeting, 2014.</p>
+            </section>
+
+            <section>
+                <h2>Treatment Responder Case</h2>
+                <p>During Simulation</p>
+                <p>After First Fraction</p>
+                <p>After Last Fraction</p>
+                <p>Four Weeks After Treatment</p>
+            </section>
+
+            <section>
+                <h2>Ktrans</h2>
+            </section>
+
+            <section>
+                <h2>kep</h2>
+            </section>
+
+            <section>
+                <h2>Motion Correction needed</h2>
+                <p>Deformable Image Registration required</p>
+            </section>
+
+            <section>
+                <h2>MRI of the Breast</h2>
+                <p>MRI is a noninvasive imaging technique that captures images related to the magnetic properties of underlying tissues.<br>In an MRI examination of the  breast, the following are the minimum set of images that are acquired <br>T1 weighted series (T1w)<br>T2 weighted series (T2w)<br>Dynamic Contrast Enhanced (DCE) T1w time series</p>
+                <p>T1 Weighted Image                  T2 Weighted Image</p>
+            </section>
+
+            <section>
+                <p>Trade off temporal resolution with spatial resolution</p>
+            </section>
+
+            <section>
+            </section>
+
+            <section>
+                <h2>Stacking of phases in RGB Channel Direction</h2>
+                <p>Phases are stacked in the RGB channel Direction (X,Y,Z,C)<br>Pre contrast is Red<br>Peak Enhancement is Green<br>Delayed Enhancement if Blue<br>Allows for easier confirmation of proper spatial and intensity normalization</p>
+            </section>
+
+            <section>
+                <h2>Multichannel Intensity Normalization</h2>
+                <p>A 95% winsorization is performed<br>Img>percentile(img,97.5) = percentile(img,97.5)<br>Img<percentile(img,2.5) = percentile(img,2.5)<br>The exam is then normalized to the highest signal intensity in the exam by dividing the exam by the maximum voxel value.<br>Img = img/img.max()</p>
+                <p>Stacking DCE-MRI phases in the RGB color channels produces a visually striking difference between the typical washout, plateau, and persistent uptake enhancement dynamics commonly displayed by breast tumors, facilitating visual confirmation of proper intensity normalization for large datasets.</p>
+            </section>
+
+            <section>
+                <h2>Images taken longitudinally over time</h2>
+                <p>Images taken at different time points often do not align well<br>Technologists, machines, protocols, and anatomy are often variable over time</p>
+            </section>
+
+            <section>
+                <h2>Images taken longitudinally over time</h2>
+                <p>Images taken at different time points often do not align well<br>Technologists, machines, protocols, and anatomy are often variable over time</p>
+            </section>
+
+            <section>
+                <h2>Intra Exam mis registration of dynamics</h2>
+                <p>Even within the same study, there is often movement and misalignment between the phases of the DCE exam</p>
+            </section>
+
+            <section>
+                <h2>Deformable Image Registration</h2>
+                <p>Above is implementation of ANTs 3 stage 3 resolution symmetric diffeomorphic transform with Mutual Information loss function<br>The calculation of the warp field differences between the dynamics took 8 hours running on 16 cores</p>
+            </section>
+
+            <section>
+                <h2>Deformable Image Registration</h2>
+                <p>Symmetric diffeomorphic image registration via ANTs<br>Peak and Delayed phase registered to pre-contrast<br>3 stage (rigid, affine, deformable) registration<br>Multi Resolution within each stage (Shrink factor 8,4,2,1)<br>Mutual information similarity metric<br>B-Spline interpolation</p>
+            </section>
+
+            <section>
+                <h2>Without Registration		              With Registration</h2>
+                <p>Deformable Image Registration</p>
+            </section>
+
+            <section>
+                <h2>Without Registration		              With Registration</h2>
+            </section>
+
+            <section>
+                <h2>ISPY Datasets</h2>
+                <p>The Cancer Imaging Archive (TCIA)<br>573 breast MRI studies from 191 subjects in the I-SPY2 ACRIN-6698 trial<br>BMMR2 challenge to Predict treatment outcome from dataset</p>
+                <p class="citation">Partridge, S. C.; Zhang, Z.; Newitt, et al. Diffusion-Weighted MRI Findings Predict Pathologic Response in Neoadjuvant Treatment of Breast Cancer: The ACRIN 6698 Multicenter Trial. Radiology 2018</p>
+            </section>
+
+            <section>
+                <h2>BMMR2 Challenge Methods</h2>
+                <p class="citation">4 teams used radiomics for feature extraction
+2 teams used Deep learning for feature extraction
+The challenge winner achieved AUC 0.84 relative to the benchmark AUC 0.78 in the 2018 primary analysis</p>
+                <p class="citation">Li W, Partridge SC, Newitt DC, et al. Breast Multiparametric MRI for Prediction of Neoadjuvant Chemotherapy Response in Breast Cancer: The BMMR2 Challenge. Radiology: Imaging Cancer. 2024.</p>
+            </section>
+
+            <section>
+                <h2>Convolutional Neural Networks</h2>
+                <p>Primary components are fully connected layers and convolutional layers</p>
+            </section>
+
+            <section>
+                <h2>Convolutional Operations</h2>
+                <p>Convolutional operators convolve an nxn filter(kernel) across an image<br>Calculates the dot product of the convolutional kernel and the receptive area of the input</p>
+            </section>
+
+            <section>
+                <h2>Convolutional Operations</h2>
+                <p>Original</p>
+                <p>Sharpen</p>
+                <p>Average</p>
+                <p>Convolution of some common kernels with an input image</p>
+            </section>
+
+            <section>
+                <h2>Convolutional Operations</h2>
+                <p>Able to mimic similar effects of GLCM, emphasizing features separated by a given distance at a given angle</p>
+                <p>Original</p>
+                <p>3x3 Lower Edge Detect</p>
+                <p>5x5 Lower Edge Detect</p>
+            </section>
+
+            <section>
+                <h2>Neural Networks</h2>
+                <p>Neural Networks can model classifiers</p>
+                <p>Activation</p>
+                <p>Output</p>
+            </section>
+
+            <section>
+                <h2>Convolution based image features can be combined with clinical biomarkers in the fully connected layers for classification prediction</h2>
+                <p>Deep Learning for Classification</p>
+            </section>
+
+            <section>
+                <h2>Oncotype DX Breast Recurrence Score</h2>
+                <p>Oncotype DX test assigns a recurrence score [0,100] <br>Predicts the benefit of chemotherapy and risk of recurrence for patients newly diagnosed with early stage invasive breast cancer <br>Measures expression of 21 genes: 16 cancer and 5 reference genes.</p>
+                <p class="citation">C. Laronga, J. K. Harness, M. Dixon, P. I. Borgen, The role of the breast cancer surgeon in personalized cancer care: clinical utility of the 21-gene assay. Am. J. Surg. 203, 751–758 (2012).</p>
+            </section>
+
+            <section>
+                <h2>Oncotype DX Breast Recurrence score</h2>
+                <p>Relate the scored expression of oncogenes at a biopsy site with morphological and kinetic imaging of the site<br>Predict that MR imaging signatures such as hypervascularity or aggressive contrast uptake may be related to the gene assay score</p>
+                <p class="citation">C. Laronga, J. K. Harness, M. Dixon, P. I. Borgen, The role of the breast cancer surgeon in personalized cancer care: clinical utility of the 21-gene assay. Am. J. Surg. 203, 751–758 (2012).</p>
+            </section>
+
+            <section>
+                <h2>Oncotype DX Breast Recurrence score</h2>
+                <p>Relate the Oncotype DX score from biopsy core to morphological and kinetic imaging of the biopsy site<br>Predict that MR imaging signatures such as hypervascularity or aggressive contrast uptake may be related to the gene assay score</p>
+                <p class="citation">Liu MZ, Huang C, Jambawalikar S, Button T, Ha R, Multisite generalizability comparison of Dynamic Contrast Enhanced Breast MRI Breast Cancer Recurrence Score Models at multiple scales (In revision)</p>
+            </section>
+
+            <section>
+                <h2>Extraction of Tumor Volume</h2>
+                <p>Center and extents of tumors are identified on multichannel images by radiologist<br>64x64x64 crop of tumor is extracted</p>
+            </section>
+
+            <section>
+                <h2>Methods – Network Architecture</h2>
+                <p>A 3D 18 layer convolutional neural network is used<br>Convolutional Layer followed by 4 convolutional blocks of two layers each, with increasing filter numbers and decreasing input matrix size.<br>Convolutions flatten to 1000 neuron fully connected Layer<br>Fully Connected layer terminates into a classifier</p>
+            </section>
+
+            <section>
+                <h2>Training</h2>
+                <p>Network is first trained as a tumor size detector<br>Trained weights are then transferred to Oncotype DX score model<br>Oncotype DX model is fine tuned</p>
+            </section>
+
+            <section>
+                <h2>Performance</h2>
+            </section>
+
+            <section>
+                <h2>Evaluation on External Dataset</h2>
+            </section>
+
+            <section>
+                <h2>Weak Supervision network with high sensitivity and low specificity to screen large volume data
+
+Reduces the slices that need to be scrolled through or analyzed by the radiologist/algorithym</h2>
+                <p>Weak Supervision for Tumor localization</p>
+            </section>
+
+            <section>
+                <h2>MRI Image Labeling</h2>
+                <p>Exams from are annotated at the sagittal slice level for the presence of tumor as visualized below</p>
+                <p>An axial slice bisecting a tumor of a breast DCE-MRI exam from the ISPY Dataset is shown. Each sagittal slice is labeled for the presence of tumor. Green indicates no tumor present in the sagittal slice and red indicates the presence of tumor on that sagittal slice. This coarsely labeled data is used for weakly supervised pretraining of a convolutional neural networks.</p>
+            </section>
+
+            <section>
+                <h2>Example Labeling</h2>
+                <p>Tumor Present		    No Tumor Present</p>
+            </section>
+
+            <section>
+                <h2>Annotation of malignant lesions at slice level</h2>
+            </section>
+
+            <section>
+                <h2>Convolutional Neural Network Architecture</h2>
+                <p>A 101 residual layer convolutional neural network(CNN) architecture is used.</p>
+                <p>A 101 residual layer 101 encoder backbone consisting of a convolutional layer followed by four blocks of residual layers is shared by two classifiers trained for differing tasks in the domain of DCE-MRI image data.</p>
+                <p class="citation">Liu MZ, Swintelski C, Sun S, Siddique M, Desperito E, Jambawalikar S, Ha R, Weakly supervised deep learning approach to breast MRI assessment. Acad. Radiol. (2021)</p>
+            </section>
+
+            <section>
+                <h2>Deep Learning for Feature Extraction</h2>
+            </section>
+
+            <section>
+                <h2>Guided Backpropagation Visualizes features</h2>
+                <p>Guided backpropagation is used to visualize activations and gradients</p>
+            </section>
+
+            <section>
+                <h2>Imaging Biomarkers of Dynamic Contrast Enhanced MRI</h2>
+                <p>Using Deep Learning, find data driven imaging biomarkers of breast tumors in DCE-MRI</p>
+            </section>
+
+            <section>
+                <h2>Class Activation of Tumor Textures</h2>
+                <p>Look at activation in our classifiers to learn what the network focuses on</p>
+            </section>
+
+            <section>
+                <h2>Class Activation of non-Tumor slices</h2>
+                <p>Look at activation in our classifiers to learn what the network does not focus on</p>
+            </section>
+
+            <section>
+                <h2>Results</h2>
+                <p>Sensitivity 	74.4± 8.5 (95% CI [57.7,91.1])<br>Specificity	95.3 ± 3.3 (95% CI [88.8,100])<br>Accuracy 	 94.2±3.4  (95% CI [87.5,100])<br>ROC		0.94±0.01 (95% CI [0.92,0.96])</p>
+            </section>
+
+            <section>
+                <h2>Results</h2>
+                <p>Sensitivity 	74.4± 8.5 (95% CI [57.7,91.1])<br>Specificity	95.3 ± 3.3 (95% CI [88.8,100])<br>Accuracy 	 94.2±3.4  (95% CI [87.5,100])<br>ROC		0.94±0.01 (95% CI [0.92,0.96])</p>
+            </section>
+
+            <section>
+                <h2>Poor sensitivity from partial voluming</h2>
+                <p>False Normal</p>
+                <p>True Abnormal</p>
+            </section>
+
+            <section>
+                <h2>Tolerates background parenchymal enhancement</h2>
+                <p>True Normal</p>
+                <p>True Abnormal</p>
+            </section>
+
+            <section>
+                <h2>Results</h2>
+            </section>
+
+            <section>
+                <h2>Encoder Decoder network for segmentation of tumors
+
+High throughput, high accuracy for high volume segmentation applications</h2>
+                <p>Deep Learning for Segmentation</p>
+            </section>
+
+            <section>
+                <h2>U-Nets can be used to train segmentation networks
+These networks can be used to quantify tumor volumetry and segmentations for radiomics analysis</h2>
+                <p>Segmentation of Tumors in 2D</p>
+            </section>
+
+            <section>
+                <h2>Application in Liver Iron Concentration Quantification</h2>
+                <p class="citation">Multi-Echo GRE acquired for T2* relaxometry
+Liver segmented and T2* value fitted
+T2* used to calculate LIC against Wood et al calibration curve</p>
+                <p class="citation">Wood JC, Enriquez C, Ghugre N, Tyzka JM, Carson S, Nelson MD, et al. MRI R2 and R2* mapping accurately estimates hepatic iron concentration in transfusion-dependent thalassemia and sickle cell disease patients. Blood 2005;106:1460–5.</p>
+            </section>
+
+            <section>
+                <h2>Segmentation</h2>
+                <p class="citation">Liu M, Vanguri R, Mutasa S, Ha R, Liu Y-C, Button T, et al. Channel width optimized neural networks for liver and vessel segmentation in liver iron quantification. Comput Biol Med. 2020;122: 103798.</p>
+            </section>
+
+            <section>
+                <h2>The automated segmentation can be used to quickly calculate LIC over multiple slices, for better averaging and whole volume estimation</h2>
+            </section>
+
+            <section>
+                <h2>Linear regression analysis of hand segmented LIC values and CNN segmented LIC and Bland-Altman plot shows good agreement of DL and Hand segmented LIC</h2>
+            </section>
+
+            <section>
+            </section>
+
+            <section>
+                <h2>Generalizability of model</h2>
+                <p>a) Reference image     b) Manual Segmentation   c) CNN segmentation</p>
+            </section>
+
+            <section>
+                <h2>Detection of fine vasculature</h2>
+                <p>a) Reference image     b) Manual Segmentation   c) CNN segmentation</p>
+            </section>
+
+            <section>
+                <h2>Hybrid Networks</h2>
+                <p>Multiple heads may be spawned from the feature extractor destined for different tasks</p>
+            </section>
+
+            <section>
+                <h2>Deep Learning paradigm is highly extensible</h2>
+            </section>
+
+            <section>
+            </section>
+
+            <section>
+                <h2>Mirai – Cancer Risk model from Mammography Input</h2>
+                <p>Imaging features from image encoder are fed into custom transformer</p>
+                <p class="citation">Yala et al. Towards robust mammography-based models for breast cancer risk. Science Translational Medicine. 2021
+www.Github.com/yala/mirai</p>
+            </section>
+
+            <section>
+                <h2>Validation of Mirai on CU dataset</h2>
+                <p>11,760 exams from 7,332 normal patients and <br>3,459 exams from 1,505 cancer patients<br>All studies were from a single manufacturer (General Electric, USA).<br>Average Age 60.5 ± 11.3 years [24,81]</p>
+            </section>
+
+            <section>
+                <h2>Race Subanalysis</h2>
+            </section>
+
+            <section>
+                <h2>Race Subanalysis</h2>
+                <p>Figure 3 - ROC Subanalysis for White + Other (left) and for Black + Hispanic (right) patients</p>
+                <p>Table 3 - Average AUC with 95% Confidence intervals in brackets</p>
+            </section>
+
+            <section>
+                <h2>Deep Learning for Image Registration</h2>
+                <p>Extension of the existing VoxelMorph framework<br>Semi supervised variant- loss function with gold standard ants symmetric algorithm</p>
+                <p class="citation">Balakrishnan G, Zhao A, Sabuncu MR, Guttag J, Dalca AV. VoxelMorph: A Learning Framework for Deformable Medical Image Registration. IEEE Trans Med Imaging. 2019 Feb 4. doi: 10.1109/TMI.2019.2897538. PubMed PMID: 30716034.</p>
+            </section>
+
+            <section>
+                <h2>Alignment of data is critical for information extraction
+Registration is a tradeoff between accuracy and speed
+Deep Learning shifts time allocation. 
+Training takes days.
+Implementation near instantaneous.</h2>
+                <p>Deformable Image Image Registration</p>
+            </section>
+
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            transition: 'slide',
+            width: 1200,
+            height: 700,
+            margin: 0.1,
+            controls: true,
+            progress: true,
+            center: false,
+            keyboard: true,
+            overview: true,
+            help: true
+        });
+    </script>
+</body>
+</html>
