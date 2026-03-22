@@ -1,40 +1,26 @@
 /**
  * review-system.js
  * Password-gated collaborative annotation layer for MG reports.
- * Auth via JWT — passwords validated server-side, never in client code.
- *
- * Configure:
- *   API_BASE — API Gateway base URL (no trailing slash)
  */
 
 (function () {
   // ── Configuration ────────────────────────────────────────────────────────
-  const API_BASE = 'https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com';
+  const REVIEWERS = {
+    'c1968554511202df97e3cd7577772e6e329fb28d150c2474395a37e595fdde13': 'richard',
+    '94db3b5c7906d110d83ab5a64b567d7e1a942c1050118c55b1277953b101bee5': 'tim',
+    'c64e839a14cddd55ea64a5912aba1c6518eb42abca77beb8abb0c81460ad8d3b': 'sachin',
+    'b8ef69ad52755883952749fb3416642283d6313bd58738711bbdea3d347538a9': 'mike',
+  };
 
-  const JWT_KEY     = 'mg_jwt';
+  const API_URL     = 'https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com/comment';
   const SESSION_KEY = 'mg_reviewer';
   // ─────────────────────────────────────────────────────────────────────────
 
   const PAGE_ID = (document.title || 'report').replace(/[^a-z0-9_-]/gi, '_').slice(0, 60);
 
-  // ── JWT helpers (decode only — server verifies signature) ─────────────────
-  function jwtPayload(token) {
-    try {
-      const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(atob(part));
-    } catch { return null; }
-  }
-
-  function getReviewer() {
-    const token = sessionStorage.getItem(JWT_KEY);
-    if (!token) return null;
-    const p = jwtPayload(token);
-    if (!p || p.exp * 1000 < Date.now()) {
-      sessionStorage.removeItem(JWT_KEY);
-      sessionStorage.removeItem(SESSION_KEY);
-      return null;
-    }
-    return p.sub;
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
   function slugify(text) {
@@ -68,11 +54,8 @@
     cursor: pointer; transition: background .15s;
   }
   .gate-box button:hover { background: #1d4ed8; }
-  .gate-box button:disabled { background: #93c5fd; cursor: default; }
   #gate-err { margin-top: 10px; color: #dc2626; font-size: 0.82rem; min-height: 1.2em; }
-  .gate-reviewer { margin-top: 8px; font-size: 0.8rem; color: #64748b; text-align: right; }
 
-  /* Comment widgets */
   h2 { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .comment-toggle {
     flex-shrink: 0; background: none; border: 1.5px solid #c7d2fe;
@@ -104,10 +87,9 @@
   .comment-submit:hover { background: #4f46e5; }
   .comment-submit:disabled { background: #a5b4fc; cursor: default; }
   .comment-status { font-size: 0.8rem; color: #64748b; }
-  .comment-status.ok   { color: #16a34a; }
-  .comment-status.err  { color: #dc2626; }
+  .comment-status.ok  { color: #16a34a; }
+  .comment-status.err { color: #dc2626; }
 
-  /* Reviewer badge */
   #review-badge {
     position: fixed; bottom: 16px; right: 16px;
     background: #1e1b4b; color: #c7d2fe; border-radius: 99px;
@@ -146,30 +128,18 @@
       const btn = document.getElementById('gate-btn');
       const err = document.getElementById('gate-err');
       btn.disabled = true;
-      btn.textContent = 'Checking...';
       err.textContent = '';
-      try {
-        const resp = await fetch(`${API_BASE}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pwd }),
-        });
-        const data = await resp.json();
-        if (resp.ok && data.token) {
-          sessionStorage.setItem(JWT_KEY, data.token);
-          sessionStorage.setItem(SESSION_KEY, data.reviewer);
-          gate.remove();
-          document.body.style.overflow = '';
-          injectCommentWidgets(data.reviewer);
-        } else {
-          err.textContent = 'Invalid password. Try again.';
-          document.getElementById('gate-pwd').select();
-        }
-      } catch (e) {
-        err.textContent = 'Network error — check connection.';
-      } finally {
+      const hash = await sha256(pwd);
+      const reviewer = REVIEWERS[hash];
+      if (reviewer) {
+        sessionStorage.setItem(SESSION_KEY, reviewer);
+        gate.remove();
+        document.body.style.overflow = '';
+        injectCommentWidgets(reviewer);
+      } else {
+        err.textContent = 'Invalid password. Try again.';
+        document.getElementById('gate-pwd').select();
         btn.disabled = false;
-        btn.textContent = 'Unlock';
       }
     }
 
@@ -178,15 +148,11 @@
   }
 
   // ── Comment widgets ───────────────────────────────────────────────────────
-  async function postComment(payload) {
-    const token = sessionStorage.getItem(JWT_KEY);
-    const resp = await fetch(`${API_BASE}/comment`, {
+  async function postComment(reviewer, payload) {
+    const resp = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reviewer, ...payload }),
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
   }
@@ -240,7 +206,7 @@
         status.textContent = 'Saving...';
         status.className = 'comment-status';
         try {
-          await postComment({ section: sectionId, text, page: PAGE_ID, ts: new Date().toISOString() });
+          await postComment(reviewer, { section: sectionId, text, page: PAGE_ID, ts: new Date().toISOString() });
           status.textContent = 'Saved!';
           status.className = 'comment-status ok';
           ta.value = '';
@@ -262,26 +228,22 @@
     badge.textContent = `Reviewing as ${reviewer} — sign out`;
     badge.addEventListener('click', () => {
       if (confirm('Sign out? Unsaved drafts are stored locally.')) {
-        sessionStorage.removeItem(JWT_KEY);
         sessionStorage.removeItem(SESSION_KEY);
         location.reload();
       }
     });
     document.body.appendChild(badge);
 
-    if (typeof window.reviewPageInit === 'function') {
-      window.reviewPageInit(reviewer);
-    }
+    if (typeof window.reviewPageInit === 'function') window.reviewPageInit(reviewer);
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
   function init() {
     injectStyles();
-    const reviewer = getReviewer();
+    const reviewer = sessionStorage.getItem(SESSION_KEY);
     if (reviewer) {
       injectCommentWidgets(reviewer);
     } else {
-      sessionStorage.removeItem(SESSION_KEY);
       showGate();
     }
   }
