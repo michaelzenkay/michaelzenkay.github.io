@@ -66,8 +66,8 @@ figcaption { font-size:0.84em; color:var(--muted); margin-top:8px; line-height:1
 <p><strong>Keywords:</strong> mammography, breast cancer, deep learning, risk prediction, transformer</p>
 <hr>
 <h2>1. Introduction</h2>
-<p>Breast cancer is the most commonly diagnosed malignancy among women in the United States, with approximately 310,000 new cases projected in 2024 <span class="placeholder">[CITATION]</span>. Risk-stratified screening - where high-risk individuals are offered more intensive surveillance - has potential to improve cancer yield while reducing unnecessary recall rates for lower-risk patients <span class="placeholder">[CITATION]</span>.</p>
-<p>Deep learning models that predict multi-year breast cancer risk from screening mammograms have emerged as promising tools for risk stratification. Mirai (Yala et al., 2021) <span class="placeholder">[CITATION]</span> represents the current state of the art: trained on a large multi-institutional dataset using a ResNet backbone with masked mean-pooling exam aggregation, Mirai achieved approximately 0.76 mean AUC across 1-5 year horizons on its internal validation cohort. A key feature of Mirai is its integration of clinical covariates - family history, prior biopsies, hormonal status, breast density - in addition to imaging features.</p>
+<p>Breast cancer is the most commonly diagnosed malignancy among women in the United States, with approximately 310,000 new cases projected in 2024 <sup><a href="#ref-4">[4]</a>, <a href="#ref-5">[5]</a></sup>. Risk-stratified screening - where high-risk individuals are offered more intensive surveillance - has potential to improve cancer yield while reducing unnecessary recall rates for lower-risk patients <sup><a href="#ref-1">[1]</a></sup>.</p>
+<p>Deep learning models that predict multi-year breast cancer risk from screening mammograms have emerged as promising tools for risk stratification. Mirai (Yala et al., 2021) <sup><a href="#ref-1">[1]</a></sup> represents the current state of the art: trained on a large multi-institutional dataset using a ResNet backbone with masked mean-pooling exam aggregation, Mirai achieved approximately 0.76 mean AUC across 1-5 year horizons on its internal validation cohort. A key feature of Mirai is its integration of clinical covariates - family history, prior biopsies, hormonal status, breast density - in addition to imaging features.</p>
 <p>Despite its strong performance, Mirai presents barriers to broad clinical deployment: (1) clinical covariate collection is inconsistent and often incomplete across institutions; (2) no public update of the model has been released since 2019; and (3) the architecture was not designed with extensibility to longitudinal multi-exam analysis or tomosynthesis (3D) imaging. A critical question for clinical translation is whether an imaging-only model can match or exceed Mirai on institution-specific data, where the original model may not generalize due to differences in scanner hardware, patient demographics, or imaging protocols.</p>
 <p>We present <strong>MG</strong>, an imaging-only breast cancer risk model that addresses these gaps. MG uses an EfficientNetV2S backbone - a modern, parameter-efficient architecture not employed in prior mammographic risk models - and replaces mean-pooling with a learned Transformer that explicitly attends across the four standard views of a screening exam (LCC, LMLO, RCC, RMLO), capturing cross-view asymmetry and bilateral correlations. MG is trained exclusively on pixel features, requiring no clinical variables. The architecture is designed as a <strong>foundation model</strong>: a base backbone and aggregator that can be extended to longitudinal patient trajectories (time-embedding across serial exams) and to tomosynthesis (3D view stack as additional token types) without architectural overhaul.</p>
 <p>We trained and validated MG on a large single-institution dataset from Einstein/Montefiore Medical Center, the only academic medical center in the Bronx, NY, serving a diverse urban population, and compared it directly against Mirai on the same screening cohort. External validation at Columbia University Medical Center is ongoing.</p>
@@ -83,7 +83,7 @@ figcaption { font-size:0.84em; color:var(--muted); margin-top:8px; line-height:1
 <p><strong>Train/validation split.</strong> Patients were stratified by cancer status and randomly assigned to training (80%) or validation (20%) sets using a 5-fold patient-level split (fold 0 as held-out validation). No patient contributed to both sets. Train: 26,790 patients (34,386 exams; 748 cancer exams). Validation: 6,698 patients (8,601 exams; 195 cancer exams). Table 1 summarizes cohort characteristics.</p>
 <p><strong>Auxiliary training dataset.</strong> For auxiliary (non-risk) task training, a broader image set was used: 214,154 images from all valid 2D acquisitions (not restricted to complete 4-view exams), drawn from the same 33,488 patients. Imaging parameter coverage in the training split is summarized in Table 1.</p>
 <h3>2.3 Model Architecture</h3>
-<p><strong>Backbone.</strong> EfficientNetV2S (Tan and Le, 2021) <span class="placeholder">[CITATION]</span>, pretrained on ImageNet, served as the per-view feature extractor. The input convolution was adapted from 3-channel RGB to single-channel grayscale by averaging pretrained weights across the channel dimension, preserving ImageNet representations.</p>
+<p><strong>Backbone.</strong> EfficientNetV2S (Tan and Le, 2021) <sup><a href="#ref-2">[2]</a></sup>, pretrained on ImageNet, served as the per-view feature extractor. The input convolution was adapted from 3-channel RGB to single-channel grayscale by averaging pretrained weights across the channel dimension, preserving ImageNet representations.</p>
 <p><strong>ViewTransformer.</strong> The four per-view feature vectors (1280-dim each) were treated as a variable-length_token sequence with learnable view-type positional embeddings (one embedding per view: LCC, LMLO, RCC, RMLO). A CLS token was prepended and the sequence passed through a 2-layer, 8-head Transformer encoder (pre-norm variant, inner dimension 2560, dropout 0.1). The CLS token output became the exam-level representation. Padding masks handled examinations with fewer than 4 views.</p>
 <p><strong>Task heads.</strong> The 1280-dim exam embedding was passed to: - <em>Risk head:</em> a linear layer producing 5 unconstrained logits z1...z5, converted to per-interval hazard rates h_t = sigmoid(z_t), then to cumulative risk F(t) = 1 - prod_{k=1..t}(1 - h_k). Auxiliary heads operated on per-view features before Transformer aggregation and were trained jointly with_the risk head.</p>
 <h3>2.4 Training Procedure</h3>
@@ -222,12 +222,12 @@ Image-level manufacturer/laterality/view/target/filter and follow-up distributio
 <p>MG achieves mean validation AUC of 0.793 across 1-4 year horizons on 42,987 institutional mammographic examinations using imaging features only, without clinical variables - an absolute improvement of +0.203 over Mirai PR16 on the same held-out validation fold. Rank agreement between MG and Mirai PR16 is near zero (Spearman - ~ 0, top-5% Jaccard 4-8%), indicating that the two models stratify patients nearly independently, consistent with poor generalization of the externally trained model to this institution's scanning population. The EfficientNetV2S + ViewTransformer architecture provides an extensible foundation for longitudinal and tomosynthesis-based breast cancer risk prediction. External validation is ongoing.</p>
 <hr>
 <h2>References</h2>
-<p>1. Yala A, Mikhael PG, Strand F, et al. Toward robust mammography-based models for breast cancer risk. <em>Sci Transl Med.</em> 2021;13(578):eaba4373. doi:10.1126/scitranslmed.aba4373</p>
-<p>2. Tan M, Le QV. EfficientNetV2: Smaller models and faster training. <em>Proc Int Conf Mach Learn.</em> 2021;139:10096-10106.</p>
-<p>3. Vaswani A, Shazeer N, Parmar N, et al. Attention is all you need. <em>Adv Neural Inf Process Syst.</em> 2017;30.</p>
-<p>4. [ACS Cancer Facts 2024 - CITATION]</p>
-<p>5. [Add remaining citations before submission]</p>
-<p>6. Devlin J, Chang MW, Lee K, Toutanova K. BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. <em>NAACL-HLT</em> 2019. <a href="https://aclanthology.org/N19-1423/" target="_blank" rel="noopener">https://aclanthology.org/N19-1423/</a></p>
+<p id="ref-1">1. Yala A, Mikhael PG, Strand F, et al. Toward robust mammography-based models for breast cancer risk. <em>Sci Transl Med.</em> 2021;13(578):eaba4373. <a href="https://doi.org/10.1126/scitranslmed.aba4373" target="_blank" rel="noopener">https://doi.org/10.1126/scitranslmed.aba4373</a></p>
+<p id="ref-2">2. Tan M, Le Q. EfficientNetV2: Smaller Models and Faster Training. <em>ICML / PMLR 139</em>, 2021. <a href="https://proceedings.mlr.press/v139/tan21a.html" target="_blank" rel="noopener">https://proceedings.mlr.press/v139/tan21a.html</a></p>
+<p id="ref-3">3. Vaswani A, Shazeer N, Parmar N, et al. Attention Is All You Need. <em>NeurIPS</em>, 2017. <a href="https://papers.neurips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html" target="_blank" rel="noopener">NeurIPS proceedings link</a></p>
+<p id="ref-4">4. American Cancer Society. Breast cancer incidence overview. <a href="https://www.cancer.org/cancer/types/breast-cancer/about/how-common-is-breast-cancer.html" target="_blank" rel="noopener">How common is breast cancer? (live ACS page)</a></p>
+<p id="ref-5">5. Siegel RL, Giaquinto AN, Jemal A. Cancer statistics, 2024. <em>CA Cancer J Clin.</em> 2024. <a href="https://pubmed.ncbi.nlm.nih.gov/38230766/" target="_blank" rel="noopener">PubMed</a></p>
+<p id="ref-6">6. Devlin J, Chang MW, Lee K, Toutanova K. BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. <em>NAACL-HLT</em> 2019. <a href="https://aclanthology.org/N19-1423/" target="_blank" rel="noopener">https://aclanthology.org/N19-1423/</a></p>
 <hr>
 <h2>Tables</h2>
 <p><strong>Table 1.</strong> Cohort Characteristics</p>
@@ -272,21 +272,5 @@ Image-level manufacturer/laterality/view/target/filter and follow-up distributio
   - Generated 2026-03-21 07:45 -
   Figures from <code>/gs/gsfs0/home/mliu4/data/mammo/results/03201323_cache</code>
 </div>
-<script>
-(function () {
-  var paths = ['../review-system.js', './review-system.js', '/review-system.js'];
-  var idx = 0;
-  function loadNext() {
-    if (idx >= paths.length) {
-      console.warn('[review] review-system.js not found in expected paths.');
-      return;
-    }
-    var s = document.createElement('script');
-    s.src = paths[idx++];
-    s.onerror = loadNext;
-    document.body.appendChild(s);
-  }
-  loadNext();
-})();
-</script>
+
 </body></html>
