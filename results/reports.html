@@ -3,24 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MG Results</title>
+  <title>Research Artifacts</title>
   <style>
-    body { font-family: "IBM Plex Sans", sans-serif; margin: 24px; background: #f5f7fb; color: #0f172a; }
-    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-    .card { display: block; text-decoration: none; color: inherit; background: #fff; border: 1px solid #dbe3ef; border-radius: 10px; padding: 16px; }
-    h1 { margin: 0 0 12px; }
-    h2 { margin: 0 0 8px; font-size: 18px; }
-    p { margin: 0; color: #475569; }
-    .meta { margin: 10px 0 16px; color: #64748b; font-size: 14px; }
+    body {
+      margin: 0; padding: 32px 18px; background: #f8fafc; color: #0f172a;
+      font-family: "IBM Plex Sans", -apple-system, system-ui, sans-serif;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    h1 { margin: 0 0 8px 0; font-size: 1.7rem; }
+    .sub { color: #475569; margin-bottom: 24px; font-size: 0.95rem; }
+    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+    li a {
+      display: block; text-decoration: none; color: inherit; background: #ffffff;
+      border: 1px solid #dbe3ef; border-left: 4px solid #0ea5e9;
+      border-radius: 8px; padding: 16px 18px;
+    }
+    li a:hover { border-color: #93c5fd; background: #f8fbff; }
+    h3 { margin: 0 0 6px 0; font-size: 1.32rem; color: #0f2b4a; }
+    p { margin: 0 0 10px 0; font-size: 1.03rem; color: #334155; }
+    .date { color: #64748b; font-size: 0.88rem; }
   </style>
 </head>
 <body>
-  <h1>MG Results</h1>
-  <div class="meta">Best run: <strong>02251908_viewtx_joint-aux025-coslr-examdx-freeze10</strong> &middot; best AUC: <strong>0.8328</strong> &middot; generated 2026-03-22 08:26</div>
-  <div class="grid">
-    <a class="card" href="../reports/mg_best_report.html"><h2>Best Training Run</h2><p>Latest top-AUC run report.</p></a>
-    <a class="card" href="../reports/mg_manuscript_latest.html"><h2>MG Manuscript</h2><p>Latest manuscript rendered from the best run.</p></a>
-    <a class="card" href="../breast-mri-artifacts.html"><h2>MRI Artifacts</h2><p>Reference artifact page.</p></a>
+  <div class="wrap">
+    <h1>Research</h1>
+    <div class="sub">Best run, manuscript, and MRI artifacts</div>
+    <ul>
+      <li>
+        <a href="02251908_viewtx_joint-aux025-coslr-examdx-freeze10/report.html">
+          <h3>Best Training Run</h3>
+          <p>02251908_viewtx_joint-aux025-coslr-examdx-freeze10 · AUC 0.8328</p>
+          <span class="date">Active</span>
+        </a>
+      </li>
+      <li>
+            <a href="../reports/mg_manuscript_latest.html">
+                <h3>MG Manuscript</h3>
+                <p>Current manuscript draft for the selected best run</p>
+                <span class="date">Draft</span>
+            </a>
+        </li>
+      <li>
+        <a href="../breast-mri-artifacts.html">
+          <h3>MRI Artifacts</h3>
+          <p>Breast MRI artifact atlas and troubleshooting reference</p>
+          <span class="date">Reference</span>
+        </a>
+      </li>
+    </ul>
   </div>
 </body>
 </html>
