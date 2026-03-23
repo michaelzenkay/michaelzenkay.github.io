@@ -27,18 +27,26 @@ This repo now includes:
 
 ## Daily Publish Flow
 
-From this repo:
+If HPC writes artifacts under `Z:\src\michaelzenkay.github.io` and you publish from
+`D:\src\michaelzenkay.github.io`, use:
+
+```bat
+publish-hpc.bat
+```
+
+`publish-hpc.bat` / `publish-hpc.ps1` now:
+
+1. Fetches and rebases onto latest `origin/main`
+2. Copies a safe artifact allowlist from `Z:\src\michaelzenkay.github.io`
+3. Auto-detects and copies the current best-run `results/<run>/report.html` from `results/reports.html`
+4. Stages only copied artifact files (avoids unrelated local deletions)
+5. Commits and pushes to `main` (which triggers Cloudflare deploy)
+
+For same-repo local publish (no Z->D sync), use:
 
 ```bat
 publish.bat
 ```
-
-That script now:
-
-1. Fetches and rebases onto latest `origin/main`
-2. Stages `reports/`, `results/`, `index.html`, `breast-mri-artifacts.html`
-3. Commits
-4. Pushes to `main` (which triggers Cloudflare deploy)
 
 ## Manual Git Commands
 
