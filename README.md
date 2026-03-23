@@ -1,66 +1,59 @@
-# Michael Zenkay Personal Website
+# michaelzenkay.github.io
 
-Personal portfolio site at `michaelzenkay.github.io`
+Static site for `michaelzenkay.com` and report artifacts.
 
-## Setup
+## Recommended Hosting
 
-1. Create a new GitHub repo named `michaelzenkay.github.io` (must match your username exactly)
-2. Upload all files from this directory
-3. Go to repo Settings > Pages and set source to "main" branch
-4. Site will be live at `https://michaelzenkay.github.io`
+Use Cloudflare Pages for faster refresh behavior and easier rollbacks than GitHub Pages.
 
-## Structure
+This repo now includes:
 
-```
-michaelzenkay.github.io/
-├── index.html              # Landing page
-├── style.css               # Main stylesheet
-├── presentations/
-│   └── quantitative-imaging/
-│       └── index.html      # Reveal.js presentation
-└── README.md              # This file
-```
+- `.github/workflows/deploy-cloudflare-pages.yml`: deploy to Cloudflare Pages on each `main` push
+- `_headers`: cache policy tuned so report pages refresh immediately
+- `publish.bat`: safer push flow (`fetch` + `pull --rebase` before push)
 
-## Adding Content
+## One-Time Cloudflare Setup
 
-### Adding a Presentation
+1. In Cloudflare Pages, create a project named `michaelzenkay`.
+2. Connect this GitHub repo (`michaelzenkay/michaelzenkay.github.io`).
+3. Build settings:
+   - Framework preset: `None`
+   - Build command: leave empty
+   - Build output directory: `.`
+4. Add custom domain `michaelzenkay.com` in Pages and complete DNS prompts.
+5. In GitHub repo settings, add secrets:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
 
-1. Create folder: `presentations/your-talk-name/`
-2. Add `index.html` (copy from quantitative-imaging as template)
-3. Update landing page with link:
+## Daily Publish Flow
 
-```html
-<li>
-    <a href="presentations/your-talk-name/">
-        <h3>Your Title</h3>
-        <p>Description</p>
-        <span class="date">Date</span>
-    </a>
-</li>
+From this repo:
+
+```bat
+publish.bat
 ```
 
-### Adding Your Dissertation
+That script now:
 
-1. Create folder: `dissertation/`
-2. Add PDF or convert to HTML
-3. Update landing page
+1. Fetches and rebases onto latest `origin/main`
+2. Stages `reports/`, `results/`, `index.html`, `breast-mri-artifacts.html`
+3. Commits
+4. Pushes to `main` (which triggers Cloudflare deploy)
 
-### Customizing
+## Manual Git Commands
 
-- Edit `style.css` for colors/fonts
-- Modify Reveal.js theme in presentation index.html
-- Update header/footer in index.html
+If you prefer manual commands:
 
-## Keyboard Shortcuts for Presentations
+```powershell
+git fetch origin main --prune
+git pull --rebase origin main
+git -c core.filemode=false add reports/ results/ index.html breast-mri-artifacts.html
+git commit -m "refresh site artifacts"
+git push origin main
+```
 
-- **Arrow keys**: Navigate slides
-- **Space**: Next slide
-- **ESC**: Overview mode
-- **?**: Show all shortcuts
-- **F**: Fullscreen
+## Notes
 
-## Technologies
-
-- Reveal.js 4.5.0 for presentations
-- Pure HTML/CSS (no build step needed)
-- GitHub Pages for hosting
+- `CNAME` can remain in repo; Cloudflare ignores it for routing.
+- `_headers` sets HTML/report pages to `must-revalidate`, reducing stale-page issues.
+- If needed, use Cloudflare Pages "Retry deployment" or rollback to a prior successful deploy.
