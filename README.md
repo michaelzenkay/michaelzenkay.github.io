@@ -27,35 +27,34 @@ This repo now includes:
 
 ## Daily Publish Flow
 
-If HPC writes artifacts under `Z:\src\michaelzenkay.github.io` and you publish from
-`D:\src\michaelzenkay.github.io`, use:
-
 ```bat
 publish-hpc.bat
 ```
 
-`publish-hpc.bat` / `publish-hpc.ps1` now:
+`publish-hpc.bat` / `publish-hpc.ps1`:
 
-1. Fetches and rebases onto latest `origin/main`
-2. Copies a safe artifact allowlist from `Z:\src\michaelzenkay.github.io`
-3. Auto-detects and copies the current best-run `results/<run>/report.html` from `results/reports.html`
-4. Stages only copied artifact files (avoids unrelated local deletions)
-5. Commits and pushes to `main` (which triggers Cloudflare deploy)
+1. Fetches and merges latest `origin/main`
+2. Syncs MG report artifacts from `Z:\src\michaelzenkay.github.io` (reports, results, index)
+3. Syncs breast MRI artifacts article from `Z:\src\breastmri-site`:
+   - Copies `images/artifacts/` (20 images)
+   - Copies `breast-mri-artifacts.html` with review gate stripped
+4. Stages, commits, and pushes to `main` (triggers Cloudflare deploy)
 
-For same-repo local publish (no Z->D sync), use:
+## Article sources
 
-```bat
-publish.bat
-```
+| Content | Source | Published to |
+|---|---|---|
+| MG manuscript + report | `src/mg/` (via HPC) | michaelzenkay.com |
+| Breast MRI artifacts article | `Z:\src\breastmri-site\` | michaelzenkay.com only |
+
+`breastmri.org` is reserved for the final polished article — nothing publishes there yet.
 
 ## Manual Git Commands
 
-If you prefer manual commands:
-
 ```powershell
 git fetch origin main --prune
-git pull --rebase origin main
-git -c core.filemode=false add reports/ results/ index.html breast-mri-artifacts.html
+git pull --no-rebase origin main
+git -c core.filemode=false add reports/ results/ index.html images/artifacts/ breast-mri-artifacts.html
 git commit -m "refresh site artifacts"
 git push origin main
 ```
