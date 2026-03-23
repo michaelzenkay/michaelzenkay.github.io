@@ -3,53 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Research Artifacts</title>
+  <title>Results Index</title>
   <style>
     body {
-      margin: 0; padding: 32px 18px; background: #f8fafc; color: #0f172a;
+      margin: 0; padding: 30px 16px; background: #0b1220; color: #e5e7eb;
       font-family: "IBM Plex Sans", -apple-system, system-ui, sans-serif;
     }
-    .wrap { max-width: 980px; margin: 0 auto; }
-    h1 { margin: 0 0 8px 0; font-size: 1.7rem; }
-    .sub { color: #475569; margin-bottom: 24px; font-size: 0.95rem; }
-    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+    .wrap { max-width: 1040px; margin: 0 auto; }
+    h1 { margin: 0 0 6px 0; font-size: 1.6rem; }
+    .sub { color: #94a3b8; margin-bottom: 22px; font-size: 0.95rem; }
+    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
     li a {
-      display: block; text-decoration: none; color: inherit; background: #ffffff;
-      border: 1px solid #dbe3ef; border-left: 4px solid #0ea5e9;
-      border-radius: 8px; padding: 16px 18px;
+      display: block; text-decoration: none; color: inherit; background: #111827;
+      border: 1px solid #243244; border-left: 4px solid #60a5fa;
+      border-radius: 8px; padding: 14px 16px;
     }
-    li a:hover { border-color: #93c5fd; background: #f8fbff; }
-    h3 { margin: 0 0 6px 0; font-size: 1.32rem; color: #0f2b4a; }
-    p { margin: 0 0 10px 0; font-size: 1.03rem; color: #334155; }
-    .date { color: #64748b; font-size: 0.88rem; }
+    li a:hover { border-color: #3b82f6; background: #162235; }
+    h3 { margin: 0 0 6px 0; font-size: 1.08rem; color: #dbeafe; }
+    p { margin: 0 0 6px 0; color: #cbd5e1; }
+    .date { color: #94a3b8; font-size: 0.84rem; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Research</h1>
-    <div class="sub">Best run, manuscript, and MRI artifacts</div>
+    <h1>Results Index</h1>
+    <div class="sub">Internal run navigation for iteration and regression checks.</div>
     <ul>
       <li>
-        <a href="02251908_viewtx_joint-aux025-coslr-examdx-freeze10/report.html">
-          <h3>Best Training Run</h3>
-          <p>02251908_viewtx_joint-aux025-coslr-examdx-freeze10 · AUC 0.8328</p>
+        <a href="../reports/mg_best_report.html">
+          <h3>Best Training Report (Stable)</h3>
+          <p>Canonical best-run entry point</p>
           <span class="date">Active</span>
         </a>
       </li>
       <li>
-            <a href="../reports/mg_manuscript_latest.html">
-                <h3>MG Manuscript</h3>
-                <p>Current manuscript draft for the selected best run</p>
-                <span class="date">Draft</span>
-            </a>
-        </li>
+  <a href="../reports/mg_manuscript_latest.html">
+    <h3>MG Manuscript (Latest)</h3>
+    <p>Best-run manuscript snapshot</p>
+    <span class="date">Draft</span>
+  </a>
+</li>
+      
       <li>
-        <a href="../breast-mri-artifacts.html">
-          <h3>MRI Artifacts</h3>
-          <p>Breast MRI artifact atlas and troubleshooting reference</p>
-          <span class="date">Reference</span>
-        </a>
-      </li>
+  <a href="02251908_viewtx_joint-aux025-coslr-examdx-freeze10/report.html">
+    <h3>02251908_viewtx_joint-aux025-coslr-examdx-freeze10</h3>
+    <p>Run report snapshot</p>
+    <span class="date">Updated 2026-03-23 17:20</span>
+  </a>
+</li>
     </ul>
   </div>
 </body>
