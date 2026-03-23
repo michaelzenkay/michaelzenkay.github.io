@@ -48,7 +48,6 @@ try {
     $artifacts = [System.Collections.Generic.List[string]]::new()
     @(
         "index.html",
-        "breast-mri-artifacts.html",
         "reports/mg_best_report.html",
         "reports/mg_manuscript_latest.html",
         "results/reports.html",
@@ -76,6 +75,30 @@ try {
         Write-Host "[warn] source landing missing: results/reports.html"
     }
 
+    # ── Sync artifacts article from breastmri-site ───────────────────────────
+    $breastmriSite = "Z:\src\breastmri-site"
+    if (Test-Path $breastmriSite) {
+        # Copy images
+        $imgSrc = Join-Path $breastmriSite "images\artifacts"
+        $imgDst = Join-Path $resolvedRepo "images\artifacts"
+        if (Test-Path $imgSrc) {
+            if (-not (Test-Path $imgDst)) { New-Item -Path $imgDst -ItemType Directory -Force | Out-Null }
+            Copy-Item -Path "$imgSrc\*.png" -Destination $imgDst -Force
+            Write-Host "[copy] images/artifacts/ ($(( Get-ChildItem $imgSrc -Filter *.png ).Count) files)"
+        }
+        # Copy HTML with review gate stripped
+        $htmlSrc = Join-Path $breastmriSite "breast-mri-artifacts.html"
+        $htmlDst = Join-Path $resolvedRepo "breast-mri-artifacts.html"
+        if (Test-Path $htmlSrc) {
+            (Get-Content $htmlSrc -Raw) -replace '<script src="review-system\.js"></script>', '' |
+                Set-Content $htmlDst -NoNewline
+            Write-Host "[copy] breast-mri-artifacts.html (review gate stripped)"
+        }
+    } else {
+        Write-Host "[warn] breastmri-site not found at $breastmriSite, skipping artifacts article sync"
+    }
+    # ─────────────────────────────────────────────────────────────────────────
+
     $copied = [System.Collections.Generic.List[string]]::new()
     foreach ($rel in $artifacts) {
         if (Copy-Artifact -RelativePath $rel -SourceBase $resolvedSource -DestBase $resolvedRepo) {
@@ -88,7 +111,7 @@ try {
         exit 0
     }
 
-    & git -c core.filemode=false add -- @copied
+    & git -c core.filemode=false add -- "images/artifacts/" "breast-mri-artifacts.html" @copied
     if ($LASTEXITCODE -ne 0) {
         throw "git add failed."
     }
