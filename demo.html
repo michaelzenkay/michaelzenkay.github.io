@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Risk Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── Demo-page extras ───────────────────────────────────────────── */
+        .demo-section {
+            margin-bottom: 3rem;
+        }
+
+        .demo-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.75rem;
+            color: #2c3e50;
+        }
+
+        .demo-section p.description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            max-width: 680px;
+            line-height: 1.7;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        #exam-select {
+            flex: 1;
+            min-width: 220px;
+            padding: 0.6rem 0.9rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
+            color: #333;
+            cursor: pointer;
+        }
+
+        #exam-select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        #score-btn {
+            padding: 0.65rem 1.6rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        #score-btn:hover:not(:disabled) {
+            background: #2980b9;
+        }
+
+        #score-btn:disabled {
+            background: #aac6e0;
+            cursor: not-allowed;
+        }
+
+        /* Status / error */
+        #status-msg {
+            display: none;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        #error-msg {
+            display: none;
+            color: #c0392b;
+            background: #fdecea;
+            border-left: 4px solid #e74c3c;
+            padding: 0.75rem 1rem;
+            border-radius: 2px;
+            margin-bottom: 1rem;
+        }
+
+        /* Chart */
+        #chart-section {
+            display: none;
+            margin-top: 1.5rem;
+        }
+
+        #chart-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        #risk-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .bar-label {
+            width: 60px;
+            font-size: 0.9rem;
+            color: #555;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .bar-track {
+            flex: 1;
+            background: #e8e8e8;
+            border-radius: 4px;
+            height: 28px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            min-width: 2px;
+        }
+
+        .bar-value {
+            width: 52px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #333;
+            flex-shrink: 0;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            margin-top: 2rem;
+            padding: 0.75rem 1rem;
+            background: #fafafa;
+            border-left: 4px solid #bbb;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            #score-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <main>
+            <a class="back-link" href="index.html">← Back</a>
+
+            <section class="demo-section">
+                <h2>Mammography Risk Demo</h2>
+                <p class="description">
+                    Select a pre-staged exam from the CMMD dataset and click
+                    <strong>Score Exam</strong> to run the model. The chart
+                    shows cumulative breast-cancer risk estimates for each
+                    year from 1–5.
+                </p>
+
+                <div class="controls">
+                    <select id="exam-select">
+                        <option value="" disabled selected>— Select an exam —</option>
+                    </select>
+                    <button id="score-btn">Score Exam</button>
+                </div>
+
+                <p id="status-msg">Scoring exam…</p>
+                <div id="error-msg"></div>
+
+                <div id="chart-section">
+                    <h3>Cumulative Risk Estimates</h3>
+                    <div id="risk-bars"></div>
+                </div>
+
+                <div class="disclaimer">
+                    <strong>Research use only.</strong> This tool is not intended for
+                    clinical decision-making. Scores are model predictions on held-out
+                    CMMD demo cases.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="demo-client.js"></script>
+</body>
+</html>
