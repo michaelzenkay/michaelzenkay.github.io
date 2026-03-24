@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -62,7 +62,8 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
   <ul>
     <li><a href="#introduction">Introduction</a></li>
     <li><a href="#overview">Overview / Table 1</a></li>
-    <li><a href="#b0">B0 Inhomogeneity / Fat Saturation</a></li>
+    <li><a href="#b0">B Inhomogeneity</a></li>
+    <li><a href="#fatsat">Fat Saturation Failures</a></li>
     <li><a href="#susceptibility">Susceptibility / Metal</a></li>
     <li><a href="#motion">Motion Artifacts</a></li>
     <li><a href="#aliasing">Aliasing</a></li>
@@ -155,7 +156,7 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
   <div class="image-panel"><img src="images/artifacts/t2_fs_fail_inhomo.png" alt=""></div>
   <div class="caption-panel">
     <div class="fig-label">FIGURE 4 <span class="status status-ok">Fat Sat / B0 - T2</span></div>
-    <div class="caption-text">Bilateral asymmetric fat suppression failure on T2-weighted fat-saturated sequence. The pattern of inhomogeneous suppression differs between breasts, reflecting spatial variation in B0 across the imaging volume. Fat-saturated T2 sequences are particularly sensitive to field inhomogeneity given their longer echo times and narrower spectral selectivity.</div>
+    <div class="caption-text">Bilateral asymmetric fat suppression failure on T2-weighted fat-saturated sequence. The pattern of inhomogeneous suppression differs between breasts, reflecting spatspatial variation in B0 across the imaging volume. Fat-saturated T2 sequences are particularly sensitive to field inhomogeneity given their longer echo times and narrower spectral selectivity.</div>
   </div>
 </div>
 
@@ -384,6 +385,15 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
 </div>
 </div>
 
+<div class="figure-block">
+  <div class="image-panel" style="background:#1a1a1a;min-height:180px;display:flex;align-items:center;justify-content:center;border-radius:4px;border:1px dashed #444;flex:0 0 380px;">
+    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 19 pending — Gibbs ring artifact image]</span>
+  </div>
+  <div class="caption-panel">
+    <div class="fig-label">FIGURE 19 <span class="status status-query">Gibbs Ring — Image Pending</span></div>
+    <div class="caption-text">Gibbs ringing artifact at a high-contrast tissue interface. Parallel alternating bright and dark bands parallel the interface margin, diminishing in amplitude with distance. The artifact follows the contour of the interface exactly and is present symmetrically on both sides. Recognition of this parallel-band pattern at expected anatomic boundaries — particularly the skin-air and skin-parenchyma interfaces on T2-weighted sequences — is sufficient to distinguish it from pathologic signal alteration.</div>
+  </div>
+</div>
 <hr class="divider">
 <div class="text-block" id="enhancement">
   <div class="section-header">ENHANCEMENT ARTIFACTS: SUBTRACTION ERROR AND T1 SHINE-THROUGH</div>
@@ -394,16 +404,25 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
     <li>Two distinct mechanisms produce false signal on subtraction images: motion misregistration and intrinsic T1 shortening</li>
     <li>Subtraction error: bright/dark crescents at tissue boundaries from pre/post motion mismatch</li>
     <li>T1 shine-through: blood products, proteinaceous fluid, mucinous tissue, silicone, or incompletely suppressed fat remain high on subtraction without gadolinium uptake</li>
-    <li>Key rule: review pre-contrast source images â€” if the focus is already bright before contrast, it is not enhancement</li>
+    <li>Key rule: review pre-contrast source images — if the focus is already bright before contrast, it is not enhancement</li>
     <li>Fix: retrospective registration; compare source phases; T2 imaging and kinetic analysis to characterize indeterminate foci</li>
   </ul>
 </div>
 <p>Dynamic contrast-enhanced breast MRI relies on digital subtraction of pre-contrast from post-contrast images to isolate enhancing tissue. Two distinct artifact mechanisms can produce false or misleading signal on subtraction images: subtraction misregistration (subtraction error) and T1 shine-through.</p>
-<p><strong>Subtraction Error (Motion Misregistration).</strong> Subtraction error results from motion between the pre-contrast and post-contrast acquisitions. When the two volumes are not spatially registered, tissue that moved between acquisitions leaves a residual signal difference on the subtracted image that does not represent enhancement. The artifact appears as a bright crescent or ring adjacent to a structure boundary â€” most commonly at the chest wall, heart margin, or skin surface â€” with a corresponding dark crescent on the opposite side. On more severe misregistration, entire regions can appear falsely enhanced or suppressed. When subtraction images appear suspicious, reviewing the source (non-subtracted) post-contrast images is essential to determine whether enhancement is real.</p>
-<p><strong>T1 Shine-Through.</strong> T1 shine-through occurs when a structure with intrinsically short T1 relaxation time â€” and therefore high signal on T1-weighted images at baseline â€” retains high signal on post-contrast images and appears bright on the subtraction image despite the absence of gadolinium uptake. Common causes in breast MRI include hemorrhage or blood products (methemoglobin), proteinaceous cyst fluid, mucinous tissue, fat (when fat suppression is incomplete), and silicone. Because these structures are bright on both pre- and post-contrast images, incomplete cancellation on subtraction can produce a residual high-signal focus that mimics enhancement. Recognition requires comparison of pre-contrast source images: a focus that is already bright before contrast and shows no signal increase between phases does not represent true enhancement.</p>
+<p><strong>Subtraction Error (Motion Misregistration).</strong> Subtraction error results from motion between the pre-contrast and post-contrast acquisitions. When the two volumes are not spatially registered, tissue that moved between acquisitions leaves a residual signal difference on the subtracted image that does not represent enhancement. The artifact appears as a bright crescent or ring adjacent to a structure boundary — most commonly at the chest wall, heart margin, or skin surface — with a corresponding dark crescent on the opposite side. On more severe misregistration, entire regions can appear falsely enhanced or suppressed. When subtraction images appear suspicious, reviewing the source (non-subtracted) post-contrast images is essential to determine whether enhancement is real.</p>
+<p><strong>T1 Shine-Through.</strong> T1 shine-through occurs when a structure with intrinsically short T1 relaxation time — and therefore high signal on T1-weighted images at baseline — retains high signal on post-contrast images and appears bright on the subtraction image despite the absence of gadolinium uptake. Common causes in breast MRI include hemorrhage or blood products (methemoglobin), proteinaceous cyst fluid, mucinous tissue, fat (when fat suppression is incomplete), and silicone. Because these structures are bright on both pre- and post-contrast images, incomplete cancellation on subtraction can produce a residual high-signal focus that mimics enhancement. Recognition requires comparison of pre-contrast source images: a focus that is already bright before contrast and shows no signal increase between phases does not represent true enhancement.</p>
 </div>
 </div>
 
+<div class="figure-block">
+  <div class="image-panel" style="background:#1a1a1a;min-height:180px;display:flex;align-items:center;justify-content:center;border-radius:4px;border:1px dashed #444;flex:0 0 380px;">
+    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 20 placeholder — use Figure 10 for subtraction misregistration reference]</span>
+  </div>
+  <div class="caption-panel">
+    <div class="fig-label">FIGURE 20 <span class="status status-query">Enhancement Artifact — Refer to Figure 10</span></div>
+    <div class="caption-text">Enhancement artifact from subtraction misregistration or T1 shine-through. For subtraction misregistration visualization, reference Figure 10 (Motion - Subtraction / True Lesions). Review of pre-contrast source images is essential: a focus that is already bright on T1-weighted pre-contrast imaging and shows no interval signal increase between DCE phases does not represent true gadolinium enhancement, regardless of its appearance on the subtracted series.</div>
+  </div>
+</div>
 <hr class="divider">
 <div class="text-block" id="noise">
   <div class="section-header">NOISE AND SNR ARTIFACTS: ZIPPER AND HERRINGBONE</div>
@@ -411,18 +430,27 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
 <div class="key-points">
   <h4>Key Points</h4>
   <ul>
-    <li>General SNR degradation reduces lesion conspicuity â€” particularly small enhancing foci; driven by coil configuration, voxel volume, bandwidth, and acceleration factor</li>
-    <li>Zipper artifact: fixed linear band across entire image, perpendicular to frequency-encode direction â€” caused by external RF interference source or faulty coil element</li>
-    <li>Herringbone artifact: crisscross zigzag across entire image â€” caused by a single k-space data spike from electronic transient or gradient instability</li>
+    <li>General SNR degradation reduces lesion conspicuity — particularly small enhancing foci; driven by coil configuration, voxel volume, bandwidth, and acceleration factor</li>
+    <li>Zipper artifact: fixed linear band across entire image, perpendicular to frequency-encode direction — caused by external RF interference source or faulty coil element</li>
+    <li>Herringbone artifact: crisscross zigzag across entire image — caused by a single k-space data spike from electronic transient or gradient instability</li>
     <li>Both structured noise artifacts require engineering investigation; repeating the sequence resolves transient herringbone but not a persistent RF source</li>
   </ul>
 </div>
-<p>Signal-to-noise ratio (SNR) in breast MRI is determined by field strength, voxel volume, acquisition bandwidth, number of signal averages, and coil configuration. Compromised SNR produces grainy, low-contrast images that reduce lesion conspicuity â€” particularly for small enhancing foci. Beyond general SNR degradation, two structured noise artifacts arise from specific technical failures and produce characteristic patterns that aid diagnosis.</p>
-<p><strong>Zipper Artifact.</strong> The zipper artifact appears as a discrete linear band of alternating bright and dark pixels, oriented perpendicular to the frequency-encode direction and running across the entire image. It is caused by a single-frequency radiofrequency interference source that continuously adds energy at one frequency during data acquisition. Common sources include leaks in the RF-shielded scanner room (a gap in the Faraday cage, improperly sealed door, or cable feedthrough), malfunctioning electronic equipment within the room, or a defective coil element generating internal RF emission. The distinguishing feature is its fixed spatial location â€” the line does not move between acquisitions and is present throughout the series. Engineering inspection of room shielding and coil integrity is the appropriate response to a persistent zipper artifact.</p>
-<p><strong>Herringbone (Crisscross) Artifact.</strong> The herringbone artifact produces a characteristic zigzag or crisscross pattern of bright and dark lines across the entire image. It results from a spike or data corruption in k-space â€” a single anomalously high-amplitude data point produces a sinusoidal modulation across the entire reconstructed image in both directions. Common causes include electronic transients, gradient amplifier instability, and data transmission errors between the receiver and reconstruction system. Repeating the affected sequence often resolves the artifact if the cause was a transient event; persistent herringbone requires engineering evaluation of gradient electronics and reconstruction chain integrity.</p>
+<p>Signal-to-noise ratio (SNR) in breast MRI is determined by field strength, voxel volume, acquisition bandwidth, number of signal averages, and coil configuration. Compromised SNR produces grainy, low-contrast images that reduce lesion conspicuity — particularly for small enhancing foci. Beyond general SNR degradation, two structured noise artifacts arise from specific technical failures and produce characteristic patterns that aid diagnosis.</p>
+<p><strong>Zipper Artifact.</strong> The zipper artifact appears as a discrete linear band of alternating bright and dark pixels, oriented perpendicular to the frequency-encode direction and running across the entire image. It is caused by a single-frequency radiofrequency interference source that continuously adds energy at one frequency during data acquisition. Common sources include leaks in the RF-shielded scanner room (a gap in the Faraday cage, improperly sealed door, or cable feedthrough), malfunctioning electronic equipment within the room, or a defective coil element generating internal RF emission. The distinguishing feature is its fixed spatial location — the line does not move between acquisitions and is present throughout the series. Engineering inspection of room shielding and coil integrity is the appropriate response to a persistent zipper artifact.</p>
+<p><strong>Herringbone (Crisscross) Artifact.</strong> The herringbone artifact produces a characteristic zigzag or crisscross pattern of bright and dark lines across the entire image. It results from a spike or data corruption in k-space — a single anomalously high-amplitude data point produces a sinusoidal modulation across the entire reconstructed image in both directions. Common causes include electronic transients, gradient amplifier instability, and data transmission errors between the receiver and reconstruction system. Repeating the affected sequence often resolves the artifact if the cause was a transient event; persistent herringbone requires engineering evaluation of gradient electronics and reconstruction chain integrity.</p>
 </div>
 </div>
 
+<div class="figure-block">
+  <div class="image-panel" style="background:#1a1a1a;min-height:180px;display:flex;align-items:center;justify-content:center;border-radius:4px;border:1px dashed #444;flex:0 0 380px;">
+    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 21 pending — zipper and/or herringbone artifact image]</span>
+  </div>
+  <div class="caption-panel">
+    <div class="fig-label">FIGURE 21 <span class="status status-query">Noise / SNR — Image Pending</span></div>
+    <div class="caption-text">Structured noise artifact. <em>Zipper:</em> a fixed linear band of alternating signal traverses the entire image perpendicular to the frequency-encode direction, reflecting continuous single-frequency RF contamination from an external source or defective coil element. <em>Herringbone:</em> a crisscross zigzag pattern across the entire image arising from a single anomalous k-space data point. Both patterns are present throughout the affected series and require engineering investigation rather than protocol adjustment.</div>
+  </div>
+</div>
 <hr class="divider">
 <div class="text-block" id="qc">
   <div class="section-header">PREVENTION AND QUALITY CONTROL</div>
@@ -507,13 +535,119 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
   <div class="section-header">CONCLUSION</div>
   <div class="text-content">
 <p>Artifacts in breast MRI are pervasive and multifactorial, arising from field inhomogeneity, incomplete fat suppression, metallic hardware, motion, aliasing, chemical shift, geometric distortion, partial volume effects, Gibbs ringing, enhancement misregistration, T1 shine-through, and structured noise patterns. These artifacts alter signal behavior, spatial fidelity, and enhancement conspicuity in ways that can simulate or obscure pathology. Because artifacts change image appearance in predictable, physics-based ways, understanding their origins supports consistent recognition and troubleshooting.</p>
-<p>Modern MRI systems and protocol standardization enable substantial artifact mitigation when properly applied. Radiologists and technologists must work collaboratively to recognize artifacts promptly, troubleshoot root causes, and adopt standardized acquisition and quality-assurance workflows. Importantly, no single mitigation strategy is universally applicable â€” effective artifact management requires matching the solution to the underlying cause and accepting that corrective measures often involve trade-offs among SNR, spatial resolution, and scan time.</p>
+<p>Modern MRI systems and protocol standardization enable substantial artifact mitigation when properly applied. Radiologists and technologists must work collaboratively to recognize artifacts promptly, troubleshoot root causes, and adopt standardized acquisition and quality-assurance workflows. Importantly, no single mitigation strategy is universally applicable — effective artifact management requires matching the solution to the underlying cause and accepting that corrective measures often involve trade-offs among SNR, spatial resolution, and scan time.</p>
 </div>
 </div>
 
-<p style="text-align:center; color:#555; font-size:0.8em; margin-top:40px;"><em>Last updated: March 24, 2026</em></p>
+<p style="text-align:center; color:#555; font-size:0.8em; margin-top:40px;"><em>Last updated: March 18, 2026</em></p>
+<style>
+  .para-note-btn {
+    display: inline-block; margin-left: 8px; padding: 1px 7px;
+    font-size: 0.72em; border-radius: 10px; cursor: pointer;
+    background: #1e2a35; color: #4a90b8; border: 1px solid #2a4a5a;
+    vertical-align: middle; font-family: inherit; opacity: 0.6;
+    transition: opacity .15s;
+  }
+  .para-note-btn:hover, .para-note-btn.has-draft { opacity: 1; }
+  .para-note-btn.has-draft { color: #7eb8d4; border-color: #4a90b8; font-weight: 600; }
+  .para-note-panel {
+    display: none; margin: 4px 0 10px 0; background: #1a2a35;
+    border-left: 3px solid #4a90b8; padding: 8px 12px; border-radius: 0 4px 4px 0;
+  }
+  .para-note-panel textarea {
+    width: 100%; min-height: 60px; background: #0f1a22; color: #ccc;
+    border: 1px solid #2a4a5a; border-radius: 4px; padding: 6px 8px;
+    font-size: 0.85em; font-family: inherit; resize: vertical; box-sizing: border-box;
+  }
+  .para-note-panel textarea:focus { border-color: #4a90b8; outline: none; }
+  .para-note-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .para-note-submit {
+    padding: 3px 12px; background: #2a5a7a; color: #e0f0ff; border: none;
+    border-radius: 4px; cursor: pointer; font-size: 0.82em; font-family: inherit;
+  }
+  .para-note-submit:hover { background: #3a6a8a; }
+  .para-note-submit:disabled { background: #1a3a4a; color: #6a8a9a; cursor: default; }
+  .para-note-status { font-size: 0.78em; color: #64748b; }
+  .para-note-status.ok { color: #4ade80; }
+  .para-note-status.err { color: #f87171; }
+</style>
+<script>
+  const PAGE_ID = 'artifacts';
 
+  window.reviewPageInit = function(reviewer) {
+    const API_URL = 'https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com/comment';
 
+    // Add note buttons to all paragraphs and caption text in text-content areas
+    const targets = document.querySelectorAll('.text-content p, .caption-text');
+    targets.forEach(function(el, idx) {
+      const id = 'p_' + idx + '_' + (el.textContent.trim().slice(0, 20).replace(/\W+/g,'_'));
+      const draftKey = 'draft_' + PAGE_ID + '_' + id;
+
+      const btn = document.createElement('button');
+      btn.className = 'para-note-btn';
+      btn.textContent = '+ note';
+      const saved = localStorage.getItem(draftKey);
+      if (saved) { btn.classList.add('has-draft'); btn.textContent = '+ note (draft)'; }
+      el.appendChild(btn);
+
+      const panel = document.createElement('div');
+      panel.className = 'para-note-panel';
+      panel.innerHTML =
+        '<textarea placeholder="Note on this paragraph..."></textarea>' +
+        '<div class="para-note-actions">' +
+          '<button class="para-note-submit">Submit</button>' +
+          '<span class="para-note-status"></span>' +
+        '</div>';
+      el.after(panel);
+
+      const ta     = panel.querySelector('textarea');
+      const submit = panel.querySelector('.para-note-submit');
+      const status = panel.querySelector('.para-note-status');
+      if (saved) ta.value = saved;
+
+      ta.addEventListener('input', function() {
+        const v = ta.value.trim();
+        localStorage.setItem(draftKey, ta.value);
+        btn.classList.toggle('has-draft', !!v);
+        btn.textContent = v ? '+ note (draft)' : '+ note';
+      });
+
+      btn.addEventListener('click', function() {
+        const open = panel.style.display === 'block';
+        panel.style.display = open ? 'none' : 'block';
+        if (!open) ta.focus();
+      });
+
+      submit.addEventListener('click', async function() {
+        const text = ta.value.trim();
+        if (!text) return;
+        submit.disabled = true;
+        status.textContent = 'Saving...';
+        status.className = 'para-note-status';
+        try {
+          const resp = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reviewer, section: id, text, page: PAGE_ID, ts: new Date().toISOString() }),
+          });
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          status.textContent = 'Saved!';
+          status.className = 'para-note-status ok';
+          ta.value = '';
+          localStorage.removeItem(draftKey);
+          btn.classList.remove('has-draft');
+          btn.textContent = '+ note';
+          setTimeout(function() { panel.style.display = 'none'; status.textContent = ''; }, 1800);
+        } catch(e) {
+          status.textContent = 'Error — check console.';
+          status.className = 'para-note-status err';
+        } finally {
+          submit.disabled = false;
+        }
+      });
+    });
+  };
+</script>
 </body>
 </html>
 
