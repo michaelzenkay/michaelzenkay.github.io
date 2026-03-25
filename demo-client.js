@@ -7,56 +7,51 @@ const API_URL = "https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com/predict"
 const S3_BUCKET = "einsteinmg-review";
 
 // Pre-staged CMMD demo exams
-// Each exam maps to 4 views in S3 at exams/cmmd-demo/{N}/
+// Actual S3 path: cmmd-demo/cmmd_demo_exams/exam_{N}/{view}.dcm
 const DEMO_EXAMS = [
   {
-    label: "CMMD Patient 001 — No Cancer",
-    prefix: "exams/cmmd-demo/1",
+    label: "CMMD Patient 001 — Malignant",
     images: [
-      { s3_key: "exams/cmmd-demo/1/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "exams/cmmd-demo/1/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "exams/cmmd-demo/1/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "exams/cmmd-demo/1/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lcc.dcm",  laterality: "L", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lmlo.dcm", laterality: "L", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/rcc.dcm",  laterality: "R", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/rmlo.dcm", laterality: "R", view: "MLO" },
     ],
   },
   {
-    label: "CMMD Patient 002 — No Cancer",
-    prefix: "exams/cmmd-demo/2",
+    label: "CMMD Patient 002 — Malignant",
     images: [
-      { s3_key: "exams/cmmd-demo/2/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "exams/cmmd-demo/2/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "exams/cmmd-demo/2/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "exams/cmmd-demo/2/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lcc.dcm",  laterality: "L", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lmlo.dcm", laterality: "L", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/rcc.dcm",  laterality: "R", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/rmlo.dcm", laterality: "R", view: "MLO" },
     ],
   },
   {
-    label: "CMMD Patient 003 — Cancer Diagnosed",
-    prefix: "exams/cmmd-demo/3",
+    label: "CMMD Patient 003 — Malignant",
     images: [
-      { s3_key: "exams/cmmd-demo/3/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "exams/cmmd-demo/3/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "exams/cmmd-demo/3/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "exams/cmmd-demo/3/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lcc.dcm",  laterality: "L", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lmlo.dcm", laterality: "L", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/rcc.dcm",  laterality: "R", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/rmlo.dcm", laterality: "R", view: "MLO" },
     ],
   },
   {
-    label: "CMMD Patient 004 — Cancer Diagnosed",
-    prefix: "exams/cmmd-demo/4",
+    label: "CMMD Patient 004 — Malignant",
     images: [
-      { s3_key: "exams/cmmd-demo/4/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "exams/cmmd-demo/4/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "exams/cmmd-demo/4/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "exams/cmmd-demo/4/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lcc.dcm",  laterality: "L", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lmlo.dcm", laterality: "L", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/rcc.dcm",  laterality: "R", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/rmlo.dcm", laterality: "R", view: "MLO" },
     ],
   },
   {
-    label: "CMMD Patient 005 — No Cancer",
-    prefix: "exams/cmmd-demo/5",
+    label: "CMMD Patient 005 — Malignant",
     images: [
-      { s3_key: "exams/cmmd-demo/5/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "exams/cmmd-demo/5/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "exams/cmmd-demo/5/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "exams/cmmd-demo/5/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lcc.dcm",  laterality: "L", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lmlo.dcm", laterality: "L", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/rcc.dcm",  laterality: "R", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/rmlo.dcm", laterality: "R", view: "MLO" },
     ],
   },
 ];
