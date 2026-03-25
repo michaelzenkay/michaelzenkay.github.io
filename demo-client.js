@@ -1,5 +1,5 @@
-/**
- * demo-client.js — MG Inference Demo
+﻿/**
+ * demo-client.js â€” MG Inference Demo
  * Handles exam selection, API calls, and risk visualization.
  */
 
@@ -10,7 +10,7 @@ const S3_BUCKET = "einsteinmg-review";
 // Actual S3 path: cmmd-demo/cmmd_demo_exams/exam_{N}/{view}.dcm
 const DEMO_EXAMS = [
   {
-    label: "CMMD Patient 001 — Malignant",
+    label: "CMMD Patient 001 â€” Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lcc.dcm",  laterality: "L", view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lmlo.dcm", laterality: "L", view: "MLO" },
@@ -19,7 +19,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 002 — Malignant",
+    label: "CMMD Patient 002 â€” Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lcc.dcm",  laterality: "L", view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lmlo.dcm", laterality: "L", view: "MLO" },
@@ -28,7 +28,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 003 — Malignant",
+    label: "CMMD Patient 003 â€” Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lcc.dcm",  laterality: "L", view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lmlo.dcm", laterality: "L", view: "MLO" },
@@ -37,7 +37,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 004 — Malignant",
+    label: "CMMD Patient 004 â€” Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lcc.dcm",  laterality: "L", view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lmlo.dcm", laterality: "L", view: "MLO" },
@@ -46,7 +46,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 005 — Malignant",
+    label: "CMMD Patient 005 â€” Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lcc.dcm",  laterality: "L", view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lmlo.dcm", laterality: "L", view: "MLO" },
@@ -56,7 +56,7 @@ const DEMO_EXAMS = [
   },
 ];
 
-// ── DOM refs (set after DOMContentLoaded) ─────────────────────────────────────
+// â”€â”€ DOM refs (set after DOMContentLoaded) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let examSelect, scoreBtn, statusEl, chartSection, errorEl;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -143,7 +143,7 @@ function renderChart(data) {
       valueEl.textContent = `${pct}%`;
     } else {
       fill.style.width = "0%";
-      valueEl.textContent = "—";
+      valueEl.textContent = "â€”";
     }
 
     track.appendChild(fill);
@@ -165,7 +165,7 @@ function riskColor(pct) {
 
 function setLoading(on) {
   scoreBtn.disabled = on;
-  statusEl.textContent = on ? "Scoring exam…" : "";
+  statusEl.textContent = on ? "Scoring examâ€¦" : "";
   statusEl.style.display = on ? "block" : "none";
 }
 
