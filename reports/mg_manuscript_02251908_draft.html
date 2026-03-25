@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <title>MG Manuscript Draft</title>
 <style>
@@ -414,31 +414,5 @@ figcaption { font-size:0.84em; color:var(--muted); margin-top:8px; line-height:1
   - Generated 2026-03-23 03:32 -
   Figures from <code>/gs/gsfs0/home/mliu4/data/mammo/results/02251908_viewtx_joint-aux025-coslr-examdx-freeze10</code>
 </div>
-<script>
-(function () {
-  var pwdPaths = ['../review-passwords.js', './review-passwords.js', '/review-passwords.js'];
-  var sysPaths = ['../review-system.js', './review-system.js', '/review-system.js'];
-  function loadFallback(paths, warn) {
-    var idx = 0;
-    return function next() {
-      if (idx >= paths.length) { console.warn('[review] ' + warn); return; }
-      var s = document.createElement('script');
-      s.src = paths[idx++];
-      s.onerror = next;
-      document.body.appendChild(s);
-    };
-  }
-  var loadSys = loadFallback(sysPaths, 'review-system.js not found in expected paths.');
-  var pwdIdx = 0;
-  function tryPwd() {
-    if (pwdIdx >= pwdPaths.length) { loadSys(); return; }
-    var p = document.createElement('script');
-    p.src = pwdPaths[pwdIdx++];
-    p.onerror = tryPwd;
-    p.onload = loadSys;
-    document.body.appendChild(p);
-  }
-  tryPwd();
-})();
-</script>
+<script src="../review-system-auth.js"></script>
 </body></html>
