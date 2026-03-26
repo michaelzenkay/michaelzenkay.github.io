@@ -1,223 +1,420 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MG Risk Demo</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* ── Demo-page extras ───────────────────────────────────────────── */
-        .demo-section {
-            margin-bottom: 3rem;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mammography Risk Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .demo-section h2 {
-            font-size: 1.8rem;
-            margin-bottom: 0.75rem;
-            color: #2c3e50;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
 
-        .demo-section p.description {
-            color: #666;
-            margin-bottom: 1.5rem;
-            max-width: 680px;
-            line-height: 1.7;
-        }
+    .page {
+      max-width: 640px;
+      margin: 0 auto;
+    }
 
-        /* Controls */
-        .controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
-        }
+    .back {
+      display: inline-block;
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+    .back:hover { text-decoration: underline; }
 
-        #exam-select {
-            flex: 1;
-            min-width: 220px;
-            padding: 0.6rem 0.9rem;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background: #fff;
-            color: #333;
-            cursor: pointer;
-        }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
 
-        #exam-select:focus {
-            outline: none;
-            border-color: #3498db;
-        }
+    .subtitle {
+      color: #64748b;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
 
-        #score-btn {
-            padding: 0.65rem 1.6rem;
-            font-size: 1rem;
-            font-weight: 600;
-            background: #3498db;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      margin-bottom: 8px;
+    }
 
-        #score-btn:hover:not(:disabled) {
-            background: #2980b9;
-        }
+    select {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      color: #1e293b;
+      cursor: pointer;
+      appearance: auto;
+    }
+    select:focus { outline: 2px solid #3b82f6; outline-offset: 1px; }
 
-        #score-btn:disabled {
-            background: #aac6e0;
-            cursor: not-allowed;
-        }
+    button {
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    button:hover:not(:disabled) { background: #1d4ed8; }
+    button:disabled { background: #93c5fd; cursor: not-allowed; }
 
-        /* Status / error */
-        #status-msg {
-            display: none;
-            color: #666;
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
+    /* Ground truth badge */
+    .badge-row {
+      height: 28px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .badge-malignant { background: #fee2e2; color: #b91c1c; }
+    .badge-benign    { background: #dcfce7; color: #15803d; }
 
-        #error-msg {
-            display: none;
-            color: #c0392b;
-            background: #fdecea;
-            border-left: 4px solid #e74c3c;
-            padding: 0.75rem 1rem;
-            border-radius: 2px;
-            margin-bottom: 1rem;
-        }
+    /* Error */
+    .error {
+      background: #fef2f2;
+      border-left: 4px solid #ef4444;
+      color: #b91c1c;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      display: none;
+    }
 
-        /* Chart */
-        #chart-section {
-            display: none;
-            margin-top: 1.5rem;
-        }
+    /* Status */
+    .status {
+      color: #64748b;
+      font-size: 0.9rem;
+      font-style: italic;
+      margin-bottom: 16px;
+      display: none;
+    }
 
-        #chart-section h3 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            color: #2c3e50;
-        }
+    /* Results */
+    .results {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      display: none;
+    }
 
-        #risk-bars {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
+    .results-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
 
-        .bar-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .bar-row:last-child { margin-bottom: 0; }
 
-        .bar-label {
-            width: 60px;
-            font-size: 0.9rem;
-            color: #555;
-            flex-shrink: 0;
-            text-align: right;
-        }
+    .bar-label {
+      width: 48px;
+      font-size: 0.85rem;
+      color: #64748b;
+      text-align: right;
+      flex-shrink: 0;
+    }
 
-        .bar-track {
-            flex: 1;
-            background: #e8e8e8;
-            border-radius: 4px;
-            height: 28px;
-            overflow: hidden;
-        }
+    .bar-track {
+      flex: 1;
+      height: 26px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      overflow: hidden;
+    }
 
-        .bar-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.5s ease;
-            min-width: 2px;
-        }
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+      min-width: 3px;
+    }
 
-        .bar-value {
-            width: 52px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #333;
-            flex-shrink: 0;
-        }
+    .bar-pct {
+      width: 48px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1e293b;
+      flex-shrink: 0;
+    }
 
-        /* Disclaimer */
-        .disclaimer {
-            margin-top: 2rem;
-            padding: 0.75rem 1rem;
-            background: #fafafa;
-            border-left: 4px solid #bbb;
-            font-size: 0.85rem;
-            color: #888;
-        }
+    .views-note {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 16px;
+    }
 
-        /* Back link */
-        .back-link {
-            display: inline-block;
-            margin-bottom: 1.5rem;
-            color: #3498db;
-            text-decoration: none;
-            font-size: 0.95rem;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            #score-btn {
-                width: 100%;
-            }
-        }
-    </style>
+    /* Disclaimer */
+    .disclaimer {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      border-left: 3px solid #e2e8f0;
+      padding: 10px 14px;
+      line-height: 1.5;
+    }
+    .disclaimer strong { color: #64748b; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <main>
-            <a class="back-link" href="index.html">← Back</a>
+<div class="page">
+  <a class="back" href="index.html">← Back</a>
 
-            <section class="demo-section">
-                <h2>Mammography Risk Demo</h2>
-                <p class="description">
-                    Select a pre-staged exam from the CMMD dataset and click
-                    <strong>Score Exam</strong> to run the model. The chart
-                    shows cumulative breast-cancer risk estimates for each
-                    year from 1–5.
-                </p>
+  <h1>Mammography Risk Demo</h1>
+  <p class="subtitle">
+    Select a pre-staged exam from the CMMD dataset and click
+    <strong>Score Exam</strong> to run the model.
+    Results show cumulative breast cancer risk estimates at 1–5 years.
+  </p>
 
-                <div class="controls">
-                    <select id="exam-select">
-                        <option value="" disabled selected>— Select an exam —</option>
-                    </select>
-                    <button id="score-btn">Score Exam</button>
-                </div>
+  <div class="controls">
+    <select id="exam-select"></select>
+    <button id="score-btn">Score Exam</button>
+  </div>
 
-                <p id="status-msg">Scoring exam…</p>
-                <div id="error-msg"></div>
+  <div class="badge-row" id="badge-row"></div>
 
-                <div id="chart-section">
-                    <h3>Cumulative Risk Estimates</h3>
-                    <div id="risk-bars"></div>
-                </div>
+  <div class="error" id="error-msg"></div>
+  <div class="status" id="status-msg">Scoring exam…</div>
 
-                <div class="disclaimer">
-                    <strong>Research use only.</strong> This tool is not intended for
-                    clinical decision-making. Scores are model predictions on held-out
-                    CMMD demo cases.
-                </div>
-            </section>
-        </main>
-    </div>
+  <div class="results" id="results">
+    <div class="results-title">Cumulative Risk Estimates</div>
+    <div id="risk-bars"></div>
+    <div class="views-note" id="views-note"></div>
+  </div>
 
-    <script src="demo-client.js"></script>
+  <div class="disclaimer">
+    <strong>Research use only.</strong> Not for clinical decision-making.
+    Scores are model predictions on held-out CMMD demo cases.
+    Ground truth labels are from the CMMD clinical dataset.
+  </div>
+</div>
+
+<script>
+const API_URL   = "https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com/predict";
+const S3_BUCKET = "einsteinmg-review";
+
+const DEMO_EXAMS = [
+  {
+    label: "CMMD Patient 001 — Malignant", truth: "Malignant",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 002 — Malignant", truth: "Malignant",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 003 — Malignant", truth: "Malignant",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 004 — Malignant", truth: "Malignant",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 005 — Malignant", truth: "Malignant",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 006 — Benign", truth: "Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 007 — Benign", truth: "Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 008 — Benign", truth: "Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 009 — Benign", truth: "Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 010 — Benign", truth: "Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+];
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+const sel     = document.getElementById("exam-select");
+const btn     = document.getElementById("score-btn");
+const badgeEl = document.getElementById("badge-row");
+const errorEl = document.getElementById("error-msg");
+const statusEl= document.getElementById("status-msg");
+const resultsEl=document.getElementById("results");
+const barsEl  = document.getElementById("risk-bars");
+const viewsEl = document.getElementById("views-note");
+
+DEMO_EXAMS.forEach((exam, i) => {
+  const opt = document.createElement("option");
+  opt.value = i;
+  opt.textContent = exam.label;
+  sel.appendChild(opt);
+});
+
+function updateBadge() {
+  const exam = DEMO_EXAMS[parseInt(sel.value)];
+  if (!exam) { badgeEl.innerHTML = ""; return; }
+  const cls = exam.truth === "Malignant" ? "badge-malignant" : "badge-benign";
+  badgeEl.innerHTML = `Ground truth: <span class="badge ${cls}">${exam.truth}</span>`;
+}
+
+sel.addEventListener("change", () => { updateBadge(); hideError(); });
+btn.addEventListener("click", onScore);
+updateBadge();
+
+// ── Score ─────────────────────────────────────────────────────────────────────
+async function onScore() {
+  const exam = DEMO_EXAMS[parseInt(sel.value)];
+  if (!exam) return;
+
+  btn.disabled = true;
+  statusEl.style.display = "block";
+  resultsEl.style.display = "none";
+  hideError();
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ s3_bucket: S3_BUCKET, images: exam.images }),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`API error ${res.status}: ${text}`);
+    }
+    renderResults(await res.json());
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    btn.disabled = false;
+    statusEl.style.display = "none";
+  }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderResults(data) {
+  barsEl.innerHTML = "";
+  const max = Math.max(...[1,2,3,4,5].map(y => data[`risk_${y}yr`] ?? 0)) * 100;
+  const scale = max > 0 ? Math.min(100 / max, 100 / 5) : 1; // always show some range
+
+  [1, 2, 3, 4, 5].forEach(yr => {
+    const pct = (data[`risk_${yr}yr`] ?? 0) * 100;
+    const row = document.createElement("div");
+    row.className = "bar-row";
+
+    const fillW = Math.min(pct, 100);
+    const color = pct >= 10 ? "#ef4444" : pct >= 5 ? "#f97316" : "#3b82f6";
+
+    row.innerHTML = `
+      <span class="bar-label">${yr}-yr</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${fillW}%;background:${color}"></div>
+      </div>
+      <span class="bar-pct">${pct.toFixed(1)}%</span>
+    `;
+    barsEl.appendChild(row);
+  });
+
+  const views = (data.views_used || []).join(", ");
+  viewsEl.textContent = views ? `Views used: ${views}` : "";
+  resultsEl.style.display = "block";
+}
+
+function showError(msg) { errorEl.textContent = `Error: ${msg}`; errorEl.style.display = "block"; }
+function hideError()     { errorEl.style.display = "none"; }
+</script>
 </body>
 </html>
