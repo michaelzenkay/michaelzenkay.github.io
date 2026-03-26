@@ -54,6 +54,51 @@ const DEMO_EXAMS = [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
     ],
   },
+  {
+    label: "CMMD Patient 006 — Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 007 — Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 008 — Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 009 — Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
+  {
+    label: "CMMD Patient 010 — Benign",
+    images: [
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
+    ],
+  },
 ];
 
 // -- DOM refs (set after DOMContentLoaded) ------------------------------------
