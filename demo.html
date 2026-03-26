@@ -271,6 +271,11 @@
       padding-bottom: 12px;
     }
 
+    .expected-row td {
+      padding-top: 4px;
+      padding-bottom: 8px;
+    }
+
     .result-label {
       font-size: 0.76rem;
       color: #94a3b8;
@@ -279,12 +284,44 @@
 
     .result-value {
       transition: background-color 0.6s ease, color 0.4s ease, transform 0.35s ease;
+      border-radius: 6px;
     }
 
     .result-value.updated {
       background: #eff6ff;
       color: #1d4ed8;
       transform: scale(1.03);
+    }
+
+    .result-value.updated.same {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .result-value.updated.changed {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .delta-note {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.68rem;
+      line-height: 1.2;
+      color: #94a3b8;
+    }
+
+    .delta-note.same {
+      color: #059669;
+    }
+
+    .expected-value {
+      color: #475569;
+    }
+
+    .delta-note.up,
+    .delta-note.down {
+      color: #c2410c;
     }
 
     .pending-dot {
@@ -464,6 +501,19 @@ const DEMO_EXAMS = [
   },
 ];
 
+const EXPECTED_RESULTS = {
+  0: { risk_1yr: 0.051521, risk_2yr: 0.102168, risk_3yr: 0.126235, risk_4yr: 0.129929, risk_5yr: 0.158004 },
+  1: { risk_1yr: 0.055438, risk_2yr: 0.102063, risk_3yr: 0.127245, risk_4yr: 0.129754, risk_5yr: 0.146931 },
+  2: { risk_1yr: 0.063783, risk_2yr: 0.102373, risk_3yr: 0.115263, risk_4yr: 0.116904, risk_5yr: 0.133119 },
+  3: { risk_1yr: 0.045497, risk_2yr: 0.095315, risk_3yr: 0.119623, risk_4yr: 0.121382, risk_5yr: 0.137531 },
+  4: { risk_1yr: 0.037651, risk_2yr: 0.082292, risk_3yr: 0.097712, risk_4yr: 0.099428, risk_5yr: 0.111157 },
+  5: { risk_1yr: 0.080965, risk_2yr: 0.164522, risk_3yr: 0.187214, risk_4yr: 0.190515, risk_5yr: 0.208092 },
+  6: { risk_1yr: 0.040043, risk_2yr: 0.106004, risk_3yr: 0.130589, risk_4yr: 0.132522, risk_5yr: 0.143198 },
+  7: { risk_1yr: 0.172889, risk_2yr: 0.286399, risk_3yr: 0.313575, risk_4yr: 0.317276, risk_5yr: 0.341626 },
+  8: { risk_1yr: 0.105925, risk_2yr: 0.209053, risk_3yr: 0.224921, risk_4yr: 0.226645, risk_5yr: 0.243556 },
+  9: { risk_1yr: 0.078055, risk_2yr: 0.123194, risk_3yr: 0.144241, risk_4yr: 0.145612, risk_5yr: 0.156135 },
+};
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 const sel     = document.getElementById("exam-select");
 const btn     = document.getElementById("score-btn");
@@ -596,6 +646,8 @@ function renderHistoryTable() {
   DEMO_EXAMS.forEach((exam, index) => {
     const metaRow = document.createElement("tr");
     metaRow.className = "meta-row";
+    const expectedRow = document.createElement("tr");
+    expectedRow.className = "expected-row";
     const resultRow = document.createElement("tr");
     resultRow.className = "result-row";
     const hist = historyState.get(index);
@@ -606,25 +658,56 @@ function renderHistoryTable() {
       <td>${escapeHtml(exam.truth)}</td>
       <td class="calc-cell" colspan="6">${escapeHtml(calculated)}</td>
     `;
+    const expected = EXPECTED_RESULTS[index];
+    expectedRow.innerHTML = `
+      <td class="result-label" colspan="3">Expected</td>
+      ${renderExpectedRiskCell(expected.risk_1yr)}
+      ${renderExpectedRiskCell(expected.risk_2yr)}
+      ${renderExpectedRiskCell(expected.risk_3yr)}
+      ${renderExpectedRiskCell(expected.risk_4yr)}
+      ${renderExpectedRiskCell(expected.risk_5yr)}
+    `;
     resultRow.innerHTML = `
       <td class="result-label" colspan="3">Live result</td>
-      ${renderRiskCell(hist, "risk_1yr", index)}
-      ${renderRiskCell(hist, "risk_2yr", index)}
-      ${renderRiskCell(hist, "risk_3yr", index)}
-      ${renderRiskCell(hist, "risk_4yr", index)}
-      ${renderRiskCell(hist, "risk_5yr", index)}
+      ${renderRiskCell(hist, expected, "risk_1yr", index)}
+      ${renderRiskCell(hist, expected, "risk_2yr", index)}
+      ${renderRiskCell(hist, expected, "risk_3yr", index)}
+      ${renderRiskCell(hist, expected, "risk_4yr", index)}
+      ${renderRiskCell(hist, expected, "risk_5yr", index)}
     `;
     historyBody.appendChild(metaRow);
+    historyBody.appendChild(expectedRow);
     historyBody.appendChild(resultRow);
   });
 }
 
-function renderRiskCell(hist, key, index) {
+function renderExpectedRiskCell(value) {
+  return `<td class="num expected-value">${(value * 100).toFixed(1)}%</td>`;
+}
+
+function renderRiskCell(hist, expected, key, index) {
   if (!hist || hist.risks[key] === null || hist.risks[key] === undefined) {
     return '<td class="num pending"><span class="pending-dot">-</span></td>';
   }
-  const updatedClass = index === lastUpdatedHistoryIndex ? " updated" : "";
-  return `<td class="num result-value${updatedClass}">${(hist.risks[key] * 100).toFixed(1)}%</td>`;
+  const currentPct = hist.risks[key] * 100;
+  const expectedPct = (expected[key] ?? 0) * 100;
+  const delta = currentPct - expectedPct;
+  const same = Math.abs(delta) < 0.0001;
+
+  let updatedClass = "";
+  let deltaNote = "";
+  if (index === lastUpdatedHistoryIndex) {
+    updatedClass = same ? " updated same" : " updated changed";
+  }
+  if (same) {
+    deltaNote = '<span class="delta-note same">matches</span>';
+  } else {
+    const dirClass = delta > 0 ? "up" : "down";
+    const sign = delta > 0 ? "+" : "";
+    deltaNote = `<span class="delta-note ${dirClass}">${sign}${delta.toFixed(1)} pts</span>`;
+  }
+
+  return `<td class="num result-value${updatedClass}">${currentPct.toFixed(1)}%${deltaNote}</td>`;
 }
 
 function patientName(label) {
