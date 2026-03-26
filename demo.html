@@ -137,7 +137,13 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: #94a3b8;
-      margin-bottom: 20px;
+      margin-bottom: 6px;
+    }
+
+    .calc-note {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-bottom: 18px;
     }
 
     .bar-row {
@@ -185,6 +191,64 @@
       margin-top: 16px;
     }
 
+    .history {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .history-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    th, td {
+      padding: 8px 6px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #64748b;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      color: #1e293b;
+    }
+
+    td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    td.pending {
+      color: #94a3b8;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
     /* Disclaimer */
     .disclaimer {
       font-size: 0.82rem;
@@ -219,8 +283,30 @@
 
   <div class="results" id="results">
     <div class="results-title">Cumulative Risk Estimates</div>
+    <div class="calc-note" id="calc-note"></div>
     <div id="risk-bars"></div>
     <div class="views-note" id="views-note"></div>
+  </div>
+
+  <div class="history">
+    <div class="history-title">Calculated Demo Results</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Label</th>
+            <th>Calculated</th>
+            <th>1-yr</th>
+            <th>2-yr</th>
+            <th>3-yr</th>
+            <th>4-yr</th>
+            <th>5-yr</th>
+          </tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="disclaimer">
@@ -336,6 +422,9 @@ const statusEl= document.getElementById("status-msg");
 const resultsEl=document.getElementById("results");
 const barsEl  = document.getElementById("risk-bars");
 const viewsEl = document.getElementById("views-note");
+const calcEl  = document.getElementById("calc-note");
+const historyBody = document.getElementById("history-body");
+const historyState = new Map();
 
 DEMO_EXAMS.forEach((exam, i) => {
   const opt = document.createElement("option");
@@ -343,6 +432,8 @@ DEMO_EXAMS.forEach((exam, i) => {
   opt.textContent = exam.label;
   sel.appendChild(opt);
 });
+
+renderHistoryTable();
 
 function updateBadge() {
   const exam = DEMO_EXAMS[parseInt(sel.value)];
@@ -357,7 +448,8 @@ updateBadge();
 
 // ── Score ─────────────────────────────────────────────────────────────────────
 async function onScore() {
-  const exam = DEMO_EXAMS[parseInt(sel.value)];
+  const examIndex = parseInt(sel.value);
+  const exam = DEMO_EXAMS[examIndex];
   if (!exam) return;
 
   btn.disabled = true;
@@ -375,7 +467,7 @@ async function onScore() {
       const text = await res.text();
       throw new Error(`API error ${res.status}: ${text}`);
     }
-    renderResults(await res.json());
+    renderResults(examIndex, await res.json());
   } catch (err) {
     showError(err.message);
   } finally {
@@ -385,7 +477,7 @@ async function onScore() {
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-function renderResults(data) {
+function renderResults(examIndex, data) {
   barsEl.innerHTML = "";
   const max = Math.max(...[1,2,3,4,5].map(y => data[`risk_${y}yr`] ?? 0)) * 100;
   const scale = max > 0 ? Math.min(100 / max, 100 / 5) : 1; // always show some range
@@ -408,9 +500,70 @@ function renderResults(data) {
     barsEl.appendChild(row);
   });
 
+  const calculatedAt = new Date();
   const views = (data.views_used || []).join(", ");
+  calcEl.textContent = `Calculated: ${formatCalculatedAt(calculatedAt)}`;
   viewsEl.textContent = views ? `Views used: ${views}` : "";
   resultsEl.style.display = "block";
+
+  historyState.set(examIndex, {
+    calculatedAt: calculatedAt.toISOString(),
+    risks: {
+      risk_1yr: data.risk_1yr ?? null,
+      risk_2yr: data.risk_2yr ?? null,
+      risk_3yr: data.risk_3yr ?? null,
+      risk_4yr: data.risk_4yr ?? null,
+      risk_5yr: data.risk_5yr ?? null,
+    },
+  });
+  renderHistoryTable();
+}
+
+function formatCalculatedAt(date) {
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZoneName: "short",
+  }).format(date);
+}
+
+function renderHistoryTable() {
+  historyBody.innerHTML = "";
+
+  DEMO_EXAMS.forEach((exam, index) => {
+    const row = document.createElement("tr");
+    const hist = historyState.get(index);
+    const calculated = hist ? formatCalculatedAt(new Date(hist.calculatedAt)) : "Pending";
+    row.innerHTML = `
+      <td>${escapeHtml(exam.label.replace("CMMD ", ""))}</td>
+      <td>${escapeHtml(exam.truth)}</td>
+      <td class="${hist ? "" : "pending"}">${escapeHtml(calculated)}</td>
+      ${renderRiskCell(hist, "risk_1yr")}
+      ${renderRiskCell(hist, "risk_2yr")}
+      ${renderRiskCell(hist, "risk_3yr")}
+      ${renderRiskCell(hist, "risk_4yr")}
+      ${renderRiskCell(hist, "risk_5yr")}
+    `;
+    historyBody.appendChild(row);
+  });
+}
+
+function renderRiskCell(hist, key) {
+  if (!hist || hist.risks[key] === null || hist.risks[key] === undefined) {
+    return '<td class="num pending">-</td>';
+  }
+  return `<td class="num">${(hist.risks[key] * 100).toFixed(1)}%</td>`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
 
 function showError(msg) { errorEl.textContent = `Error: ${msg}`; errorEl.style.display = "block"; }

@@ -103,6 +103,7 @@ const DEMO_EXAMS = [
 
 // -- DOM refs (set after DOMContentLoaded) ------------------------------------
 let examSelect, scoreBtn, statusEl, chartSection, errorEl;
+let calcNoteEl;
 
 document.addEventListener("DOMContentLoaded", () => {
   examSelect   = document.getElementById("exam-select");
@@ -110,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
   statusEl     = document.getElementById("status-msg");
   chartSection = document.getElementById("chart-section");
   errorEl      = document.getElementById("error-msg");
+  calcNoteEl   = document.getElementById("calc-note");
 
   // Populate dropdown
   DEMO_EXAMS.forEach((exam, i) => {
@@ -160,6 +162,9 @@ function renderChart(data) {
   const years = [1, 2, 3, 4, 5];
   const bars = document.getElementById("risk-bars");
   bars.innerHTML = "";
+  if (calcNoteEl) {
+    calcNoteEl.textContent = `Calculated: ${formatCalculatedAt(new Date())}`;
+  }
 
   years.forEach((yr) => {
     const key = `risk_${yr}yr`;
@@ -221,4 +226,16 @@ function showError(msg) {
 
 function hideError() {
   errorEl.style.display = "none";
+}
+
+function formatCalculatedAt(date) {
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZoneName: "short",
+  }).format(date);
 }
