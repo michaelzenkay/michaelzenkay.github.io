@@ -48,6 +48,9 @@ try {
     $artifacts = [System.Collections.Generic.List[string]]::new()
     @(
         "index.html",
+        "demo.html",
+        "mg-risk-demo.html",
+        "demo-client.js",
         "reports/mg_best_report.html",
         "reports/mg_manuscript_latest.html",
         "results/reports.html",
