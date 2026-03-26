@@ -249,6 +249,57 @@
       border-bottom: none;
     }
 
+    .meta-row td {
+      border-bottom: none;
+      padding-bottom: 2px;
+    }
+
+    .meta-row td:first-child,
+    .meta-row td:nth-child(2) {
+      font-weight: 600;
+    }
+
+    .calc-cell {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .result-row td {
+      padding-top: 4px;
+      padding-bottom: 12px;
+    }
+
+    .result-label {
+      font-size: 0.76rem;
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+
+    .result-value {
+      transition: background-color 0.6s ease, color 0.4s ease, transform 0.35s ease;
+    }
+
+    .result-value.updated {
+      background: #eff6ff;
+      color: #1d4ed8;
+      transform: scale(1.03);
+    }
+
+    .pending-dot {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      color: #cbd5e1;
+      animation: pendingPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pendingPulse {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
+    }
+
     /* Disclaimer */
     .disclaimer {
       font-size: 0.82rem;
@@ -425,6 +476,7 @@ const viewsEl = document.getElementById("views-note");
 const calcEl  = document.getElementById("calc-note");
 const historyBody = document.getElementById("history-body");
 const historyState = new Map();
+let lastUpdatedHistoryIndex = null;
 
 DEMO_EXAMS.forEach((exam, i) => {
   const opt = document.createElement("option");
@@ -516,7 +568,14 @@ function renderResults(examIndex, data) {
       risk_5yr: data.risk_5yr ?? null,
     },
   });
+  lastUpdatedHistoryIndex = examIndex;
   renderHistoryTable();
+  setTimeout(() => {
+    if (lastUpdatedHistoryIndex === examIndex) {
+      lastUpdatedHistoryIndex = null;
+      renderHistoryTable();
+    }
+  }, 1400);
 }
 
 function formatCalculatedAt(date) {
@@ -535,28 +594,42 @@ function renderHistoryTable() {
   historyBody.innerHTML = "";
 
   DEMO_EXAMS.forEach((exam, index) => {
-    const row = document.createElement("tr");
+    const metaRow = document.createElement("tr");
+    metaRow.className = "meta-row";
+    const resultRow = document.createElement("tr");
+    resultRow.className = "result-row";
     const hist = historyState.get(index);
-    const calculated = hist ? formatCalculatedAt(new Date(hist.calculatedAt)) : "Pending";
-    row.innerHTML = `
-      <td>${escapeHtml(exam.label.replace("CMMD ", ""))}</td>
+    const patient = patientName(exam.label);
+    const calculated = hist ? `Calculated ${formatCalculatedAt(new Date(hist.calculatedAt))}` : "";
+    metaRow.innerHTML = `
+      <td>${escapeHtml(patient)}</td>
       <td>${escapeHtml(exam.truth)}</td>
-      <td class="${hist ? "" : "pending"}">${escapeHtml(calculated)}</td>
-      ${renderRiskCell(hist, "risk_1yr")}
-      ${renderRiskCell(hist, "risk_2yr")}
-      ${renderRiskCell(hist, "risk_3yr")}
-      ${renderRiskCell(hist, "risk_4yr")}
-      ${renderRiskCell(hist, "risk_5yr")}
+      <td class="calc-cell" colspan="6">${escapeHtml(calculated)}</td>
     `;
-    historyBody.appendChild(row);
+    resultRow.innerHTML = `
+      <td class="result-label" colspan="3">Live result</td>
+      ${renderRiskCell(hist, "risk_1yr", index)}
+      ${renderRiskCell(hist, "risk_2yr", index)}
+      ${renderRiskCell(hist, "risk_3yr", index)}
+      ${renderRiskCell(hist, "risk_4yr", index)}
+      ${renderRiskCell(hist, "risk_5yr", index)}
+    `;
+    historyBody.appendChild(metaRow);
+    historyBody.appendChild(resultRow);
   });
 }
 
-function renderRiskCell(hist, key) {
+function renderRiskCell(hist, key, index) {
   if (!hist || hist.risks[key] === null || hist.risks[key] === undefined) {
-    return '<td class="num pending">-</td>';
+    return '<td class="num pending"><span class="pending-dot">-</span></td>';
   }
-  return `<td class="num">${(hist.risks[key] * 100).toFixed(1)}%</td>`;
+  const updatedClass = index === lastUpdatedHistoryIndex ? " updated" : "";
+  return `<td class="num result-value${updatedClass}">${(hist.risks[key] * 100).toFixed(1)}%</td>`;
+}
+
+function patientName(label) {
+  const match = label.match(/Patient\s+(\d+)/i);
+  return match ? `Patient ${match[1]}` : label;
 }
 
 function escapeHtml(value) {
