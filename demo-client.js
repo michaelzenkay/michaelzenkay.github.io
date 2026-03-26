@@ -1,5 +1,5 @@
-﻿/**
- * demo-client.js â€” MG Inference Demo
+/**
+ * demo-client.js — MG Inference Demo
  * Handles exam selection, API calls, and risk visualization.
  */
 
@@ -10,53 +10,53 @@ const S3_BUCKET = "einsteinmg-review";
 // Actual S3 path: cmmd-demo/cmmd_demo_exams/exam_{N}/{view}.dcm
 const DEMO_EXAMS = [
   {
-    label: "CMMD Patient 001 â€” Malignant",
+    label: "CMMD Patient 001 — Malignant",
     images: [
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
     ],
   },
   {
-    label: "CMMD Patient 002 â€” Malignant",
+    label: "CMMD Patient 002 — Malignant",
     images: [
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
     ],
   },
   {
-    label: "CMMD Patient 003 â€” Malignant",
+    label: "CMMD Patient 003 — Malignant",
     images: [
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
     ],
   },
   {
-    label: "CMMD Patient 004 â€” Malignant",
+    label: "CMMD Patient 004 — Malignant",
     images: [
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
     ],
   },
   {
-    label: "CMMD Patient 005 â€” Malignant",
+    label: "CMMD Patient 005 — Malignant",
     images: [
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lcc.dcm",  laterality: "L", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lmlo.dcm", laterality: "L", view: "MLO" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/rcc.dcm",  laterality: "R", view: "CC" },
-      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/rmlo.dcm", laterality: "R", view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lcc.dcm",  laterality: "LEFT",  view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/rcc.dcm",  laterality: "RIGHT", view: "CC" },
+      { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/rmlo.dcm", laterality: "RIGHT", view: "MLO" },
     ],
   },
 ];
 
-// â”€â”€ DOM refs (set after DOMContentLoaded) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- DOM refs (set after DOMContentLoaded) ------------------------------------
 let examSelect, scoreBtn, statusEl, chartSection, errorEl;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -143,7 +143,7 @@ function renderChart(data) {
       valueEl.textContent = `${pct}%`;
     } else {
       fill.style.width = "0%";
-      valueEl.textContent = "â€”";
+      valueEl.textContent = "—";
     }
 
     track.appendChild(fill);
@@ -165,7 +165,7 @@ function riskColor(pct) {
 
 function setLoading(on) {
   scoreBtn.disabled = on;
-  statusEl.textContent = on ? "Scoring examâ€¦" : "";
+  statusEl.textContent = on ? "Scoring exam…" : "";
   statusEl.style.display = on ? "block" : "none";
 }
 
