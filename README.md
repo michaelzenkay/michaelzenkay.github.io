@@ -27,18 +27,20 @@ This repo now includes:
 
 ## Daily Publish Flow
 
+Use `publish.bat` when `d:\src\michaelzenkay.github.io` already has the correct artifacts and should be treated as the source of truth.
+
 ```bat
 publish-hpc.bat
 ```
 
 `publish-hpc.bat` / `publish-hpc.ps1`:
 
-1. Fetches and merges latest `origin/main`
-2. Syncs MG report artifacts from `Z:\src\michaelzenkay.github.io` (reports, results, index)
-3. Syncs breast MRI artifacts article from `Z:\src\breastmri-site`:
-   - Copies `images/artifacts/` (20 images)
-   - Copies `breast-mri-artifacts.html` with review gate stripped
-4. Stages, commits, and pushes to `main` (triggers Cloudflare deploy)
+1. Fetches and rebases onto latest `origin/main`
+2. Syncs MG report artifacts from `Z:\src\michaelzenkay.github.io` into `D:\src\michaelzenkay.github.io`
+3. Refuses to overwrite newer `D:` artifacts by default
+4. Prints the blocked files and stops if `D:` is newer, so stale `Z:` output cannot silently clobber local work
+5. If you explicitly want `Z:` to win, rerun with `.\publish-hpc.ps1 -PreferSource`
+6. Stages, commits, and pushes to `main` (triggers Cloudflare deploy)
 
 ## Article sources
 
