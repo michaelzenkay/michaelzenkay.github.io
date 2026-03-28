@@ -4,6 +4,16 @@
 
 Serve this static site from Cloudflare Pages with faster propagation and predictable cache behavior.
 
+## Current Status
+
+Observed on March 27, 2026 from live headers:
+
+- `https://michaelzenkay.github.io/...` still 301 redirects through GitHub Pages
+- `https://michaelzenkay.com/...` is still showing GitHub/Fastly response headers behind Cloudflare proxying
+- page HTML is currently served with `Cache-Control: max-age=600`
+
+That means the repo may be deploying to Cloudflare Pages, but the custom domain is not fully cut over to Pages yet. Until it is, `_headers` will not control HTML caching.
+
 ## Verify Project Settings
 
 - Project name: `michaelzenkay`
@@ -38,3 +48,4 @@ publish-cloudflare.bat
 - Stale page: Cloudflare dashboard -> Caching -> Purge cache (single file or everything).
 - Failed GitHub deploy: check Actions logs for missing secrets or wrong project name.
 - Wrong content: confirm latest commit is on `main` and Cloudflare production deploy points to that commit.
+- Wrong cache behavior: if response headers still show GitHub / Fastly and `max-age=600`, the custom domain is still effectively on GitHub Pages and `_headers` are not active yet.
