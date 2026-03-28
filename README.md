@@ -70,7 +70,7 @@ publish-hpc.bat
 ```powershell
 git fetch origin main --prune
 git pull --no-rebase origin main
-git -c core.filemode=false add reports/ results/ figures/ index.html breast-mri-artifacts.html _headers review-system-auth.js
+git -c core.filemode=false add reports/ results/ figures/ mnt/ index.html breast-mri-artifacts.html demo.html mg-risk-demo.html site-theme.css _headers review-system-auth.js
 git commit -m "refresh site artifacts"
 git push origin main
 ```

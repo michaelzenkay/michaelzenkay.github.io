@@ -14,7 +14,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-git -c core.filemode=false add reports/ results/ figures/ index.html breast-mri-artifacts.html demo.html mg-risk-demo.html demo-client.js _headers review-system-auth.js
+git -c core.filemode=false add reports/ results/ figures/ mnt/ index.html breast-mri-artifacts.html demo.html mg-risk-demo.html demo-client.js site-theme.css _headers review-system-auth.js
 git diff --cached --quiet && echo Nothing to commit. && exit /b 0
 git commit -m "refresh site artifacts"
 git push origin main

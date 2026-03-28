@@ -17,11 +17,13 @@ function Get-TrackedArtifactFiles {
         "results\*.html",
         "results\*\report.html",
         "figures\*",
+        "mnt\user-data\outputs\michaelzenkay.github.io\presentations\*\*.html",
         "index.html",
         "breast-mri-artifacts.html",
         "demo.html",
         "mg-risk-demo.html",
         "demo-client.js",
+        "site-theme.css",
         "_headers",
         "review-system-auth.js"
     )
@@ -128,7 +130,7 @@ try {
     }
 
     if (-not $SkipGit) {
-        git -c core.filemode=false add reports/ results/ figures/ index.html breast-mri-artifacts.html demo.html mg-risk-demo.html demo-client.js _headers review-system-auth.js
+        git -c core.filemode=false add reports/ results/ figures/ mnt/ index.html breast-mri-artifacts.html demo.html mg-risk-demo.html demo-client.js site-theme.css _headers review-system-auth.js
         git diff --cached --quiet
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Nothing to commit."
