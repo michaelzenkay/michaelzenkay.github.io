@@ -1,10 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mammography Risk Demo</title>
-  <link rel="stylesheet" href="site-theme.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -349,15 +348,15 @@
     .disclaimer strong { color: #64748b; }
   </style>
 </head>
-<body class="site-demo">
+<body>
 <div class="page">
-  <a class="back" href="index.html">← Back</a>
+  <a class="back" href="index.html">Back</a>
 
   <h1>Mammography Risk Demo</h1>
   <p class="subtitle">
     Select a pre-staged exam from the CMMD dataset and click
     <strong>Score Exam</strong> to run the model.
-    Results show cumulative breast cancer risk estimates at 1–5 years.
+    Results show cumulative breast cancer risk estimates at 1-5 years.
   </p>
 
   <div class="controls">
@@ -368,7 +367,7 @@
   <div class="badge-row" id="badge-row"></div>
 
   <div class="error" id="error-msg"></div>
-  <div class="status" id="status-msg">Scoring exam…</div>
+  <div class="status" id="status-msg">Scoring exam...</div>
 
   <div class="results" id="results">
     <div class="results-title">Cumulative Risk Estimates</div>
