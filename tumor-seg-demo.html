@@ -145,7 +145,7 @@ import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.5
 
 // ------------------------------------------------------------------ config --
 const MANIFEST_URL = (new URLSearchParams(location.search)).get("manifest")
-  ?? "./manifest.json";
+  ?? "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json";
 
 const COLORMAP_PRED = "warm";   // orange-red
 const COLORMAP_GT   = "blue";   // blue
