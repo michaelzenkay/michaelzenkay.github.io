@@ -6,11 +6,11 @@
 const API_URL = "https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com/predict";
 const S3_BUCKET = "einsteinmg-review";
 
-// Pre-staged CMMD demo exams
-// Actual S3 path: cmmd-demo/cmmd_demo_exams/exam_{N}/{view}.dcm
+// Pre-staged CBIS-DDSM demo exams.
+// The legacy cmmd-demo prefix stays in S3 so the API contract remains stable.
 const DEMO_EXAMS = [
   {
-    label: "CMMD Patient 001 — Malignant",
+    label: "CBIS-DDSM Patient 00092 - Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -19,7 +19,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 002 — Malignant",
+    label: "CBIS-DDSM Patient 00160 - Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -28,7 +28,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 003 — Malignant",
+    label: "CBIS-DDSM Patient 00418 - Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -37,7 +37,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 004 — Malignant",
+    label: "CBIS-DDSM Patient 00419 - Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -46,7 +46,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 005 — Malignant",
+    label: "CBIS-DDSM Patient 00432 - Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -55,7 +55,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 006 — Benign",
+    label: "CBIS-DDSM Patient 00008 - Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -64,7 +64,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 007 — Benign",
+    label: "CBIS-DDSM Patient 00021 - Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -73,7 +73,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 008 — Benign",
+    label: "CBIS-DDSM Patient 00030 - Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -82,7 +82,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 009 — Benign",
+    label: "CBIS-DDSM Patient 00038 - Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -91,7 +91,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 010 — Benign",
+    label: "CBIS-DDSM Patient 00077 - Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -193,7 +193,7 @@ function renderChart(data) {
       valueEl.textContent = `${pct}%`;
     } else {
       fill.style.width = "0%";
-      valueEl.textContent = "—";
+      valueEl.textContent = "-";
     }
 
     track.appendChild(fill);
@@ -215,7 +215,7 @@ function riskColor(pct) {
 
 function setLoading(on) {
   scoreBtn.disabled = on;
-  statusEl.textContent = on ? "Scoring exam…" : "";
+  statusEl.textContent = on ? "Scoring exam..." : "";
   statusEl.style.display = on ? "block" : "none";
 }
 
