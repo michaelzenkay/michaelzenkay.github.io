@@ -5,6 +5,7 @@
 
 const API_URL = "https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com/predict";
 const S3_BUCKET = "einsteinmg-review";
+const RETRYABLE_STATUS_CODES = new Set([502, 503, 504]);
 
 // Pre-staged CBIS-DDSM demo exams.
 // The legacy cmmd-demo prefix stays in S3 so the API contract remains stable.
@@ -129,33 +130,54 @@ async function onScore() {
   const exam = DEMO_EXAMS[idx];
 
   setLoading(true);
+  statusEl.textContent = "Scoring exam...";
   hideError();
   chartSection.style.display = "none";
 
-  const payload = {
-    s3_bucket: S3_BUCKET,
-    images: exam.images,
-  };
-
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+    const data = await fetchPrediction(exam, (message) => {
+      statusEl.textContent = message;
     });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`API error ${res.status}: ${errText}`);
-    }
-
-    const data = await res.json();
     renderChart(data);
   } catch (err) {
     showError(err.message);
   } finally {
     setLoading(false);
   }
+}
+
+async function fetchPrediction(exam, onStatus) {
+  const payload = JSON.stringify({
+    s3_bucket: S3_BUCKET,
+    images: exam.images,
+  });
+  const maxAttempts = 3;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    if (attempt > 1) {
+      onStatus(`Retrying after temporary service issue (${attempt}/${maxAttempts})...`);
+      await delay(600 * (attempt - 1));
+    }
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+    });
+
+    if (res.ok) {
+      return res.json();
+    }
+
+    const errText = (await res.text()).trim();
+    if (RETRYABLE_STATUS_CODES.has(res.status) && attempt < maxAttempts) {
+      continue;
+    }
+
+    throw new Error(formatApiError(res.status, errText));
+  }
+
+  throw new Error("API error: service unavailable");
 }
 
 function renderChart(data) {
@@ -238,4 +260,15 @@ function formatCalculatedAt(date) {
     second: "2-digit",
     timeZoneName: "short",
   }).format(date);
+}
+
+function formatApiError(status, text) {
+  if (status === 503) {
+    return "API error 503: service unavailable after retrying. Please try again in a moment.";
+  }
+  return `API error ${status}: ${text || "request failed"}`;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

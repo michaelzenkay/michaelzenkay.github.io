@@ -377,14 +377,14 @@
   </div>
 
   <div class="history">
-    <div class="history-title">Calculated Demo Results</div>
+    <div class="history-title">Reference vs Live Demo Results</div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th>Patient</th>
             <th>Label</th>
-            <th>Calculated</th>
+            <th>Status</th>
             <th>1-yr</th>
             <th>2-yr</th>
             <th>3-yr</th>
@@ -500,6 +500,51 @@ const DEMO_EXAMS = [
     ],
   },
 ];
+
+const REFERENCE_RESULTS = [
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.975693, risk_2yr: 0.999085, risk_3yr: 0.999990, risk_4yr: 0.999999, risk_5yr: 1.0 },
+  },
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.971843, risk_2yr: 0.998502, risk_3yr: 0.999963, risk_4yr: 0.999998, risk_5yr: 1.0 },
+  },
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.986024, risk_2yr: 0.999705, risk_3yr: 0.999995, risk_4yr: 0.999999, risk_5yr: 1.0 },
+  },
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.970988, risk_2yr: 0.998443, risk_3yr: 0.999972, risk_4yr: 0.999999, risk_5yr: 1.0 },
+  },
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.991042, risk_2yr: 0.999837, risk_3yr: 0.999998, risk_4yr: 1.0, risk_5yr: 1.0 },
+  },
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.984461, risk_2yr: 0.999655, risk_3yr: 0.999990, risk_4yr: 0.999999, risk_5yr: 1.0 },
+  },
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.993431, risk_2yr: 0.999912, risk_3yr: 0.999998, risk_4yr: 1.0, risk_5yr: 1.0 },
+  },
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.977065, risk_2yr: 0.999119, risk_3yr: 0.999987, risk_4yr: 0.999999, risk_5yr: 1.0 },
+  },
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.988990, risk_2yr: 0.999742, risk_3yr: 0.999996, risk_4yr: 1.0, risk_5yr: 1.0 },
+  },
+  {
+    capturedAt: "2026-03-30T11:33:00-07:00",
+    risks: { risk_1yr: 0.988141, risk_2yr: 0.999839, risk_3yr: 0.999996, risk_4yr: 0.999999, risk_5yr: 1.0 },
+  },
+];
+
+const RETRYABLE_STATUS_CODES = new Set([502, 503, 504]);
 const sel     = document.getElementById("exam-select");
 const btn     = document.getElementById("score-btn");
 const badgeEl = document.getElementById("badge-row");
@@ -540,27 +585,53 @@ async function onScore() {
   if (!exam) return;
 
   btn.disabled = true;
+  statusEl.textContent = "Scoring exam...";
   statusEl.style.display = "block";
   resultsEl.style.display = "none";
   hideError();
 
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ s3_bucket: S3_BUCKET, images: exam.images }),
+    const data = await fetchPrediction(exam, (message) => {
+      statusEl.textContent = message;
     });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`API error ${res.status}: ${text}`);
-    }
-    renderResults(examIndex, await res.json());
+    renderResults(examIndex, data);
   } catch (err) {
     showError(err.message);
   } finally {
     btn.disabled = false;
     statusEl.style.display = "none";
   }
+}
+
+async function fetchPrediction(exam, onStatus) {
+  const payload = JSON.stringify({ s3_bucket: S3_BUCKET, images: exam.images });
+  const maxAttempts = 3;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    if (attempt > 1) {
+      onStatus(`Retrying after temporary service issue (${attempt}/${maxAttempts})...`);
+      await delay(600 * (attempt - 1));
+    }
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+    });
+
+    if (res.ok) {
+      return res.json();
+    }
+
+    const text = (await res.text()).trim();
+    if (RETRYABLE_STATUS_CODES.has(res.status) && attempt < maxAttempts) {
+      continue;
+    }
+
+    throw new Error(formatApiError(res.status, text));
+  }
+
+  throw new Error("API error: service unavailable");
 }
 
 // Render
@@ -631,40 +702,96 @@ function renderHistoryTable() {
   DEMO_EXAMS.forEach((exam, index) => {
     const metaRow = document.createElement("tr");
     metaRow.className = "meta-row";
+    const referenceRow = document.createElement("tr");
+    referenceRow.className = "expected-row";
     const resultRow = document.createElement("tr");
     resultRow.className = "result-row";
     const hist = historyState.get(index);
+    const reference = REFERENCE_RESULTS[index];
     const patient = patientName(exam.label);
-    const calculated = hist ? `Calculated ${formatCalculatedAt(new Date(hist.calculatedAt))}` : "";
+    const statusBits = [];
+    if (reference?.capturedAt) {
+      statusBits.push(`Reference ${formatCalculatedAt(new Date(reference.capturedAt))}`);
+    }
+    if (hist) {
+      statusBits.push(`Live ${formatCalculatedAt(new Date(hist.calculatedAt))}`);
+    }
     metaRow.innerHTML = `
       <td>${escapeHtml(patient)}</td>
       <td>${escapeHtml(exam.truth)}</td>
-      <td class="calc-cell" colspan="6">${escapeHtml(calculated)}</td>
+      <td class="calc-cell" colspan="6">${escapeHtml(statusBits.join(" | "))}</td>
+    `;
+    referenceRow.innerHTML = `
+      <td class="result-label" colspan="3">Reference snapshot</td>
+      ${renderReferenceCell(reference, "risk_1yr")}
+      ${renderReferenceCell(reference, "risk_2yr")}
+      ${renderReferenceCell(reference, "risk_3yr")}
+      ${renderReferenceCell(reference, "risk_4yr")}
+      ${renderReferenceCell(reference, "risk_5yr")}
     `;
     resultRow.innerHTML = `
       <td class="result-label" colspan="3">Live result</td>
-      ${renderRiskCell(hist, "risk_1yr", index)}
-      ${renderRiskCell(hist, "risk_2yr", index)}
-      ${renderRiskCell(hist, "risk_3yr", index)}
-      ${renderRiskCell(hist, "risk_4yr", index)}
-      ${renderRiskCell(hist, "risk_5yr", index)}
+      ${renderRiskCell(hist, reference, "risk_1yr", index)}
+      ${renderRiskCell(hist, reference, "risk_2yr", index)}
+      ${renderRiskCell(hist, reference, "risk_3yr", index)}
+      ${renderRiskCell(hist, reference, "risk_4yr", index)}
+      ${renderRiskCell(hist, reference, "risk_5yr", index)}
     `;
     historyBody.appendChild(metaRow);
+    historyBody.appendChild(referenceRow);
     historyBody.appendChild(resultRow);
   });
 }
 
-function renderRiskCell(hist, key, index) {
+function renderReferenceCell(reference, key) {
+  const value = reference?.risks?.[key];
+  if (value === null || value === undefined) {
+    return '<td class="num pending">-</td>';
+  }
+  return `<td class="num expected-value">${formatPercent(value)}</td>`;
+}
+
+function renderRiskCell(hist, reference, key, index) {
   if (!hist || hist.risks[key] === null || hist.risks[key] === undefined) {
     return '<td class="num pending"><span class="pending-dot">-</span></td>';
   }
   const currentPct = hist.risks[key] * 100;
-  const updatedClass = index === lastUpdatedHistoryIndex ? ' updated' : '';
-  return `<td class="num result-value${updatedClass}">${currentPct.toFixed(1)}%</td>`;
+  const referencePct = reference?.risks?.[key] !== undefined ? reference.risks[key] * 100 : null;
+  const delta = referencePct === null ? null : currentPct - referencePct;
+  let updatedClass = "";
+  let deltaMarkup = "";
+
+  if (index === lastUpdatedHistoryIndex) {
+    updatedClass = " updated";
+    if (delta !== null) {
+      const same = Math.abs(delta) < 0.05;
+      updatedClass += same ? " same" : " changed";
+      deltaMarkup = same
+        ? '<span class="delta-note same">Matches reference</span>'
+        : `<span class="delta-note ${delta > 0 ? "up" : "down"}">${delta > 0 ? "+" : ""}${delta.toFixed(1)} pts vs ref</span>`;
+    }
+  }
+
+  return `<td class="num result-value${updatedClass}">${formatPercent(hist.risks[key])}${deltaMarkup}</td>`;
 }
 function patientName(label) {
   const match = label.match(/Patient\s+(\d+)/i);
   return match ? `Patient ${match[1]}` : label;
+}
+
+function formatPercent(value) {
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+function formatApiError(status, text) {
+  if (status === 503) {
+    return "API error 503: service unavailable after retrying. Please try again in a moment.";
+  }
+  return `API error ${status}: ${text || "request failed"}`;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function escapeHtml(value) {
