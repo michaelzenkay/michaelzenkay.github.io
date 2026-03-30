@@ -13,16 +13,56 @@ concurrency:
   group: cloudflare-pages-production
   cancel-in-progress: true
 
+env:
+  CF_PAGES_PROJECT: michaelzenkay
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Preflight Cloudflare Pages project
+        id: preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${CLOUDFLARE_API_TOKEN:-}" || -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Cloudflare Pages deploy skipped::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not configured."
+            exit 0
+          fi
+
+          projects_json="$(npx --yes wrangler@4 pages project list --json)"
+          project_exists="$(
+            PROJECTS_JSON="${projects_json}" python3 - "${CF_PAGES_PROJECT}" <<'PY'
+import json
+import os
+import sys
+
+project_name = sys.argv[1]
+projects = json.loads(os.environ["PROJECTS_JSON"])
+print("true" if any(p.get("name") == project_name for p in projects) else "false")
+PY
+          )"
+
+          echo "should_deploy=${project_exists}" >> "$GITHUB_OUTPUT"
+
+          if [[ "${project_exists}" != "true" ]]; then
+            echo "::notice title=Cloudflare Pages deploy skipped::Cloudflare Pages project '${CF_PAGES_PROJECT}' was not found in this account."
+          fi
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy . --project-name=michaelzenkay --branch=main
+        if: steps.preflight.outputs.should_deploy == 'true'
+        run: npx --yes wrangler@4 pages deploy . --project-name="${CF_PAGES_PROJECT}" --branch=main
