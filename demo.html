@@ -354,7 +354,7 @@
 
   <h1>Mammography Risk Demo</h1>
   <p class="subtitle">
-    Select a pre-staged exam from the CMMD dataset and click
+    Select a pre-staged exam from the CBIS-DDSM dataset and click
     <strong>Score Exam</strong> to run the model.
     Results show cumulative breast cancer risk estimates at 1-5 years.
   </p>
@@ -399,8 +399,8 @@
 
   <div class="disclaimer">
     <strong>Research use only.</strong> Not for clinical decision-making.
-    Scores are model predictions on held-out CMMD demo cases.
-    Ground truth labels are from the CMMD clinical dataset.
+    Scores are model predictions on pre-staged CBIS-DDSM demo cases.
+    Ground truth labels are based on the CBIS-DDSM case-description pathology.
   </div>
 </div>
 
@@ -410,7 +410,7 @@ const S3_BUCKET = "einsteinmg-review";
 
 const DEMO_EXAMS = [
   {
-    label: "CMMD Patient 001 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00092 - Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -419,7 +419,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 002 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00160 - Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -428,7 +428,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 003 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00418 - Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -437,7 +437,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 004 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00419 - Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -446,7 +446,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 005 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00432 - Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -455,7 +455,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 006 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00008 - Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -464,7 +464,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 007 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00021 - Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -473,7 +473,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 008 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00030 - Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -482,7 +482,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 009 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00038 - Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -491,7 +491,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 010 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00077 - Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -500,21 +500,6 @@ const DEMO_EXAMS = [
     ],
   },
 ];
-
-const EXPECTED_RESULTS = {
-  0: { risk_1yr: 0.069544, risk_2yr: 0.232170, risk_3yr: 0.254622, risk_4yr: 0.271986, risk_5yr: 0.428783 },
-  1: { risk_1yr: 0.092639, risk_2yr: 0.161853, risk_3yr: 0.179263, risk_4yr: 0.195621, risk_5yr: 0.257725 },
-  2: { risk_1yr: 0.108052, risk_2yr: 0.190747, risk_3yr: 0.204984, risk_4yr: 0.228908, risk_5yr: 0.280480 },
-  3: { risk_1yr: 0.088638, risk_2yr: 0.155539, risk_3yr: 0.173932, risk_4yr: 0.190637, risk_5yr: 0.226719 },
-  4: { risk_1yr: 0.091430, risk_2yr: 0.167607, risk_3yr: 0.184176, risk_4yr: 0.207092, risk_5yr: 0.282233 },
-  5: { risk_1yr: 0.076921, risk_2yr: 0.177171, risk_3yr: 0.208901, risk_4yr: 0.226346, risk_5yr: 0.254232 },
-  6: { risk_1yr: 0.074529, risk_2yr: 0.146743, risk_3yr: 0.163647, risk_4yr: 0.188125, risk_5yr: 0.233597 },
-  7: { risk_1yr: 0.090850, risk_2yr: 0.179602, risk_3yr: 0.228600, risk_4yr: 0.248521, risk_5yr: 0.269953 },
-  8: { risk_1yr: 0.048068, risk_2yr: 0.127192, risk_3yr: 0.159274, risk_4yr: 0.183626, risk_5yr: 0.227426 },
-  9: { risk_1yr: 0.103210, risk_2yr: 0.175360, risk_3yr: 0.199073, risk_4yr: 0.229035, risk_5yr: 0.277966 },
-};
-
-// ── Init ──────────────────────────────────────────────────────────────────────
 const sel     = document.getElementById("exam-select");
 const btn     = document.getElementById("score-btn");
 const badgeEl = document.getElementById("badge-row");
@@ -548,7 +533,7 @@ sel.addEventListener("change", () => { updateBadge(); hideError(); });
 btn.addEventListener("click", onScore);
 updateBadge();
 
-// ── Score ─────────────────────────────────────────────────────────────────────
+// Score
 async function onScore() {
   const examIndex = parseInt(sel.value);
   const exam = DEMO_EXAMS[examIndex];
@@ -578,7 +563,7 @@ async function onScore() {
   }
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
+// Render
 function renderResults(examIndex, data) {
   barsEl.innerHTML = "";
   const max = Math.max(...[1,2,3,4,5].map(y => data[`risk_${y}yr`] ?? 0)) * 100;
@@ -646,8 +631,6 @@ function renderHistoryTable() {
   DEMO_EXAMS.forEach((exam, index) => {
     const metaRow = document.createElement("tr");
     metaRow.className = "meta-row";
-    const expectedRow = document.createElement("tr");
-    expectedRow.className = "expected-row";
     const resultRow = document.createElement("tr");
     resultRow.className = "result-row";
     const hist = historyState.get(index);
@@ -658,58 +641,27 @@ function renderHistoryTable() {
       <td>${escapeHtml(exam.truth)}</td>
       <td class="calc-cell" colspan="6">${escapeHtml(calculated)}</td>
     `;
-    const expected = EXPECTED_RESULTS[index];
-    expectedRow.innerHTML = `
-      <td class="result-label" colspan="3">Expected</td>
-      ${renderExpectedRiskCell(expected.risk_1yr)}
-      ${renderExpectedRiskCell(expected.risk_2yr)}
-      ${renderExpectedRiskCell(expected.risk_3yr)}
-      ${renderExpectedRiskCell(expected.risk_4yr)}
-      ${renderExpectedRiskCell(expected.risk_5yr)}
-    `;
     resultRow.innerHTML = `
       <td class="result-label" colspan="3">Live result</td>
-      ${renderRiskCell(hist, expected, "risk_1yr", index)}
-      ${renderRiskCell(hist, expected, "risk_2yr", index)}
-      ${renderRiskCell(hist, expected, "risk_3yr", index)}
-      ${renderRiskCell(hist, expected, "risk_4yr", index)}
-      ${renderRiskCell(hist, expected, "risk_5yr", index)}
+      ${renderRiskCell(hist, "risk_1yr", index)}
+      ${renderRiskCell(hist, "risk_2yr", index)}
+      ${renderRiskCell(hist, "risk_3yr", index)}
+      ${renderRiskCell(hist, "risk_4yr", index)}
+      ${renderRiskCell(hist, "risk_5yr", index)}
     `;
     historyBody.appendChild(metaRow);
-    historyBody.appendChild(expectedRow);
     historyBody.appendChild(resultRow);
   });
 }
 
-function renderExpectedRiskCell(value) {
-  return `<td class="num expected-value">${(value * 100).toFixed(1)}%</td>`;
-}
-
-function renderRiskCell(hist, expected, key, index) {
+function renderRiskCell(hist, key, index) {
   if (!hist || hist.risks[key] === null || hist.risks[key] === undefined) {
     return '<td class="num pending"><span class="pending-dot">-</span></td>';
   }
   const currentPct = hist.risks[key] * 100;
-  const expectedPct = (expected[key] ?? 0) * 100;
-  const delta = currentPct - expectedPct;
-  const same = Math.abs(delta) < 0.0001;
-
-  let updatedClass = "";
-  let deltaNote = "";
-  if (index === lastUpdatedHistoryIndex) {
-    updatedClass = same ? " updated same" : " updated changed";
-  }
-  if (same) {
-    deltaNote = '<span class="delta-note same">matches</span>';
-  } else {
-    const dirClass = delta > 0 ? "up" : "down";
-    const sign = delta > 0 ? "+" : "";
-    deltaNote = `<span class="delta-note ${dirClass}">${sign}${delta.toFixed(1)} pts</span>`;
-  }
-
-  return `<td class="num result-value${updatedClass}">${currentPct.toFixed(1)}%${deltaNote}</td>`;
+  const updatedClass = index === lastUpdatedHistoryIndex ? ' updated' : '';
+  return `<td class="num result-value${updatedClass}">${currentPct.toFixed(1)}%</td>`;
 }
-
 function patientName(label) {
   const match = label.match(/Patient\s+(\d+)/i);
   return match ? `Patient ${match[1]}` : label;
@@ -727,4 +679,5 @@ function hideError()     { errorEl.style.display = "none"; }
 </script>
 </body>
 </html>
+
 
