@@ -194,9 +194,66 @@
       line-height: 1.5;
     }
     .disclaimer strong { color: #64748b; }
+
+    /* Password gate */
+    body.locked .page { display: none; }
+    .gate-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+    .gate-box {
+      width: min(420px, 100%);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+    }
+    .gate-box h2 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .gate-box p {
+      color: #64748b;
+      font-size: 0.92rem;
+      margin-bottom: 12px;
+    }
+    .gate-box input[type="password"] {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+    .gate-box input[type="password"]:focus {
+      outline: 2px solid #3b82f6;
+      outline-offset: 1px;
+    }
+    .gate-error {
+      color: #b91c1c;
+      font-size: 0.85rem;
+      min-height: 18px;
+      margin-top: 2px;
+    }
   </style>
 </head>
-<body>
+<body class="locked">
+<div class="gate-overlay" id="gate">
+  <div class="gate-box">
+    <h2>Protected Demo</h2>
+    <p>Enter your reviewer password to continue.</p>
+    <input type="password" id="gate-pwd" placeholder="Password" autocomplete="current-password">
+    <button id="gate-btn">Unlock</button>
+    <div class="gate-error" id="gate-error"></div>
+  </div>
+</div>
 <div class="page">
   <a class="back" href="index.html">← Back</a>
 
@@ -231,8 +288,10 @@
 </div>
 
 <script>
-const API_URL   = "https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com/predict";
+const API_BASE  = "https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com";
+const API_URL   = `${API_BASE}/predict`;
 const S3_BUCKET = "einsteinmg-review";
+const GATE_SESSION_KEY = "mg_review_auth_v1";
 
 const DEMO_EXAMS = [
   {
@@ -336,6 +395,99 @@ const statusEl= document.getElementById("status-msg");
 const resultsEl=document.getElementById("results");
 const barsEl  = document.getElementById("risk-bars");
 const viewsEl = document.getElementById("views-note");
+const gateEl  = document.getElementById("gate");
+const gatePwd = document.getElementById("gate-pwd");
+const gateBtn = document.getElementById("gate-btn");
+const gateErr = document.getElementById("gate-error");
+let sessionObj = null;
+
+function loadSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(GATE_SESSION_KEY) || "null");
+    return (s && s.token && s.reviewer) ? s : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function saveSession(s) {
+  sessionStorage.setItem(GATE_SESSION_KEY, JSON.stringify(s));
+}
+
+function clearSession() {
+  sessionStorage.removeItem(GATE_SESSION_KEY);
+}
+
+function addReviewerBadge(session) {
+  const existing = document.getElementById("reviewer-badge");
+  if (existing) existing.remove();
+
+  const badge = document.createElement("div");
+  badge.id = "reviewer-badge";
+  badge.textContent = `Reviewer: ${session.reviewer} | sign out`;
+  badge.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:10000;background:#0f172a;color:#e2e8f0;border-radius:999px;padding:6px 12px;font-size:.76rem;cursor:pointer;";
+  badge.addEventListener("click", () => {
+    if (confirm("Sign out reviewer session?")) {
+      clearSession();
+      location.reload();
+    }
+  });
+  document.body.appendChild(badge);
+}
+
+async function doLogin(password) {
+  const res = await fetch(`${API_BASE}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((body && body.error) || `HTTP ${res.status}`);
+  }
+  return { token: body.token, reviewer: body.reviewer || "reviewer", at: Date.now() };
+}
+
+function unlockDemo() {
+  document.body.classList.remove("locked");
+  if (gateEl) gateEl.style.display = "none";
+}
+
+function initPasswordGate() {
+  const existing = loadSession();
+  if (existing) {
+    sessionObj = existing;
+    unlockDemo();
+    addReviewerBadge(existing);
+    return;
+  }
+
+  async function submitLogin() {
+    const pwd = (gatePwd.value || "").trim();
+    if (!pwd) return;
+    gateBtn.disabled = true;
+    gateErr.textContent = "";
+    try {
+      const session = await doLogin(pwd);
+      sessionObj = session;
+      saveSession(session);
+      gateErr.textContent = "";
+      unlockDemo();
+      addReviewerBadge(session);
+      return;
+    } catch (e) {
+      gateErr.textContent = e.message || "Login failed.";
+      gateBtn.disabled = false;
+      gatePwd.select();
+    }
+  }
+
+  gateBtn.addEventListener("click", submitLogin);
+
+  gatePwd.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitLogin();
+  });
+}
 
 DEMO_EXAMS.forEach((exam, i) => {
   const opt = document.createElement("option");
@@ -354,6 +506,7 @@ function updateBadge() {
 sel.addEventListener("change", () => { updateBadge(); hideError(); });
 btn.addEventListener("click", onScore);
 updateBadge();
+initPasswordGate();
 
 // ── Score ─────────────────────────────────────────────────────────────────────
 async function onScore() {
@@ -366,12 +519,21 @@ async function onScore() {
   hideError();
 
   try {
+    const headers = { "Content-Type": "application/json" };
+    if (sessionObj && sessionObj.token) {
+      headers.Authorization = `Bearer ${sessionObj.token}`;
+    }
+
     const res = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ s3_bucket: S3_BUCKET, images: exam.images }),
     });
     if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        clearSession();
+        sessionObj = null;
+      }
       const text = await res.text();
       throw new Error(`API error ${res.status}: ${text}`);
     }
