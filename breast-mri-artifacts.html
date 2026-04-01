@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -379,19 +379,19 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
     <li>Fix: increase phase-encode steps; zero-fill interpolation; k-space filtering (Hamming/Hanning window)</li>
   </ul>
 </div>
-<p>The Gibbs phenomenon arises from the mathematical properties of Fourier reconstruction. MRI acquires k-space data over a finite number of samples; when this truncated dataset is inverse-Fourier transformed, high-frequency components near sharp signal transitions are incompletely represented, producing a series of oscillating ringing bands that parallel high-contrast interfaces.</p>
-<p>In breast MRI, Gibbs ringing is most visible at sharp interfaces with large signal differences: the skin-air boundary, the skin-parenchyma interface, and the margin of silicone implants. The rings appear as thin parallel bands of alternating bright and dark signal, closely spaced near the interface and diminishing in amplitude with distance. The artifact is more pronounced in the phase-encode direction when phase matrix is smaller than frequency matrix, and is generally more visible on high-contrast sequences such as T2-weighted imaging.</p>
-<p>The artifact can be reduced by increasing the number of phase-encode steps to acquire more k-space data, at the cost of longer scan time. Zero-fill interpolation increases apparent matrix size and smooths the ringing at the expense of true spatial resolution. K-space filtering techniques (such as Hamming or Hanning windowing) taper the k-space periphery, reducing ringing while introducing mild blurring. In clinical practice, recognition of the parallel-band pattern at expected high-contrast interfaces is usually sufficient to distinguish Gibbs artifact from true pathology.</p>
+<p>The Gibbs phenomenon arises from finite k-space sampling: when a truncated dataset is inverse-Fourier transformed, high-frequency components near sharp signal transitions are incompletely represented, producing oscillating ringing bands that parallel high-contrast interfaces.</p>
+<p>In breast MRI, ringing is most visible at the skin-air boundary, skin-parenchyma interface, and implant margins, appearing as thin alternating bright and dark bands closely spaced near the interface and diminishing in amplitude with distance. The artifact is more pronounced in the phase-encode direction when the phase matrix is smaller than the frequency matrix, and is generally more conspicuous on high-contrast sequences such as T2-weighted imaging.</p>
+<p>Mitigation strategies include increasing phase-encode steps (more complete k-space at the cost of scan time), zero-fill interpolation (smoother appearance without true resolution gain), and k-space windowing such as Hamming or Hanning filtering (reduces ringing with mild blurring). Clinically, the parallel-band pattern at expected anatomic interfaces is usually sufficient to distinguish Gibbs artifact from true pathology.</p>
 </div>
 </div>
 
 <div class="figure-block">
   <div class="image-panel" style="background:#1a1a1a;min-height:180px;display:flex;align-items:center;justify-content:center;border-radius:4px;border:1px dashed #444;flex:0 0 380px;">
-    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 19 pending — Gibbs ring artifact image]</span>
+    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 19 pending â€” Gibbs ring artifact image]</span>
   </div>
   <div class="caption-panel">
-    <div class="fig-label">FIGURE 19 <span class="status status-query">Gibbs Ring — Image Pending</span></div>
-    <div class="caption-text">Gibbs ringing artifact at a high-contrast tissue interface. Parallel alternating bright and dark bands parallel the interface margin, diminishing in amplitude with distance. The artifact follows the contour of the interface exactly and is present symmetrically on both sides. Recognition of this parallel-band pattern at expected anatomic boundaries — particularly the skin-air and skin-parenchyma interfaces on T2-weighted sequences — is sufficient to distinguish it from pathologic signal alteration.</div>
+    <div class="fig-label">FIGURE 19 <span class="status status-query">Gibbs Ring â€” Image Pending</span></div>
+    <div class="caption-text">Gibbs ringing artifact at a high-contrast tissue interface. Parallel alternating bright and dark bands parallel the interface margin, diminishing in amplitude with distance. The artifact follows the contour of the interface exactly and is present symmetrically on both sides. Recognition of this parallel-band pattern at expected anatomic boundaries â€” particularly the skin-air and skin-parenchyma interfaces on T2-weighted sequences â€” is sufficient to distinguish it from pathologic signal alteration.</div>
   </div>
 </div>
 <hr class="divider">
@@ -404,22 +404,22 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
     <li>Two distinct mechanisms produce false signal on subtraction images: motion misregistration and intrinsic T1 shortening</li>
     <li>Subtraction error: bright/dark crescents at tissue boundaries from pre/post motion mismatch</li>
     <li>T1 shine-through: blood products, proteinaceous fluid, mucinous tissue, silicone, or incompletely suppressed fat remain high on subtraction without gadolinium uptake</li>
-    <li>Key rule: review pre-contrast source images — if the focus is already bright before contrast, it is not enhancement</li>
+    <li>Key rule: review pre-contrast source images â€” if the focus is already bright before contrast, it is not enhancement</li>
     <li>Fix: retrospective registration; compare source phases; T2 imaging and kinetic analysis to characterize indeterminate foci</li>
   </ul>
 </div>
-<p>Dynamic contrast-enhanced breast MRI relies on digital subtraction of pre-contrast from post-contrast images to isolate enhancing tissue. Two distinct artifact mechanisms can produce false or misleading signal on subtraction images: subtraction misregistration (subtraction error) and T1 shine-through.</p>
-<p><strong>Subtraction Error (Motion Misregistration).</strong> Subtraction error results from motion between the pre-contrast and post-contrast acquisitions. When the two volumes are not spatially registered, tissue that moved between acquisitions leaves a residual signal difference on the subtracted image that does not represent enhancement. The artifact appears as a bright crescent or ring adjacent to a structure boundary — most commonly at the chest wall, heart margin, or skin surface — with a corresponding dark crescent on the opposite side. On more severe misregistration, entire regions can appear falsely enhanced or suppressed. When subtraction images appear suspicious, reviewing the source (non-subtracted) post-contrast images is essential to determine whether enhancement is real.</p>
-<p><strong>T1 Shine-Through.</strong> T1 shine-through occurs when a structure with intrinsically short T1 relaxation time — and therefore high signal on T1-weighted images at baseline — retains high signal on post-contrast images and appears bright on the subtraction image despite the absence of gadolinium uptake. Common causes in breast MRI include hemorrhage or blood products (methemoglobin), proteinaceous cyst fluid, mucinous tissue, fat (when fat suppression is incomplete), and silicone. Because these structures are bright on both pre- and post-contrast images, incomplete cancellation on subtraction can produce a residual high-signal focus that mimics enhancement. Recognition requires comparison of pre-contrast source images: a focus that is already bright before contrast and shows no signal increase between phases does not represent true enhancement.</p>
+<p>Dynamic contrast-enhanced breast MRI uses digital subtraction of pre-contrast from post-contrast images to isolate enhancing tissue; two distinct mechanisms can produce false signal on the subtracted series.</p>
+<p><strong>Subtraction Error (Motion Misregistration).</strong> Motion between acquisitions leaves spatially unregistered tissue as a residual signal difference that mimics enhancement, appearing as a bright crescent at a structure boundary â€” most commonly the chest wall, heart margin, or skin surface â€” with a corresponding dark crescent on the opposite side. When subtraction images are suspicious, non-subtracted post-contrast source images should be reviewed to confirm real enhancement.</p>
+<p><strong>T1 Shine-Through.</strong> Structures with intrinsically short T1 â€” hemorrhage or blood products, proteinaceous cyst fluid, mucinous tissue, silicone, or incompletely suppressed fat â€” are already bright at baseline and can remain bright on the subtracted image despite the absence of gadolinium uptake. The key rule is to compare pre-contrast source images: a focus that is already bright before contrast and shows no signal increase between phases does not represent true enhancement.</p>
 </div>
 </div>
 
 <div class="figure-block">
   <div class="image-panel" style="background:#1a1a1a;min-height:180px;display:flex;align-items:center;justify-content:center;border-radius:4px;border:1px dashed #444;flex:0 0 380px;">
-    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 20 placeholder — use Figure 10 for subtraction misregistration reference]</span>
+    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 20 placeholder â€” use Figure 10 for subtraction misregistration reference]</span>
   </div>
   <div class="caption-panel">
-    <div class="fig-label">FIGURE 20 <span class="status status-query">Enhancement Artifact — Refer to Figure 10</span></div>
+    <div class="fig-label">FIGURE 20 <span class="status status-query">Enhancement Artifact â€” Refer to Figure 10</span></div>
     <div class="caption-text">Enhancement artifact from subtraction misregistration or T1 shine-through. For subtraction misregistration visualization, reference Figure 10 (Motion - Subtraction / True Lesions). Review of pre-contrast source images is essential: a focus that is already bright on T1-weighted pre-contrast imaging and shows no interval signal increase between DCE phases does not represent true gadolinium enhancement, regardless of its appearance on the subtracted series.</div>
   </div>
 </div>
@@ -430,24 +430,24 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
 <div class="key-points">
   <h4>Key Points</h4>
   <ul>
-    <li>General SNR degradation reduces lesion conspicuity — particularly small enhancing foci; driven by coil configuration, voxel volume, bandwidth, and acceleration factor</li>
-    <li>Zipper artifact: fixed linear band across entire image, perpendicular to frequency-encode direction — caused by external RF interference source or faulty coil element</li>
-    <li>Herringbone artifact: crisscross zigzag across entire image — caused by a single k-space data spike from electronic transient or gradient instability</li>
+    <li>General SNR degradation reduces lesion conspicuity â€” particularly small enhancing foci; driven by coil configuration, voxel volume, bandwidth, and acceleration factor</li>
+    <li>Zipper artifact: fixed linear band across entire image, perpendicular to frequency-encode direction â€” caused by external RF interference source or faulty coil element</li>
+    <li>Herringbone artifact: crisscross zigzag across entire image â€” caused by a single k-space data spike from electronic transient or gradient instability</li>
     <li>Both structured noise artifacts require engineering investigation; repeating the sequence resolves transient herringbone but not a persistent RF source</li>
   </ul>
 </div>
-<p>Signal-to-noise ratio (SNR) in breast MRI is determined by field strength, voxel volume, acquisition bandwidth, number of signal averages, and coil configuration. Compromised SNR produces grainy, low-contrast images that reduce lesion conspicuity — particularly for small enhancing foci. Beyond general SNR degradation, two structured noise artifacts arise from specific technical failures and produce characteristic patterns that aid diagnosis.</p>
-<p><strong>Zipper Artifact.</strong> The zipper artifact appears as a discrete linear band of alternating bright and dark pixels, oriented perpendicular to the frequency-encode direction and running across the entire image. It is caused by a single-frequency radiofrequency interference source that continuously adds energy at one frequency during data acquisition. Common sources include leaks in the RF-shielded scanner room (a gap in the Faraday cage, improperly sealed door, or cable feedthrough), malfunctioning electronic equipment within the room, or a defective coil element generating internal RF emission. The distinguishing feature is its fixed spatial location — the line does not move between acquisitions and is present throughout the series. Engineering inspection of room shielding and coil integrity is the appropriate response to a persistent zipper artifact.</p>
-<p><strong>Herringbone (Crisscross) Artifact.</strong> The herringbone artifact produces a characteristic zigzag or crisscross pattern of bright and dark lines across the entire image. It results from a spike or data corruption in k-space — a single anomalously high-amplitude data point produces a sinusoidal modulation across the entire reconstructed image in both directions. Common causes include electronic transients, gradient amplifier instability, and data transmission errors between the receiver and reconstruction system. Repeating the affected sequence often resolves the artifact if the cause was a transient event; persistent herringbone requires engineering evaluation of gradient electronics and reconstruction chain integrity.</p>
+<p>Signal-to-noise ratio (SNR) in breast MRI is determined by field strength, voxel volume, acquisition bandwidth, number of signal averages, and coil configuration. Compromised SNR produces grainy, low-contrast images that reduce lesion conspicuity â€” particularly for small enhancing foci. Beyond general SNR degradation, two structured noise artifacts arise from specific technical failures and produce characteristic patterns that aid diagnosis.</p>
+<p><strong>Zipper Artifact.</strong> The zipper artifact appears as a discrete linear band of alternating bright and dark pixels, oriented perpendicular to the frequency-encode direction and running across the entire image. It is caused by a single-frequency radiofrequency interference source that continuously adds energy at one frequency during data acquisition. Common sources include leaks in the RF-shielded scanner room (a gap in the Faraday cage, improperly sealed door, or cable feedthrough), malfunctioning electronic equipment within the room, or a defective coil element generating internal RF emission. The distinguishing feature is its fixed spatial location â€” the line does not move between acquisitions and is present throughout the series. Engineering inspection of room shielding and coil integrity is the appropriate response to a persistent zipper artifact.</p>
+<p><strong>Herringbone (Crisscross) Artifact.</strong> The herringbone artifact produces a characteristic zigzag or crisscross pattern of bright and dark lines across the entire image. It results from a spike or data corruption in k-space â€” a single anomalously high-amplitude data point produces a sinusoidal modulation across the entire reconstructed image in both directions. Common causes include electronic transients, gradient amplifier instability, and data transmission errors between the receiver and reconstruction system. Repeating the affected sequence often resolves the artifact if the cause was a transient event; persistent herringbone requires engineering evaluation of gradient electronics and reconstruction chain integrity.</p>
 </div>
 </div>
 
 <div class="figure-block">
   <div class="image-panel" style="background:#1a1a1a;min-height:180px;display:flex;align-items:center;justify-content:center;border-radius:4px;border:1px dashed #444;flex:0 0 380px;">
-    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 21 pending — zipper and/or herringbone artifact image]</span>
+    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 21 pending â€” zipper and/or herringbone artifact image]</span>
   </div>
   <div class="caption-panel">
-    <div class="fig-label">FIGURE 21 <span class="status status-query">Noise / SNR — Image Pending</span></div>
+    <div class="fig-label">FIGURE 21 <span class="status status-query">Noise / SNR â€” Image Pending</span></div>
     <div class="caption-text">Structured noise artifact. <em>Zipper:</em> a fixed linear band of alternating signal traverses the entire image perpendicular to the frequency-encode direction, reflecting continuous single-frequency RF contamination from an external source or defective coil element. <em>Herringbone:</em> a crisscross zigzag pattern across the entire image arising from a single anomalous k-space data point. Both patterns are present throughout the affected series and require engineering investigation rather than protocol adjustment.</div>
   </div>
 </div>
@@ -535,7 +535,7 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
   <div class="section-header">CONCLUSION</div>
   <div class="text-content">
 <p>Artifacts in breast MRI are pervasive and multifactorial, arising from field inhomogeneity, incomplete fat suppression, metallic hardware, motion, aliasing, chemical shift, geometric distortion, partial volume effects, Gibbs ringing, enhancement misregistration, T1 shine-through, and structured noise patterns. These artifacts alter signal behavior, spatial fidelity, and enhancement conspicuity in ways that can simulate or obscure pathology. Because artifacts change image appearance in predictable, physics-based ways, understanding their origins supports consistent recognition and troubleshooting.</p>
-<p>Modern MRI systems and protocol standardization enable substantial artifact mitigation when properly applied. Radiologists and technologists must work collaboratively to recognize artifacts promptly, troubleshoot root causes, and adopt standardized acquisition and quality-assurance workflows. Importantly, no single mitigation strategy is universally applicable — effective artifact management requires matching the solution to the underlying cause and accepting that corrective measures often involve trade-offs among SNR, spatial resolution, and scan time.</p>
+<p>Modern MRI systems and protocol standardization enable substantial artifact mitigation when properly applied. Radiologists and technologists must work collaboratively to recognize artifacts promptly, troubleshoot root causes, and adopt standardized acquisition and quality-assurance workflows. Importantly, no single mitigation strategy is universally applicable â€” effective artifact management requires matching the solution to the underlying cause and accepting that corrective measures often involve trade-offs among SNR, spatial resolution, and scan time.</p>
 </div>
 </div>
 
@@ -639,7 +639,7 @@ caption { color: #888; font-size: 0.85em; margin-bottom: 6px; text-align: left; 
           btn.textContent = '+ note';
           setTimeout(function() { panel.style.display = 'none'; status.textContent = ''; }, 1800);
         } catch(e) {
-          status.textContent = 'Error — check console.';
+          status.textContent = 'Error â€” check console.';
           status.className = 'para-note-status err';
         } finally {
           submit.disabled = false;
