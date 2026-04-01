@@ -21,7 +21,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -963,17 +963,23 @@ geometric distortion at the implant margins.</p></div></figcaption></figure></se
 <li>Most visible on high-contrast sequences such as T2-weighted
 imaging</li>
 <li>Fix: increase phase-encode steps; zero-fill interpolation</li>
-</ul></div><p><img decoding="async" loading="lazy" src="figures/gibbs04axialirimplant%20evaluation.png"/></p><p>FIGURE 19 Gibbs ring artifact most noticable at implant interface
-(axial, IR sequence)</p><p>Gibbs ringing is a Fourier truncation artifact from finite k-space
-sampling. Inverse FFT of truncated data fails to represent the highest
-spatial frequencies at abrupt transitions, generating thin parallel
-bright/dark bands near high-contrast boundaries.</p><p>In breast MRI, it is easiest to see at skin-air, skin-parenchyma, and
+</ul></div><p>In breast MRI, it is easiest to see at skin-air, skin-parenchyma, and
 implant margins, especially in the phase-encode direction and on
 high-contrast sequences (e.g., T2). Reduce it by increasing phase-encode
 steps (more k-space lines) at scan-time cost; zero-fill interpolation
 can smooth the appearance but does not recover true spatial resolution.
 Recognition of the characteristic parallel-band pattern of Gibbs ringing
-helps differentiate it from true lesions.</p></section><section class="article-section" id="enhancement"><h2>Enhancement Artifacts: Subtraction Error and T1 Shine-Through</h2><div class="callout callout-key"><h3>Key Points</h3><ul>
+helps differentiate it from true lesions.</p><p><img decoding="async" loading="lazy" src="figures/gibbs04axialirimplant%20evaluation.png"/></p><p>FIGURE 19 Gibbs ring artifact most noticable at implant interface
+(axial, IR sequence)</p><p>Gibbs ringing is a Fourier truncation artifact from finite k-space
+sampling. Inverse FFT of truncated data fails to represent the highest
+spatial frequencies at abrupt transitions, generating thin parallel
+bright/dark bands near high-contrast boundaries.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/sub_motion_nodules_right.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 20</div><h3 class="figure-title">Enhancement - Subtraction Misregistration</h3><div class="figure-caption-body"><p>Subtraction misregistration artifact on dynamic contrast-enhanced
+imaging. Ghost artifacts from cardiac and respiratory motion propagate
+in the phase-encode direction and produce false signal on the subtracted
+image, overlapping with true enhancing foci in the right breast. The
+ghost replicas alter local conspicuity and can mimic or obscure
+enhancement. Review of non-subtracted source images confirms which foci
+represent true gadolinium uptake.</p></div></figcaption></figure></section><section class="article-section" id="enhancement"><h2>Enhancement Artifacts: Subtraction Error and T1 Shine-Through</h2><div class="callout callout-key"><h3>Key Points</h3><ul>
 <li>Two distinct mechanisms produce false signal on subtraction images:
 motion misregistration and intrinsic T1 shortening</li>
 <li>Subtraction error: bright/dark crescents at tissue boundaries from
@@ -999,13 +1005,7 @@ skin surface, with a corresponding dark crescent on the opposite side.
 On more severe misregistration, entire regions can appear falsely
 enhanced or suppressed. When subtraction images appear suspicious,
 reviewing the source (non-subtracted) post-contrast images is essential
-to determine whether enhancement is real.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/sub_motion_nodules_right.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 10</div><h3 class="figure-title">Enhancement - Subtraction Misregistration</h3><div class="figure-caption-body"><p>Subtraction misregistration artifact on dynamic contrast-enhanced
-imaging. Ghost artifacts from cardiac and respiratory motion propagate
-in the phase-encode direction and produce false signal on the subtracted
-image, overlapping with true enhancing foci in the right breast. The
-ghost replicas alter local conspicuity and can mimic or obscure
-enhancement. Review of non-subtracted source images confirms which foci
-represent true gadolinium uptake.</p></div></figcaption></figure><p><strong>T1 Shine-Through.</strong> T1 shine-through occurs when short
+to determine whether enhancement is real.</p><p><strong>T1 Shine-Through.</strong> T1 shine-through occurs when short
 T1 tissue, and therefore bright on T1-weighted images at baseline, stays
 bright on post-contrast images and bright on the subtraction image
 despite the absence of gadolinium uptake. Common causes in breast MRI
