@@ -591,44 +591,45 @@
 
     const REFERENCE_RESULTS = [
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.975693, risk_2yr: 0.999085, risk_3yr: 0.99999, risk_4yr: 0.999999, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        risks: { risk_1yr: 0.492469, risk_2yr: 0.810653, risk_3yr: 0.825755, risk_4yr: 0.827719, risk_5yr: 0.923188 }
       },
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.971843, risk_2yr: 0.998502, risk_3yr: 0.999963, risk_4yr: 0.999998, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        risks: { risk_1yr: 0.499629, risk_2yr: 0.807553, risk_3yr: 0.821903, risk_4yr: 0.823048, risk_5yr: 0.894968 }
       },
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.986024, risk_2yr: 0.999705, risk_3yr: 0.999995, risk_4yr: 0.999999, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        risks: { risk_1yr: 0.362687, risk_2yr: 0.69718, risk_3yr: 0.71293, risk_4yr: 0.714568, risk_5yr: 0.855865 }
       },
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.970988, risk_2yr: 0.998443, risk_3yr: 0.999972, risk_4yr: 0.999999, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        risks: { risk_1yr: 0.452135, risk_2yr: 0.762876, risk_3yr: 0.787694, risk_4yr: 0.791753, risk_5yr: 0.912303 }
       },
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.991042, risk_2yr: 0.999837, risk_3yr: 0.999998, risk_4yr: 1.0, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        error: "Reference refresh failed: API 503",
+        risks: { risk_1yr: null, risk_2yr: null, risk_3yr: null, risk_4yr: null, risk_5yr: null }
       },
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.984461, risk_2yr: 0.999655, risk_3yr: 0.99999, risk_4yr: 0.999999, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        risks: { risk_1yr: 0.327473, risk_2yr: 0.656185, risk_3yr: 0.68702, risk_4yr: 0.689392, risk_5yr: 0.932843 }
       },
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.993431, risk_2yr: 0.999912, risk_3yr: 0.999998, risk_4yr: 1.0, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        risks: { risk_1yr: 0.287346, risk_2yr: 0.66515, risk_3yr: 0.687265, risk_4yr: 0.690899, risk_5yr: 0.929202 }
       },
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.977065, risk_2yr: 0.999119, risk_3yr: 0.999987, risk_4yr: 0.999999, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        risks: { risk_1yr: 0.327171, risk_2yr: 0.652063, risk_3yr: 0.664585, risk_4yr: 0.666374, risk_5yr: 0.894922 }
       },
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.98899, risk_2yr: 0.999742, risk_3yr: 0.999996, risk_4yr: 1.0, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        risks: { risk_1yr: 0.469928, risk_2yr: 0.766789, risk_3yr: 0.780931, risk_4yr: 0.783476, risk_5yr: 0.892153 }
       },
       {
-        capturedAt: "2026-03-30T11:33:00-07:00",
-        risks: { risk_1yr: 0.988141, risk_2yr: 0.999839, risk_3yr: 0.999996, risk_4yr: 0.999999, risk_5yr: 1.0 }
+        capturedAt: "2026-04-01T14:50:15-07:00",
+        risks: { risk_1yr: 0.407856, risk_2yr: 0.719957, risk_3yr: 0.743773, risk_4yr: 0.746505, risk_5yr: 0.892009 }
       }
     ];
 
@@ -920,6 +921,9 @@
 
         if (reference && reference.capturedAt) {
           statusBits.push(`Reference ${formatCalculatedAt(new Date(reference.capturedAt))}`);
+        }
+        if (reference && reference.error) {
+          statusBits.push(reference.error);
         }
         if (hist) {
           statusBits.push(`Live ${formatCalculatedAt(new Date(hist.calculatedAt))}`);
