@@ -259,7 +259,7 @@
 
   <h1>Mammography Risk Demo</h1>
   <p class="subtitle">
-    Select a pre-staged exam from the CMMD dataset and click
+    Select a pre-staged exam from the CBIS-DDSM dataset and click
     <strong>Score Exam</strong> to run the model.
     Results show cumulative breast cancer risk estimates at 1–5 years.
   </p>
@@ -282,8 +282,8 @@
 
   <div class="disclaimer">
     <strong>Research use only.</strong> Not for clinical decision-making.
-    Scores are model predictions on held-out CMMD demo cases.
-    Ground truth labels are from the CMMD clinical dataset.
+    Scores are model predictions on pre-staged CBIS-DDSM demo cases.
+    Ground truth labels are based on the CBIS-DDSM case-description pathology.
   </div>
 </div>
 
@@ -295,7 +295,7 @@ const GATE_SESSION_KEY = "mg_review_auth_v1";
 
 const DEMO_EXAMS = [
   {
-    label: "CMMD Patient 001 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00092 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -304,7 +304,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 002 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00160 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -313,7 +313,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 003 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00418 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -322,7 +322,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 004 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00419 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -331,7 +331,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 005 — Malignant", truth: "Malignant",
+    label: "CBIS-DDSM Patient 00432 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -340,7 +340,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 006 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00008 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -349,7 +349,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 007 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00021 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -358,7 +358,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 008 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00030 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -367,7 +367,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 009 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00038 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -376,7 +376,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CMMD Patient 010 — Benign", truth: "Benign",
+    label: "CBIS-DDSM Patient 00077 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
