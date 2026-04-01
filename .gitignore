@@ -1,0 +1,18 @@
+# Operational scripts — keep these out of the public repo
+*.ps1
+*.bat
+*.cmd
+
+# Internal ops/setup docs
+PUBLISHING.md
+CLOUDFLARE_PAGES.md
+DEMO_*.md
+
+# Office/binary artifacts
+*.docx
+*.pptx
+*.xlsx
+
+# Local scratch
+*.tmp
+*.log
