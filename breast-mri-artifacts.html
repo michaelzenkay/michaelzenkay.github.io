@@ -969,11 +969,11 @@ high-contrast sequences (e.g., T2). Reduce it by increasing phase-encode
 steps (more k-space lines) at scan-time cost; zero-fill interpolation
 can smooth the appearance but does not recover true spatial resolution.
 Recognition of the characteristic parallel-band pattern of Gibbs ringing
-helps differentiate it from true lesions.</p><p><img decoding="async" loading="lazy" src="figures/gibbs04axialirimplant%20evaluation.png"/></p><p>FIGURE 19 Gibbs ring artifact most noticable at implant interface
-(axial, IR sequence)</p><p>Gibbs ringing is a Fourier truncation artifact from finite k-space
+helps differentiate it from true lesions.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/gibbs04axialirimplant%20evaluation.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 19</div><h3 class="figure-title">Gibbs ring artifact most noticable at implant interface
+(axial, IR sequence)</h3><div class="figure-caption-body"><p>Gibbs ringing is a Fourier truncation artifact from finite k-space
 sampling. Inverse FFT of truncated data fails to represent the highest
 spatial frequencies at abrupt transitions, generating thin parallel
-bright/dark bands near high-contrast boundaries.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/sub_motion_nodules_right.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 20</div><h3 class="figure-title">Enhancement - Subtraction Misregistration</h3><div class="figure-caption-body"><p>Subtraction misregistration artifact on dynamic contrast-enhanced
+bright/dark bands near high-contrast boundaries.</p></div></figcaption></figure><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/sub_motion_nodules_right.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 20</div><h3 class="figure-title">Enhancement - Subtraction Misregistration</h3><div class="figure-caption-body"><p>Subtraction misregistration artifact on dynamic contrast-enhanced
 imaging. Ghost artifacts from cardiac and respiratory motion propagate
 in the phase-encode direction and produce false signal on the subtracted
 image, overlapping with true enhancing foci in the right breast. The
