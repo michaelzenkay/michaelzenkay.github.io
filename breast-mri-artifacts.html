@@ -792,12 +792,15 @@ distortion but typically involve trade-offs such as longer acquisition
 time and possible reductions in SNR or spatial resolution, depending on
 sequence design. In the context of a time-constrained, multi-sequence
 breast MRI protocol, these are meaningful trade-offs and should be
-applied selectively.</p><figure class="figure-card multi"><div class="figure-media mosaic"><div class="figure-mosaic"><img alt="T1 pre" decoding="async" loading="lazy" src="figures/port-o-cath_t1_10_2-165.png"/><img alt="T1 post" decoding="async" loading="lazy" src="figures/port-o-cath_t1post_10_11-224.png"/><img alt="T2 FS" decoding="async" loading="lazy" src="figures/port-o-cath_t2fs_10_3-104.png"/></div></div><figcaption class="figure-copy"><div class="figure-number">Figure 7</div><h3 class="figure-title">Metal / Susceptibility - Port Multi-sequence</h3><div class="figure-note">A: T1 pre-contrast | B: T1 post-contrast | C: T2 fat-sat</div><div class="figure-caption-body"><p>T1-weighted pre-contrast, (B) T1-weighted post-contrast, and (C)
+applied selectively.</p><p>FIGURE 7 Metal / Susceptibility - Port Multi-sequence</p><p>A: T1 pre-contrast | B: T1 post-contrast | C: T2 fat-sat A: T1
+pre-contrast | B: T1 post-contrast | C: T2 fat-sat</p><ol class="references-list" type="A">
+<li>T1-weighted pre-contrast, (B) T1-weighted post-contrast, and (C)
 T2-weighted fat-saturated images demonstrate the variable appearance of
 metallic susceptibility artifact from a subcutaneous port. Signal void
 and geometric distortion are most pronounced on gradient-echo sequences
 and fat-saturated acquisitions. The location and extent of signal void
-are consistent with the known device position.</p></div></figcaption></figure><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/susceptibility.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 8</div><h3 class="figure-title">Metal / Susceptibility - Clip</h3><div class="figure-caption-body"><p>Biopsy clip susceptibility artifact. Axial fat-saturated image
+are consistent with the known device position.</li>
+</ol><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/susceptibility.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 8</div><h3 class="figure-title">Metal / Susceptibility - Clip</h3><div class="figure-caption-body"><p>Biopsy clip susceptibility artifact. Axial fat-saturated image
 demonstrates focal signal void with surrounding geometric distortion at
 the site of a metallic biopsy marker clip. The blooming artifact
 substantially exceeds the physical clip dimensions and can reduce local
@@ -953,37 +956,24 @@ fat-suppression nonuniformity near implant margins. Recognition of these
 effects helps contextualize peri-implant signal variation.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/implants_t1_13-401-53.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 18</div><h3 class="figure-title">Implants</h3><div class="figure-caption-body"><p>Implant-related artifact. Axial T1-weighted image in a patient with
 silicone implants demonstrates susceptibility-related signal changes and
 geometric distortion at the implant margins.</p></div></figcaption></figure></section><section class="article-section" id="gibbs"><h2>Gibbs Ring Artifact (Truncation Artifact)</h2><div class="callout callout-key"><h3>Key Points</h3><ul>
-<li>Arises from Fourier truncation of finite k-space data; named for
-mathematician J.W. Gibbs</li>
+<li>Arises from Fourier truncation of finite k-space data</li>
 <li>Appears as parallel ringing bands at high-contrast interfaces
 (skin-air, skin-parenchyma, implant margins)</li>
-<li>More pronounced in the phase-encode direction when phase matrix is
-smaller than frequency matrix</li>
+<li>More pronounced in the phase-encode direction</li>
 <li>Most visible on high-contrast sequences such as T2-weighted
 imaging</li>
-<li>Fix: increase phase-encode steps; zero-fill interpolation; k-space
-filtering (Hamming/Hanning window)</li>
-</ul></div><p>The Gibbs ring artifact arises from Fourier reconstruction. MRI
-acquires k-space data over a finite number of samples; when this
-truncated dataset is inverse-Fourier transformed, high-frequency
-components near sharp signal transitions are incompletely represented,
-producing a series of oscillating ringing bands that parallel
-high-contrast interfaces.</p><p>In breast MRI, Gibbs ringing is most visible at sharp interfaces with
-large signal differences: the skin-air boundary, the skin-parenchyma
-interface, and the margin of silicone implants. The rings appear as thin
-parallel bands of alternating bright and dark signal, closely spaced
-near the interface and diminishing in amplitude with distance. The
-artifact is more pronounced in the phase-encode direction when phase
-matrix is smaller than frequency matrix, and is generally more visible
-on high-contrast sequences such as T2-weighted imaging.</p><p>The artifact can be reduced by increasing the number of phase-encode
-steps to acquire more k-space data, at the cost of longer scan time.
-Zero-fill interpolation increases apparent matrix size and smooths the
-ringing at the expense of true spatial resolution. K-space filtering
-techniques (such as Hamming or Hanning windowing) taper the k-space
-periphery, reducing ringing while introducing mild blurring. In clinical
-practice, recognition of the parallel-band pattern at expected
-high-contrast interfaces is usually sufficient to distinguish Gibbs
-artifact from true pathology.</p></section><section class="article-section" id="enhancement"><h2>Enhancement Artifacts: Subtraction Error and T1 Shine-Through</h2><div class="callout callout-key"><h3>Key Points</h3><ul>
+<li>Fix: increase phase-encode steps; zero-fill interpolation</li>
+</ul></div><p><img decoding="async" loading="lazy" src="figures/gibbs04axialirimplant%20evaluation.png"/></p><p>FIGURE 19 Gibbs ring artifact most noticable at implant interface
+(axial, IR sequence)</p><p>Gibbs ringing is a Fourier truncation artifact from finite k-space
+sampling. Inverse FFT of truncated data fails to represent the highest
+spatial frequencies at abrupt transitions, generating thin parallel
+bright/dark bands near high-contrast boundaries.</p><p>In breast MRI, it is easiest to see at skin-air, skin-parenchyma, and
+implant margins, especially in the phase-encode direction and on
+high-contrast sequences (e.g., T2). Reduce it by increasing phase-encode
+steps (more k-space lines) at scan-time cost; zero-fill interpolation
+can smooth the appearance but does not recover true spatial resolution.
+Recognition of the characteristic parallel-band pattern of Gibbs ringing
+helps differentiate it from true lesions.</p></section><section class="article-section" id="enhancement"><h2>Enhancement Artifacts: Subtraction Error and T1 Shine-Through</h2><div class="callout callout-key"><h3>Key Points</h3><ul>
 <li>Two distinct mechanisms produce false signal on subtraction images:
 motion misregistration and intrinsic T1 shortening</li>
 <li>Subtraction error: bright/dark crescents at tissue boundaries from
@@ -1010,19 +1000,18 @@ or skin surface, with a corresponding dark crescent on the opposite
 side. On more severe misregistration, entire regions can appear falsely
 enhanced or suppressed. When subtraction images appear suspicious,
 reviewing the source (non-subtracted) post-contrast images is essential
-to determine whether enhancement is real.</p><p><strong>T1 Shine-Through.</strong> T1 shine-through occurs when a
-structure with intrinsically short T1 relaxation time, and therefore
-high signal on T1-weighted images at baseline, retains high signal on
-post-contrast images and appears bright on the subtraction image despite
-the absence of gadolinium uptake. Common causes in breast MRI include
-hemorrhage or blood products (methemoglobin), proteinaceous cyst fluid,
-mucinous tissue, fat (when fat suppression is incomplete), and silicone.
-Because these structures are bright on both pre- and post-contrast
-images, incomplete cancellation on subtraction can produce a residual
-high-signal focus that mimics enhancement. Recognition requires
-comparison of pre-contrast source images: a focus that is already bright
-before contrast and shows no signal increase between phases does not
-represent true enhancement.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/sub_motion_nodules_right.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 10</div><h3 class="figure-title">Enhancement - Subtraction Misregistration</h3><div class="figure-caption-body"><p>Subtraction misregistration artifact on dynamic contrast-enhanced
+to determine whether enhancement is real.</p><p><strong>T1 Shine-Through.</strong> T1 shine-through occurs when short
+T1 tissue, and therefore bright on T1-weighted images at baseline, stays
+bright on post-contrast images and bright on the subtraction image
+despite the absence of gadolinium uptake. Common causes in breast MRI
+include hemorrhage or blood products (methemoglobin), proteinaceous cyst
+fluid, mucinous tissue, fat (when fat suppression is incomplete), and
+silicone. Being bright on both pre- and post-contrast images, incomplete
+cancellation on subtraction can produce a residual high-signal focus
+that mimics enhancement. Recognition requires comparison of pre-contrast
+source images: a focus that is already bright before contrast and shows
+no signal increase between phases does not represent true
+enhancement.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/sub_motion_nodules_right.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 10</div><h3 class="figure-title">Enhancement - Subtraction Misregistration</h3><div class="figure-caption-body"><p>Subtraction misregistration artifact on dynamic contrast-enhanced
 imaging. Ghost artifacts from cardiac and respiratory motion propagate
 in the phase-encode direction and produce false signal on the subtracted
 image, overlapping with true enhancing foci in the right breast. The
@@ -1095,7 +1084,7 @@ Proton</em>. 2nd ed. Cambridge University Press; 2006. <a href="https://www.ajnr
 Screening. <em>J Magn Reson Imaging</em>. 2019;50(2):377-390. <a href="https://pubmed.ncbi.nlm.nih.gov/30659696/">PubMed</a> | <a href="https://doi.org/10.1002/jmri.26654">DOI</a></li>
 <li>Schoenberg SO, Dietrich O, Reiser MF, eds. <em>Parallel Imaging in
 Clinical MR Applications</em>. Springer; 2007. <a href="https://doi.org/10.1007/978-3-540-68879-2">DOI</a></li>
-</ol></section></article><div class="page-footer">Last updated: March 27, 2026</div></main></div>
+</ol></section></article><div class="page-footer">Last updated: April 1, 2026</div></main></div>
 <script>
   const PAGE_ID = 'artifacts';
 
