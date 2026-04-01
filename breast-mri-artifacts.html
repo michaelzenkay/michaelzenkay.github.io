@@ -157,7 +157,6 @@ img {
   letter-spacing: -0.03em;
 }
 
-<<<<<<< HEAD
 .hero p {
   margin: 0;
   max-width: 68ch;
@@ -170,63 +169,6 @@ img {
   display: grid;
   gap: 24px;
 }
-=======
-<div class="figure-block">
-  <div class="image-panel"><img src="images/artifacts/implants_t1_13-401-53.png" alt=""></div>
-  <div class="caption-panel">
-    <div class="fig-label">FIGURE 18 <span class="status status-ok">Implants</span></div>
-    <div class="caption-text">Implant-related artifact. Axial T1-weighted image in a patient with silicone implants demonstrates susceptibility-related signal changes and geometric distortion at the implant margins.</div>
-  </div>
-</div>
-<hr class="divider">
-<div class="text-block" id="gibbs">
-  <div class="section-header">GIBBS RING ARTIFACT (TRUNCATION ARTIFACT)</div>
-  <div class="text-content">
-<div class="key-points">
-  <h4>Key Points</h4>
-  <ul>
-    <li>Arises from Fourier truncation of finite k-space data; named for mathematician J.W. Gibbs</li>
-    <li>Appears as parallel ringing bands at high-contrast interfaces (skin-air, skin-parenchyma, implant margins)</li>
-    <li>More pronounced in the phase-encode direction when phase matrix is smaller than frequency matrix</li>
-    <li>Most visible on high-contrast sequences such as T2-weighted imaging</li>
-    <li>Fix: increase phase-encode steps; zero-fill interpolation; k-space filtering (Hamming/Hanning window)</li>
-  </ul>
-</div>
-<p>The Gibbs phenomenon arises from finite k-space sampling: when a truncated dataset is inverse-Fourier transformed, high-frequency components near sharp signal transitions are incompletely represented, producing oscillating ringing bands that parallel high-contrast interfaces.</p>
-<p>In breast MRI, ringing is most visible at the skin-air boundary, skin-parenchyma interface, and implant margins, appearing as thin alternating bright and dark bands closely spaced near the interface and diminishing in amplitude with distance. The artifact is more pronounced in the phase-encode direction when the phase matrix is smaller than the frequency matrix, and is generally more conspicuous on high-contrast sequences such as T2-weighted imaging.</p>
-<p>Mitigation strategies include increasing phase-encode steps (more complete k-space at the cost of scan time), zero-fill interpolation (smoother appearance without true resolution gain), and k-space windowing such as Hamming or Hanning filtering (reduces ringing with mild blurring). Clinically, the parallel-band pattern at expected anatomic interfaces is usually sufficient to distinguish Gibbs artifact from true pathology.</p>
-</div>
-</div>
-
-<div class="figure-block">
-  <div class="image-panel" style="background:#1a1a1a;min-height:180px;display:flex;align-items:center;justify-content:center;border-radius:4px;border:1px dashed #444;flex:0 0 380px;">
-    <span style="color:#555;font-size:0.85em;text-align:center;padding:10px;">[Figure 19 pending — Gibbs ring artifact image]</span>
-  </div>
-  <div class="caption-panel">
-    <div class="fig-label">FIGURE 19 <span class="status status-query">Gibbs Ring — Image Pending</span></div>
-    <div class="caption-text">Gibbs ringing artifact at a high-contrast tissue interface. Parallel alternating bright and dark bands parallel the interface margin, diminishing in amplitude with distance. The artifact follows the contour of the interface exactly and is present symmetrically on both sides. Recognition of this parallel-band pattern at expected anatomic boundaries — particularly the skin-air and skin-parenchyma interfaces on T2-weighted sequences — is sufficient to distinguish it from pathologic signal alteration.</div>
-  </div>
-</div>
-<hr class="divider">
-<div class="text-block" id="enhancement">
-  <div class="section-header">ENHANCEMENT ARTIFACTS: SUBTRACTION ERROR AND T1 SHINE-THROUGH</div>
-  <div class="text-content">
-<div class="key-points">
-  <h4>Key Points</h4>
-  <ul>
-    <li>Two distinct mechanisms produce false signal on subtraction images: motion misregistration and intrinsic T1 shortening</li>
-    <li>Subtraction error: bright/dark crescents at tissue boundaries from pre/post motion mismatch</li>
-    <li>T1 shine-through: blood products, proteinaceous fluid, mucinous tissue, silicone, or incompletely suppressed fat remain high on subtraction without gadolinium uptake</li>
-    <li>Key rule: review pre-contrast source images — if the focus is already bright before contrast, it is not enhancement</li>
-    <li>Fix: retrospective registration; compare source phases; T2 imaging and kinetic analysis to characterize indeterminate foci</li>
-  </ul>
-</div>
-<p>Dynamic contrast-enhanced breast MRI uses digital subtraction of pre-contrast from post-contrast images to isolate enhancing tissue; two distinct mechanisms can produce false signal on the subtracted series.</p>
-<p><strong>Subtraction Error (Motion Misregistration).</strong> Motion between acquisitions leaves spatially unregistered tissue as a residual signal difference that mimics enhancement, appearing as a bright crescent at a structure boundary — most commonly the chest wall, heart margin, or skin surface — with a corresponding dark crescent on the opposite side. When subtraction images are suspicious, non-subtracted post-contrast source images should be reviewed to confirm real enhancement.</p>
-<p><strong>T1 Shine-Through.</strong> Structures with intrinsically short T1 — hemorrhage or blood products, proteinaceous cyst fluid, mucinous tissue, silicone, or incompletely suppressed fat — are already bright at baseline and can remain bright on the subtracted image despite the absence of gadolinium uptake. The key rule is to compare pre-contrast source images: a focus that is already bright before contrast and shows no signal increase between phases does not represent true enhancement.</p>
-</div>
-</div>
->>>>>>> ad070af1f83213408d9593993396cfc90a2a3b0e
 
 .article-section {
   background: var(--paper);
@@ -587,117 +529,12 @@ tbody tr:nth-child(even) td:first-child {
   .page-shell {
     grid-template-columns: 1fr;
   }
-<<<<<<< HEAD
 
   .page-nav {
     position: static;
     order: 2;
   }
 }
-=======
-  .para-note-btn:hover, .para-note-btn.has-draft { opacity: 1; }
-  .para-note-btn.has-draft { color: #7eb8d4; border-color: #4a90b8; font-weight: 600; }
-  .para-note-panel {
-    display: none; margin: 4px 0 10px 0; background: #1a2a35;
-    border-left: 3px solid #4a90b8; padding: 8px 12px; border-radius: 0 4px 4px 0;
-  }
-  .para-note-panel textarea {
-    width: 100%; min-height: 60px; background: #0f1a22; color: #ccc;
-    border: 1px solid #2a4a5a; border-radius: 4px; padding: 6px 8px;
-    font-size: 0.85em; font-family: inherit; resize: vertical; box-sizing: border-box;
-  }
-  .para-note-panel textarea:focus { border-color: #4a90b8; outline: none; }
-  .para-note-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-  .para-note-submit {
-    padding: 3px 12px; background: #2a5a7a; color: #e0f0ff; border: none;
-    border-radius: 4px; cursor: pointer; font-size: 0.82em; font-family: inherit;
-  }
-  .para-note-submit:hover { background: #3a6a8a; }
-  .para-note-submit:disabled { background: #1a3a4a; color: #6a8a9a; cursor: default; }
-  .para-note-status { font-size: 0.78em; color: #64748b; }
-  .para-note-status.ok { color: #4ade80; }
-  .para-note-status.err { color: #f87171; }
-</style>
-<script>
-  const PAGE_ID = 'artifacts';
-
-  window.reviewPageInit = function(reviewer) {
-    const API_URL = 'https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com/comment';
-
-    // Add note buttons to all paragraphs and caption text in text-content areas
-    const targets = document.querySelectorAll('.text-content p, .caption-text');
-    targets.forEach(function(el, idx) {
-      const id = 'p_' + idx + '_' + (el.textContent.trim().slice(0, 20).replace(/\W+/g,'_'));
-      const draftKey = 'draft_' + PAGE_ID + '_' + id;
-
-      const btn = document.createElement('button');
-      btn.className = 'para-note-btn';
-      btn.textContent = '+ note';
-      const saved = localStorage.getItem(draftKey);
-      if (saved) { btn.classList.add('has-draft'); btn.textContent = '+ note (draft)'; }
-      el.appendChild(btn);
-
-      const panel = document.createElement('div');
-      panel.className = 'para-note-panel';
-      panel.innerHTML =
-        '<textarea placeholder="Note on this paragraph..."></textarea>' +
-        '<div class="para-note-actions">' +
-          '<button class="para-note-submit">Submit</button>' +
-          '<span class="para-note-status"></span>' +
-        '</div>';
-      el.after(panel);
-
-      const ta     = panel.querySelector('textarea');
-      const submit = panel.querySelector('.para-note-submit');
-      const status = panel.querySelector('.para-note-status');
-      if (saved) ta.value = saved;
-
-      ta.addEventListener('input', function() {
-        const v = ta.value.trim();
-        localStorage.setItem(draftKey, ta.value);
-        btn.classList.toggle('has-draft', !!v);
-        btn.textContent = v ? '+ note (draft)' : '+ note';
-      });
-
-      btn.addEventListener('click', function() {
-        const open = panel.style.display === 'block';
-        panel.style.display = open ? 'none' : 'block';
-        if (!open) ta.focus();
-      });
-
-      submit.addEventListener('click', async function() {
-        const text = ta.value.trim();
-        if (!text) return;
-        submit.disabled = true;
-        status.textContent = 'Saving...';
-        status.className = 'para-note-status';
-        try {
-          const resp = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reviewer, section: id, text, page: PAGE_ID, ts: new Date().toISOString() }),
-          });
-          if (!resp.ok) throw new Error('HTTP ' + resp.status);
-          status.textContent = 'Saved!';
-          status.className = 'para-note-status ok';
-          ta.value = '';
-          localStorage.removeItem(draftKey);
-          btn.classList.remove('has-draft');
-          btn.textContent = '+ note';
-          setTimeout(function() { panel.style.display = 'none'; status.textContent = ''; }, 1800);
-        } catch(e) {
-          status.textContent = 'Error — check console.';
-          status.className = 'para-note-status err';
-        } finally {
-          submit.disabled = false;
-        }
-      });
-    });
-  };
-</script>
-<script src="review-system-auth.js"></script></body>
-</html>
->>>>>>> ad070af1f83213408d9593993396cfc90a2a3b0e
 
 @media (max-width: 860px) {
   .hero,
@@ -1148,22 +985,27 @@ subtraction without gadolinium uptake</li>
 bright before contrast, it is not enhancement</li>
 <li>Fix: retrospective registration; compare source phases; T2 imaging
 and kinetic analysis to characterize indeterminate foci</li>
-</ul></div><p>Dynamic contrast-enhanced breast MRI relies on digital subtraction of
-pre-contrast from post-contrast images to isolate enhancing tissue. Two
-distinct artifact mechanisms can produce false or misleading signal on
-subtraction images: subtraction misregistration (subtraction error) and
-T1 shine-through.</p><p><strong>Subtraction Error (Motion Misregistration).</strong>
+</ul></div><p>DCE breast MRI relies on digital subtraction of pre-contrast from
+post-contrast images to isolate enhancing tissue. Two mechanisms can
+produce false or misleading signal on subtraction images: subtraction
+misregistration (subtraction error) and T1 shine-through.</p><p><strong>Subtraction Error (Motion Misregistration).</strong>
 Subtraction error results from motion between the pre-contrast and
 post-contrast acquisitions. When the two volumes are not spatially
-registered, tissue that moved between acquisitions leaves a residual
-signal difference on the subtracted image that does not represent
-enhancement. The artifact appears as a bright crescent or ring adjacent
-to a structure boundary, most commonly at the chest wall, heart margin,
-or skin surface, with a corresponding dark crescent on the opposite
-side. On more severe misregistration, entire regions can appear falsely
+aligned, tissue movement between acquisitions leaves a residual signal
+differences on the subtracted image falsely representing enhancement.
+The artifact appears as a bright crescent or ring adjacent to a
+structure boundary, most commonly at the chest wall, heart margin, or
+skin surface, with a corresponding dark crescent on the opposite side.
+On more severe misregistration, entire regions can appear falsely
 enhanced or suppressed. When subtraction images appear suspicious,
 reviewing the source (non-subtracted) post-contrast images is essential
-to determine whether enhancement is real.</p><p><strong>T1 Shine-Through.</strong> T1 shine-through occurs when short
+to determine whether enhancement is real.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/sub_motion_nodules_right.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 10</div><h3 class="figure-title">Enhancement - Subtraction Misregistration</h3><div class="figure-caption-body"><p>Subtraction misregistration artifact on dynamic contrast-enhanced
+imaging. Ghost artifacts from cardiac and respiratory motion propagate
+in the phase-encode direction and produce false signal on the subtracted
+image, overlapping with true enhancing foci in the right breast. The
+ghost replicas alter local conspicuity and can mimic or obscure
+enhancement. Review of non-subtracted source images confirms which foci
+represent true gadolinium uptake.</p></div></figcaption></figure><p><strong>T1 Shine-Through.</strong> T1 shine-through occurs when short
 T1 tissue, and therefore bright on T1-weighted images at baseline, stays
 bright on post-contrast images and bright on the subtraction image
 despite the absence of gadolinium uptake. Common causes in breast MRI
@@ -1174,13 +1016,7 @@ cancellation on subtraction can produce a residual high-signal focus
 that mimics enhancement. Recognition requires comparison of pre-contrast
 source images: a focus that is already bright before contrast and shows
 no signal increase between phases does not represent true
-enhancement.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/sub_motion_nodules_right.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 10</div><h3 class="figure-title">Enhancement - Subtraction Misregistration</h3><div class="figure-caption-body"><p>Subtraction misregistration artifact on dynamic contrast-enhanced
-imaging. Ghost artifacts from cardiac and respiratory motion propagate
-in the phase-encode direction and produce false signal on the subtracted
-image, overlapping with true enhancing foci in the right breast. The
-ghost replicas alter local conspicuity and can mimic or obscure
-enhancement. Review of non-subtracted source images confirms which foci
-represent true gadolinium uptake.</p></div></figcaption></figure></section><section class="article-section" id="conclusion"><h2>Conclusion</h2><p>Artifacts in breast MRI are pervasive and multifactorial, arising
+enhancement.</p></section><section class="article-section" id="conclusion"><h2>Conclusion</h2><p>Artifacts in breast MRI are pervasive and multifactorial, arising
 from field inhomogeneity, incomplete fat suppression, metallic hardware,
 motion, aliasing, chemical shift, geometric distortion, partial volume
 effects, Gibbs ringing, enhancement misregistration, T1 shine-through,
@@ -1329,5 +1165,4 @@ Clinical MR Applications</em>. Springer; 2007. <a href="https://doi.org/10.1007/
     });
   };
 </script>
-<script src="https://michaelzenkay.com/review-system-auth.js"></script>
 </body></html>
