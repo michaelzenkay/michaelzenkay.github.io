@@ -137,13 +137,7 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: #94a3b8;
-      margin-bottom: 6px;
-    }
-
-    .calc-note {
-      font-size: 0.78rem;
-      color: #94a3b8;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .bar-row {
@@ -191,152 +185,6 @@
       margin-top: 16px;
     }
 
-    .history {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
-    .history-title {
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #94a3b8;
-      margin-bottom: 14px;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-    }
-
-    th, td {
-      padding: 8px 6px;
-      border-bottom: 1px solid #e2e8f0;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      color: #64748b;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    td {
-      color: #1e293b;
-    }
-
-    td.num {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-      white-space: nowrap;
-    }
-
-    td.pending {
-      color: #94a3b8;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    .meta-row td {
-      border-bottom: none;
-      padding-bottom: 2px;
-    }
-
-    .meta-row td:first-child,
-    .meta-row td:nth-child(2) {
-      font-weight: 600;
-    }
-
-    .calc-cell {
-      font-size: 0.72rem;
-      color: #94a3b8;
-      text-align: right;
-      white-space: nowrap;
-    }
-
-    .result-row td {
-      padding-top: 4px;
-      padding-bottom: 12px;
-    }
-
-    .expected-row td {
-      padding-top: 4px;
-      padding-bottom: 8px;
-    }
-
-    .result-label {
-      font-size: 0.76rem;
-      color: #94a3b8;
-      white-space: nowrap;
-    }
-
-    .result-value {
-      transition: background-color 0.6s ease, color 0.4s ease, transform 0.35s ease;
-      border-radius: 6px;
-    }
-
-    .result-value.updated {
-      background: #eff6ff;
-      color: #1d4ed8;
-      transform: scale(1.03);
-    }
-
-    .result-value.updated.same {
-      background: #ecfdf5;
-      color: #047857;
-    }
-
-    .result-value.updated.changed {
-      background: #fff7ed;
-      color: #c2410c;
-    }
-
-    .delta-note {
-      display: block;
-      margin-top: 2px;
-      font-size: 0.68rem;
-      line-height: 1.2;
-      color: #94a3b8;
-    }
-
-    .delta-note.same {
-      color: #059669;
-    }
-
-    .expected-value {
-      color: #475569;
-    }
-
-    .delta-note.up,
-    .delta-note.down {
-      color: #c2410c;
-    }
-
-    .pending-dot {
-      display: inline-block;
-      width: 100%;
-      text-align: center;
-      color: #cbd5e1;
-      animation: pendingPulse 1.2s ease-in-out infinite;
-    }
-
-    @keyframes pendingPulse {
-      0%, 100% { opacity: 0.35; }
-      50% { opacity: 1; }
-    }
-
     /* Disclaimer */
     .disclaimer {
       font-size: 0.82rem;
@@ -346,17 +194,74 @@
       line-height: 1.5;
     }
     .disclaimer strong { color: #64748b; }
+
+    /* Password gate */
+    body.locked .page { display: none; }
+    .gate-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+    .gate-box {
+      width: min(420px, 100%);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+    }
+    .gate-box h2 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .gate-box p {
+      color: #64748b;
+      font-size: 0.92rem;
+      margin-bottom: 12px;
+    }
+    .gate-box input[type="password"] {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+    .gate-box input[type="password"]:focus {
+      outline: 2px solid #3b82f6;
+      outline-offset: 1px;
+    }
+    .gate-error {
+      color: #b91c1c;
+      font-size: 0.85rem;
+      min-height: 18px;
+      margin-top: 2px;
+    }
   </style>
 </head>
-<body>
+<body class="locked">
+<div class="gate-overlay" id="gate">
+  <div class="gate-box">
+    <h2>Protected Demo</h2>
+    <p>Enter your reviewer password to continue.</p>
+    <input type="password" id="gate-pwd" placeholder="Password" autocomplete="current-password">
+    <button id="gate-btn">Unlock</button>
+    <div class="gate-error" id="gate-error"></div>
+  </div>
+</div>
 <div class="page">
-  <a class="back" href="index.html">Back</a>
+  <a class="back" href="index.html">← Back</a>
 
   <h1>Mammography Risk Demo</h1>
   <p class="subtitle">
-    Select a pre-staged exam from the CBIS-DDSM dataset and click
+    Select a pre-staged exam from the CMMD dataset and click
     <strong>Score Exam</strong> to run the model.
-    Results show cumulative breast cancer risk estimates at 1-5 years.
+    Results show cumulative breast cancer risk estimates at 1–5 years.
   </p>
 
   <div class="controls">
@@ -367,50 +272,30 @@
   <div class="badge-row" id="badge-row"></div>
 
   <div class="error" id="error-msg"></div>
-  <div class="status" id="status-msg">Scoring exam...</div>
+  <div class="status" id="status-msg">Scoring exam…</div>
 
   <div class="results" id="results">
     <div class="results-title">Cumulative Risk Estimates</div>
-    <div class="calc-note" id="calc-note"></div>
     <div id="risk-bars"></div>
     <div class="views-note" id="views-note"></div>
   </div>
 
-  <div class="history">
-    <div class="history-title">Reference vs Live Demo Results</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Patient</th>
-            <th>Label</th>
-            <th>Status</th>
-            <th>1-yr</th>
-            <th>2-yr</th>
-            <th>3-yr</th>
-            <th>4-yr</th>
-            <th>5-yr</th>
-          </tr>
-        </thead>
-        <tbody id="history-body"></tbody>
-      </table>
-    </div>
-  </div>
-
   <div class="disclaimer">
     <strong>Research use only.</strong> Not for clinical decision-making.
-    Scores are model predictions on pre-staged CBIS-DDSM demo cases.
-    Ground truth labels are based on the CBIS-DDSM case-description pathology.
+    Scores are model predictions on held-out CMMD demo cases.
+    Ground truth labels are from the CMMD clinical dataset.
   </div>
 </div>
 
 <script>
-const API_URL   = "https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com/predict";
+const API_BASE  = "https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com";
+const API_URL   = `${API_BASE}/predict`;
 const S3_BUCKET = "einsteinmg-review";
+const GATE_SESSION_KEY = "mg_review_auth_v1";
 
 const DEMO_EXAMS = [
   {
-    label: "CBIS-DDSM Patient 00092 - Malignant", truth: "Malignant",
+    label: "CMMD Patient 001 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_1/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -419,7 +304,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CBIS-DDSM Patient 00160 - Malignant", truth: "Malignant",
+    label: "CMMD Patient 002 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_2/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -428,7 +313,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CBIS-DDSM Patient 00418 - Malignant", truth: "Malignant",
+    label: "CMMD Patient 003 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_3/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -437,7 +322,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CBIS-DDSM Patient 00419 - Malignant", truth: "Malignant",
+    label: "CMMD Patient 004 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_4/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -446,7 +331,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CBIS-DDSM Patient 00432 - Malignant", truth: "Malignant",
+    label: "CMMD Patient 005 — Malignant", truth: "Malignant",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_5/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -455,7 +340,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CBIS-DDSM Patient 00008 - Benign", truth: "Benign",
+    label: "CMMD Patient 006 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_6/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -464,7 +349,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CBIS-DDSM Patient 00021 - Benign", truth: "Benign",
+    label: "CMMD Patient 007 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_7/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -473,7 +358,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CBIS-DDSM Patient 00030 - Benign", truth: "Benign",
+    label: "CMMD Patient 008 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_8/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -482,7 +367,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CBIS-DDSM Patient 00038 - Benign", truth: "Benign",
+    label: "CMMD Patient 009 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_9/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -491,7 +376,7 @@ const DEMO_EXAMS = [
     ],
   },
   {
-    label: "CBIS-DDSM Patient 00077 - Benign", truth: "Benign",
+    label: "CMMD Patient 010 — Benign", truth: "Benign",
     images: [
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lcc.dcm",  laterality: "LEFT",  view: "CC" },
       { s3_key: "cmmd-demo/cmmd_demo_exams/exam_10/lmlo.dcm", laterality: "LEFT",  view: "MLO" },
@@ -501,50 +386,7 @@ const DEMO_EXAMS = [
   },
 ];
 
-const REFERENCE_RESULTS = [
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.975693, risk_2yr: 0.999085, risk_3yr: 0.999990, risk_4yr: 0.999999, risk_5yr: 1.0 },
-  },
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.971843, risk_2yr: 0.998502, risk_3yr: 0.999963, risk_4yr: 0.999998, risk_5yr: 1.0 },
-  },
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.986024, risk_2yr: 0.999705, risk_3yr: 0.999995, risk_4yr: 0.999999, risk_5yr: 1.0 },
-  },
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.970988, risk_2yr: 0.998443, risk_3yr: 0.999972, risk_4yr: 0.999999, risk_5yr: 1.0 },
-  },
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.991042, risk_2yr: 0.999837, risk_3yr: 0.999998, risk_4yr: 1.0, risk_5yr: 1.0 },
-  },
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.984461, risk_2yr: 0.999655, risk_3yr: 0.999990, risk_4yr: 0.999999, risk_5yr: 1.0 },
-  },
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.993431, risk_2yr: 0.999912, risk_3yr: 0.999998, risk_4yr: 1.0, risk_5yr: 1.0 },
-  },
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.977065, risk_2yr: 0.999119, risk_3yr: 0.999987, risk_4yr: 0.999999, risk_5yr: 1.0 },
-  },
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.988990, risk_2yr: 0.999742, risk_3yr: 0.999996, risk_4yr: 1.0, risk_5yr: 1.0 },
-  },
-  {
-    capturedAt: "2026-03-30T11:33:00-07:00",
-    risks: { risk_1yr: 0.988141, risk_2yr: 0.999839, risk_3yr: 0.999996, risk_4yr: 0.999999, risk_5yr: 1.0 },
-  },
-];
-
-const RETRYABLE_STATUS_CODES = new Set([502, 503, 504]);
+// ── Init ──────────────────────────────────────────────────────────────────────
 const sel     = document.getElementById("exam-select");
 const btn     = document.getElementById("score-btn");
 const badgeEl = document.getElementById("badge-row");
@@ -553,10 +395,99 @@ const statusEl= document.getElementById("status-msg");
 const resultsEl=document.getElementById("results");
 const barsEl  = document.getElementById("risk-bars");
 const viewsEl = document.getElementById("views-note");
-const calcEl  = document.getElementById("calc-note");
-const historyBody = document.getElementById("history-body");
-const historyState = new Map();
-let lastUpdatedHistoryIndex = null;
+const gateEl  = document.getElementById("gate");
+const gatePwd = document.getElementById("gate-pwd");
+const gateBtn = document.getElementById("gate-btn");
+const gateErr = document.getElementById("gate-error");
+let sessionObj = null;
+
+function loadSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(GATE_SESSION_KEY) || "null");
+    return (s && s.token && s.reviewer) ? s : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function saveSession(s) {
+  sessionStorage.setItem(GATE_SESSION_KEY, JSON.stringify(s));
+}
+
+function clearSession() {
+  sessionStorage.removeItem(GATE_SESSION_KEY);
+}
+
+function addReviewerBadge(session) {
+  const existing = document.getElementById("reviewer-badge");
+  if (existing) existing.remove();
+
+  const badge = document.createElement("div");
+  badge.id = "reviewer-badge";
+  badge.textContent = `Reviewer: ${session.reviewer} | sign out`;
+  badge.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:10000;background:#0f172a;color:#e2e8f0;border-radius:999px;padding:6px 12px;font-size:.76rem;cursor:pointer;";
+  badge.addEventListener("click", () => {
+    if (confirm("Sign out reviewer session?")) {
+      clearSession();
+      location.reload();
+    }
+  });
+  document.body.appendChild(badge);
+}
+
+async function doLogin(password) {
+  const res = await fetch(`${API_BASE}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((body && body.error) || `HTTP ${res.status}`);
+  }
+  return { token: body.token, reviewer: body.reviewer || "reviewer", at: Date.now() };
+}
+
+function unlockDemo() {
+  document.body.classList.remove("locked");
+  if (gateEl) gateEl.style.display = "none";
+}
+
+function initPasswordGate() {
+  const existing = loadSession();
+  if (existing) {
+    sessionObj = existing;
+    unlockDemo();
+    addReviewerBadge(existing);
+    return;
+  }
+
+  async function submitLogin() {
+    const pwd = (gatePwd.value || "").trim();
+    if (!pwd) return;
+    gateBtn.disabled = true;
+    gateErr.textContent = "";
+    try {
+      const session = await doLogin(pwd);
+      sessionObj = session;
+      saveSession(session);
+      gateErr.textContent = "";
+      unlockDemo();
+      addReviewerBadge(session);
+      return;
+    } catch (e) {
+      gateErr.textContent = e.message || "Login failed.";
+      gateBtn.disabled = false;
+      gatePwd.select();
+    }
+  }
+
+  gateBtn.addEventListener("click", submitLogin);
+
+  gatePwd.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitLogin();
+  });
+}
 
 DEMO_EXAMS.forEach((exam, i) => {
   const opt = document.createElement("option");
@@ -564,8 +495,6 @@ DEMO_EXAMS.forEach((exam, i) => {
   opt.textContent = exam.label;
   sel.appendChild(opt);
 });
-
-renderHistoryTable();
 
 function updateBadge() {
   const exam = DEMO_EXAMS[parseInt(sel.value)];
@@ -577,24 +506,38 @@ function updateBadge() {
 sel.addEventListener("change", () => { updateBadge(); hideError(); });
 btn.addEventListener("click", onScore);
 updateBadge();
+initPasswordGate();
 
-// Score
+// ── Score ─────────────────────────────────────────────────────────────────────
 async function onScore() {
-  const examIndex = parseInt(sel.value);
-  const exam = DEMO_EXAMS[examIndex];
+  const exam = DEMO_EXAMS[parseInt(sel.value)];
   if (!exam) return;
 
   btn.disabled = true;
-  statusEl.textContent = "Scoring exam...";
   statusEl.style.display = "block";
   resultsEl.style.display = "none";
   hideError();
 
   try {
-    const data = await fetchPrediction(exam, (message) => {
-      statusEl.textContent = message;
+    const headers = { "Content-Type": "application/json" };
+    if (sessionObj && sessionObj.token) {
+      headers.Authorization = `Bearer ${sessionObj.token}`;
+    }
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ s3_bucket: S3_BUCKET, images: exam.images }),
     });
-    renderResults(examIndex, data);
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        clearSession();
+        sessionObj = null;
+      }
+      const text = await res.text();
+      throw new Error(`API error ${res.status}: ${text}`);
+    }
+    renderResults(await res.json());
   } catch (err) {
     showError(err.message);
   } finally {
@@ -603,39 +546,8 @@ async function onScore() {
   }
 }
 
-async function fetchPrediction(exam, onStatus) {
-  const payload = JSON.stringify({ s3_bucket: S3_BUCKET, images: exam.images });
-  const maxAttempts = 3;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    if (attempt > 1) {
-      onStatus(`Retrying after temporary service issue (${attempt}/${maxAttempts})...`);
-      await delay(600 * (attempt - 1));
-    }
-
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: payload,
-    });
-
-    if (res.ok) {
-      return res.json();
-    }
-
-    const text = (await res.text()).trim();
-    if (RETRYABLE_STATUS_CODES.has(res.status) && attempt < maxAttempts) {
-      continue;
-    }
-
-    throw new Error(formatApiError(res.status, text));
-  }
-
-  throw new Error("API error: service unavailable");
-}
-
-// Render
-function renderResults(examIndex, data) {
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderResults(data) {
   barsEl.innerHTML = "";
   const max = Math.max(...[1,2,3,4,5].map(y => data[`risk_${y}yr`] ?? 0)) * 100;
   const scale = max > 0 ? Math.min(100 / max, 100 / 5) : 1; // always show some range
@@ -658,147 +570,9 @@ function renderResults(examIndex, data) {
     barsEl.appendChild(row);
   });
 
-  const calculatedAt = new Date();
   const views = (data.views_used || []).join(", ");
-  calcEl.textContent = `Calculated: ${formatCalculatedAt(calculatedAt)}`;
   viewsEl.textContent = views ? `Views used: ${views}` : "";
   resultsEl.style.display = "block";
-
-  historyState.set(examIndex, {
-    calculatedAt: calculatedAt.toISOString(),
-    risks: {
-      risk_1yr: data.risk_1yr ?? null,
-      risk_2yr: data.risk_2yr ?? null,
-      risk_3yr: data.risk_3yr ?? null,
-      risk_4yr: data.risk_4yr ?? null,
-      risk_5yr: data.risk_5yr ?? null,
-    },
-  });
-  lastUpdatedHistoryIndex = examIndex;
-  renderHistoryTable();
-  setTimeout(() => {
-    if (lastUpdatedHistoryIndex === examIndex) {
-      lastUpdatedHistoryIndex = null;
-      renderHistoryTable();
-    }
-  }, 1400);
-}
-
-function formatCalculatedAt(date) {
-  return new Intl.DateTimeFormat(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    timeZoneName: "short",
-  }).format(date);
-}
-
-function renderHistoryTable() {
-  historyBody.innerHTML = "";
-
-  DEMO_EXAMS.forEach((exam, index) => {
-    const metaRow = document.createElement("tr");
-    metaRow.className = "meta-row";
-    const referenceRow = document.createElement("tr");
-    referenceRow.className = "expected-row";
-    const resultRow = document.createElement("tr");
-    resultRow.className = "result-row";
-    const hist = historyState.get(index);
-    const reference = REFERENCE_RESULTS[index];
-    const patient = patientName(exam.label);
-    const statusBits = [];
-    if (reference?.capturedAt) {
-      statusBits.push(`Reference ${formatCalculatedAt(new Date(reference.capturedAt))}`);
-    }
-    if (hist) {
-      statusBits.push(`Live ${formatCalculatedAt(new Date(hist.calculatedAt))}`);
-    }
-    metaRow.innerHTML = `
-      <td>${escapeHtml(patient)}</td>
-      <td>${escapeHtml(exam.truth)}</td>
-      <td class="calc-cell" colspan="6">${escapeHtml(statusBits.join(" | "))}</td>
-    `;
-    referenceRow.innerHTML = `
-      <td class="result-label" colspan="3">Reference snapshot</td>
-      ${renderReferenceCell(reference, "risk_1yr")}
-      ${renderReferenceCell(reference, "risk_2yr")}
-      ${renderReferenceCell(reference, "risk_3yr")}
-      ${renderReferenceCell(reference, "risk_4yr")}
-      ${renderReferenceCell(reference, "risk_5yr")}
-    `;
-    resultRow.innerHTML = `
-      <td class="result-label" colspan="3">Live result</td>
-      ${renderRiskCell(hist, reference, "risk_1yr", index)}
-      ${renderRiskCell(hist, reference, "risk_2yr", index)}
-      ${renderRiskCell(hist, reference, "risk_3yr", index)}
-      ${renderRiskCell(hist, reference, "risk_4yr", index)}
-      ${renderRiskCell(hist, reference, "risk_5yr", index)}
-    `;
-    historyBody.appendChild(metaRow);
-    historyBody.appendChild(referenceRow);
-    historyBody.appendChild(resultRow);
-  });
-}
-
-function renderReferenceCell(reference, key) {
-  const value = reference?.risks?.[key];
-  if (value === null || value === undefined) {
-    return '<td class="num pending">-</td>';
-  }
-  return `<td class="num expected-value">${formatPercent(value)}</td>`;
-}
-
-function renderRiskCell(hist, reference, key, index) {
-  if (!hist || hist.risks[key] === null || hist.risks[key] === undefined) {
-    return '<td class="num pending"><span class="pending-dot">-</span></td>';
-  }
-  const currentPct = hist.risks[key] * 100;
-  const referencePct = reference?.risks?.[key] !== undefined ? reference.risks[key] * 100 : null;
-  const delta = referencePct === null ? null : currentPct - referencePct;
-  let updatedClass = "";
-  let deltaMarkup = "";
-
-  if (index === lastUpdatedHistoryIndex) {
-    updatedClass = " updated";
-    if (delta !== null) {
-      const same = Math.abs(delta) < 0.05;
-      updatedClass += same ? " same" : " changed";
-      deltaMarkup = same
-        ? '<span class="delta-note same">Matches reference</span>'
-        : `<span class="delta-note ${delta > 0 ? "up" : "down"}">${delta > 0 ? "+" : ""}${delta.toFixed(1)} pts vs ref</span>`;
-    }
-  }
-
-  return `<td class="num result-value${updatedClass}">${formatPercent(hist.risks[key])}${deltaMarkup}</td>`;
-}
-function patientName(label) {
-  const match = label.match(/Patient\s+(\d+)/i);
-  return match ? `Patient ${match[1]}` : label;
-}
-
-function formatPercent(value) {
-  return `${(value * 100).toFixed(1)}%`;
-}
-
-function formatApiError(status, text) {
-  if (status === 503) {
-    return "API error 503: service unavailable after retrying. Please try again in a moment.";
-  }
-  return `API error ${status}: ${text || "request failed"}`;
-}
-
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
 }
 
 function showError(msg) { errorEl.textContent = `Error: ${msg}`; errorEl.style.display = "block"; }
@@ -806,5 +580,3 @@ function hideError()     { errorEl.style.display = "none"; }
 </script>
 </body>
 </html>
-
-
