@@ -560,8 +560,13 @@ tbody tr:nth-child(even) td:first-child {
     gap: 20px;
   }
 }
-</style></head><body><div class="page-shell"><aside class="page-nav"><div class="nav-card"><h2>Contents</h2><p>Generated from the manuscript source with publication-style tables and figure cards.</p><ul><li><a href="#introduction">Introduction</a></li><li><a href="#overview">Overview / Table 1</a></li><li><a href="#b0">B0 Inhomogeneity</a></li><li><a href="#susceptibility">Susceptibility / Metal</a></li><li><a href="#motion">Motion Artifacts</a></li><li><a href="#aliasing">Aliasing</a></li><li><a href="#chemshift">Chemical Shift</a></li><li><a href="#geodist">Geometric Distortion</a></li><li><a href="#partial">Partial Volume</a></li><li><a href="#implants">Implants</a></li><li><a href="#gibbs">Gibbs Ring</a></li><li><a href="#enhancement">Enhancement Artifacts</a></li><li><a href="#conclusion">Conclusion</a></li><li><a href="#references">References</a></li></ul></div></aside><main class="page-main"><header class="hero"><p class="hero-kicker">Breast MRI Artifacts</p><h1>Artifacts in Breast MRI</h1><p>A practical guide to recognition, characterization, and
-mitigation</p></header><article class="article"><section class="article-section" id="introduction"><h2>Introduction</h2><p>Breast MRI depends on consistent, high-quality acquisition of
+</style></head><body><div class="page-shell"><aside class="page-nav"><div class="nav-card"><h2>Contents</h2><p>Generated from the manuscript source with publication-style tables and figure cards.</p><ul><li><a href="#introduction">Introduction</a></li><li><a href="#overview">Overview / Table 1</a></li><li><a href="#b0">B0 Inhomogeneity</a></li><li><a href="#susceptibility">Susceptibility / Metal</a></li><li><a href="#motion">Motion Artifacts</a></li><li><a href="#aliasing">Aliasing</a></li><li><a href="#chemshift">Chemical Shift</a></li><li><a href="#geodist">Geometric Distortion</a></li><li><a href="#partial">Partial Volume</a></li><li><a href="#gibbs">Gibbs Ring</a></li><li><a href="#enhancement">Enhancement Artifacts</a></li><li><a href="#conclusion">Conclusion</a></li><li><a href="#references">References</a></li></ul></div></aside><main class="page-main"><header class="hero"><p class="hero-kicker">Breast MRI Artifacts</p><h1>Artifacts in Breast MRI</h1><p>A practical guide to recognition, characterization, and
+mitigation</p></header><article class="article"><section class="article-section" id="introduction"><h2>Introduction</h2><p>Before reviewing the figures, note the standard radiologic/DICOM
+display convention used for axial images throughout this manuscript:
+axial images are viewed as if standing at the foot of the table and
+looking toward the patient’s head, so the patient’s right breast appears
+on the left side of the figure and the left breast appears on the
+right.</p><p>Breast MRI depends on consistent, high-quality acquisition of
 multiple pulse sequences, with dynamic contrast-enhanced (DCE) imaging
 as the core clinical sequence and additional sequences selected per
 protocol. Despite advances in hardware and reconstruction, artifacts
@@ -841,16 +846,14 @@ demonstrates image blurring and ghosting in the phase-encode direction
 resulting from patient motion during acquisition. Smearing of anatomic
 boundaries and duplication of structures in the phase direction are
 characteristic features.</p></div></figcaption></figure><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/ghost43sagt2fs.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 10</div><h3 class="figure-title">Motion - Respiratory Ghosting from Fiducial Marker</h3><div class="figure-caption-body"><p>Respiratory ghosting from a T2-bright fiducial marker. Sagittal
-fat-saturated T2-weighted image demonstrates a column of discrete,
-circular ghost replicas propagating in the phase-encode direction along
-the anterior image margin. The source is a fluid-filled cylindrical
-fiducial marker at the anterior breast, which is markedly T2-bright and
-subject to cyclic respiratory displacement. The discrete, round
-morphology of each ghost reflects the cross-sectional geometry of the
-cylindrical marker; the regular spacing reflects the periodicity of
-respiratory motion relative to TR. Recognition is aided by
-correspondence between the ghost shape and the source structure, and by
-the predictable propagation along the phase-encode axis.</p></div></figcaption></figure><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/cardiac_ghost_t1_6_301-50.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 11</div><h3 class="figure-title">Motion - Cardiac Ghosting</h3><div class="figure-caption-body"><p>Cardiac ghosting artifact. Axial T1-weighted image demonstrates
+fat-saturated T2-weighted image shows a vertical column of discrete
+circular ghost replicas along the anterior breast. This pattern
+indicates propagation in the phase-encode direction: superior-inferior
+in this sagittal view corroborted by the vertical stacking of the
+replicas. The source is a fluid-filled cylindrical marker at the
+anterior breast; the round ghost shape matches the marker cross-section,
+and the regular spacing reflects periodic respiratory motion during
+T2-weighted acquisition with long TE and TR.</p></div></figcaption></figure><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/cardiac_ghost_t1_6_301-50.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 11</div><h3 class="figure-title">Motion - Cardiac Ghosting</h3><div class="figure-caption-body"><p>Cardiac ghosting artifact. Axial T1-weighted image demonstrates
 periodic ghosting in the phase-encode direction arising from cardiac
 pulsation transmitted through the chest wall. The ghost replicas repeat
 at intervals determined by the cardiac cycle relative to TR and project
@@ -961,11 +964,7 @@ signal change where tissue curves back on itself, creating a plane of
 partial volume averaging and an artifactual interface. The breast
 remains within the FOV; the effect reflects mixed tissue signal within
 single voxels at the fold. The appearance changes across adjacent slices
-as the fold geometry shifts through the stack.</p></div></figcaption></figure></section><section class="article-section" id="implants"><h2>Implant-related Artifacts</h2><p>Implants can produce localized susceptibility, shading, and
-fat-suppression nonuniformity near implant margins. Recognition of these
-effects helps contextualize peri-implant signal variation.</p><figure class="figure-card single"><div class="figure-media single-image"><img decoding="async" loading="lazy" src="figures/implants_t1_13-401-53.png"/></div><figcaption class="figure-copy"><div class="figure-number">Figure 18</div><h3 class="figure-title">Implants</h3><div class="figure-caption-body"><p>Implant-related artifact. Axial T1-weighted image in a patient with
-silicone implants demonstrates susceptibility-related signal changes and
-geometric distortion at the implant margins.</p></div></figcaption></figure></section><section class="article-section" id="gibbs"><h2>Gibbs Ring Artifact (Truncation Artifact)</h2><div class="callout callout-key"><h3>Key Points</h3><ul>
+as the fold geometry shifts through the stack.</p></div></figcaption></figure></section><section class="article-section" id="gibbs"><h2>Gibbs Ring Artifact (Truncation Artifact)</h2><div class="callout callout-key"><h3>Key Points</h3><ul>
 <li>Arises from Fourier truncation of finite k-space data</li>
 <li>Appears as parallel ringing bands at high-contrast interfaces
 (skin-air, skin-parenchyma, implant margins)</li>
@@ -1093,7 +1092,7 @@ Proton</em>. 2nd ed. Cambridge University Press; 2006. <a href="https://www.ajnr
 Screening. <em>J Magn Reson Imaging</em>. 2019;50(2):377-390. <a href="https://pubmed.ncbi.nlm.nih.gov/30659696/">PubMed</a> | <a href="https://doi.org/10.1002/jmri.26654">DOI</a></li>
 <li>Schoenberg SO, Dietrich O, Reiser MF, eds. <em>Parallel Imaging in
 Clinical MR Applications</em>. Springer; 2007. <a href="https://doi.org/10.1007/978-3-540-68879-2">DOI</a></li>
-</ol></section></article><div class="page-footer">Last updated: April 1, 2026</div></main></div>
+</ol></section></article><div class="page-footer">Last updated: April 2, 2026</div></main></div>
 <script>
   const PAGE_ID = 'artifacts';
 
