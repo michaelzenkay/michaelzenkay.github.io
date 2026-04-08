@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research</title>
+    <title>Imgnexus</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="site-theme.css">
 </head>
@@ -11,42 +11,130 @@
     <div class="container">
         <main>
             <section class="work-section" id="research-section">
-                <h2>Research</h2>
-                <p class="site-intro">Curated research outputs, live report snapshots, and demo tools for the current MRI and mammography workstreams.</p>
-                <ul class="work-list" id="research-list">
+                <h2>Imgnexus</h2>
+                <p class="site-intro">Study-centric imaging workspace for governed tool runs, persistent outputs, and live demos across mammography and breast MRI.</p>
+
+                <h3 class="section-label">Workspace</h3>
+                <ul class="work-list" id="workspace-list">
+                    <li>
+                        <a href="mg-risk-demo.html">
+                            <h3>Mammography Risk Workspace</h3>
+                            <p>Run the mammography risk tool on demo studies and inspect stored outputs.</p>
+                            <span class="date">Live tool</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tumor-seg-demo.html">
+                            <h3>Breast MRI Segmentation Workspace</h3>
+                            <p>Inspect tumor segmentation, geometry, and viewer-based outputs for breast MRI cases.</p>
+                            <span class="date">Live tool</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="results/summary.html">
+                            <h3>Recent Outputs</h3>
+                            <p>Browse current summarized outputs, reports, and generated result artifacts.</p>
+                            <span class="date">Outputs</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <h3 class="section-label">Studies</h3>
+                <ul class="work-list" id="studies-list">
+                    <li>
+                        <a href="mg-risk-demo.html">
+                            <h3>Mammography Demo Studies</h3>
+                            <p>Pre-staged mammography exams used to test governed study-attached tool runs.</p>
+                            <span class="date">MG</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tumor-seg-demo.html">
+                            <h3>Breast MRI Tumor Cases</h3>
+                            <p>Segmented breast MRI cases with tumor geometry and visualization outputs.</p>
+                            <span class="date">MRI</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <h3 class="section-label">Tools</h3>
+                <ul class="work-list" id="tools-list">
+                    <li>
+                        <a href="mg-risk-demo.html">
+                            <h3>Mammography Risk (mg)</h3>
+                            <p>Study-attached mammography risk assessment with structured study outputs.</p>
+                            <span class="date">Active</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tumor-seg-demo.html">
+                            <h3>Breast MRI Segmentation</h3>
+                            <p>Tumor segmentation and viewer-centric output surface for breast MRI.</p>
+                            <span class="date">Active</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tumor-seg-demo.html">
+                            <h3>Breast MRI Dynamics</h3>
+                            <p>Planned dynamic/kinetic extraction layer and future MIP-enhanced output workflow.</p>
+                            <span class="date">Next</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <h3 class="section-label">Outputs</h3>
+                <ul class="work-list" id="outputs-list">
                     <li>
                         <a href="reports/mg_best_report.html">
                             <h3>Training Report</h3>
-                            <p>Direct link to the current best-run report</p>
-                            <span class="date">Active</span>
+                            <p>Current best-run report and training output summary.</p>
+                            <span class="date">Report</span>
                         </a>
                     </li>
                     <li>
                         <a href="reports/mg_manuscript_latest.html">
                             <h3>MG Manuscript</h3>
-                            <p>Current manuscript draft with linked figures and tables</p>
+                            <p>Latest manuscript draft with linked figures and tables.</p>
                             <span class="date">Draft</span>
                         </a>
                     </li>
                     <li>
+                        <a href="breast-mri-artifacts.html">
+                            <h3>Breast MRI Artifacts</h3>
+                            <p>Artifact paper and reference outputs for breast MRI quality/readability work.</p>
+                            <span class="date">Reference</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="results/reports.html">
+                            <h3>Result Reports</h3>
+                            <p>Collected result report surfaces and generated output pages.</p>
+                            <span class="date">Outputs</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <h3 class="section-label">Demos</h3>
+                <ul class="work-list" id="demos-list">
+                    <li>
                         <a href="mg-risk-demo.html">
-                            <h3>Risk Model Demo</h3>
-                            <p>Score pre-staged CMMD mammography exams with the trained model</p>
+                            <h3>Mammography Risk Demo</h3>
+                            <p>Interactive mammography risk scoring demo on curated study examples.</p>
                             <span class="date">Demo</span>
                         </a>
                     </li>
                     <li>
                         <a href="tumor-seg-demo.html">
                             <h3>Tumor Segmentation Demo</h3>
-                            <p>3D DCE-MRI breast tumor segmentation with RGB dynamics viewer (ISPY-1)</p>
+                            <p>NiiVue-driven breast MRI tumor segmentation demo with metrics and overlays.</p>
                             <span class="date">Demo</span>
                         </a>
                     </li>
                     <li>
-                        <a href="breast-mri-artifacts.html">
-                            <h3>Artifacts Paper</h3>
-                            <p>Breast MRI artifact atlas and classification reference paper</p>
-                            <span class="date">Reference</span>
+                        <a href="demo.html">
+                            <h3>Legacy Demo Surface</h3>
+                            <p>Earlier public demo page retained during transition into the unified shell.</p>
+                            <span class="date">Legacy</span>
                         </a>
                     </li>
                 </ul>
