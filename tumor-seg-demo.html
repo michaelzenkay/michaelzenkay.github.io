@@ -15,7 +15,6 @@
       flex-shrink: 0;
     }
 
-    /* subject nav */
     #nav-wrap { display: flex; align-items: center; gap: 4px; }
     .nav-btn {
       background: #2a2a2a; color: #bbb; border: 1px solid #444;
@@ -23,6 +22,8 @@
       line-height: 1.4;
     }
     .nav-btn:hover { background: #333; }
+    .nav-btn.seed-active { background: #6a3a20; color: #ffd7b8; border-color: #9a5a2a; }
+    .nav-btn.seg-run { background: #2a5a2a; color: #d7ffd7; border-color: #4a8a4a; }
     #subject-select {
       background: #222; color: #eee; border: 1px solid #444;
       padding: 3px 7px; border-radius: 4px; font-size: 13px; min-width: 100px;
@@ -30,8 +31,6 @@
     #subject-idx { font-size: 11px; color: #555; min-width: 48px; text-align: center; }
 
     .sep { width: 1px; height: 20px; background: #333; margin: 0 2px; }
-
-    /* toggle buttons */
     .toggle-btn {
       background: #2a2a2a; color: #999; border: 1px solid #444;
       padding: 3px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;
@@ -41,21 +40,37 @@
     .toggle-btn.active-pred { background: #3a1a10; color: #f96; border-color: #6a3a20; }
     .toggle-btn.active-prob { background: #2a1a3a; color: #d9a; border-color: #5a3a7a; }
     .toggle-btn.active-gt   { background: #10203a; color: #8af; border-color: #204a7a; }
-
     .lbl { font-size: 11px; color: #555; }
 
-    /* opacity */
     #opacity-wrap { display: flex; align-items: center; gap: 5px; }
     #opacity-slider { width: 80px; accent-color: #888; }
 
-    #status { margin-left: auto; font-size: 11px; color: #555; white-space: nowrap; }
+    .seed-wrap { display: flex; align-items: center; gap: 4px; }
+    .seed-input {
+      width: 64px; background: #222; color: #eee; border: 1px solid #444;
+      padding: 3px 6px; border-radius: 4px; font-size: 12px;
+    }
+    #crop-size {
+      width: 88px; background: #222; color: #eee; border: 1px solid #444;
+      padding: 3px 6px; border-radius: 4px; font-size: 12px;
+    }
+
+    #status { margin-left: auto; font-size: 11px; color: #777; white-space: nowrap; }
 
     #canvas-wrap { flex: 1; position: relative; min-height: 0; }
     #gl { width: 100%; height: 100%; display: block; }
-
-    #info-bar {
-      padding: 3px 12px; background: #141414; border-top: 1px solid #222;
-      font-size: 11px; color: #444; display: flex; gap: 16px; flex-shrink: 0;
+    #seed-marker {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #ffd24d;
+      background: rgba(255, 80, 80, 0.75);
+      box-shadow: 0 0 10px rgba(255, 210, 77, 0.9);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 20;
     }
 
     #metrics-bar {
@@ -67,14 +82,22 @@
     #metrics-bar .m-pred  { color: #ffe7d6; }
     #metrics-bar .m-gt    { color: #e6f0ff; }
     #metrics-bar .m-group { display: flex; flex-direction: column; gap: 2px; }
-    #metrics-bar .m-title { font-size: 10px; color: #f8fafc; text-transform: uppercase;
-                            letter-spacing: 0.05em; }
+    #metrics-bar .m-title { font-size: 10px; color: #f8fafc; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    #info-bar {
+      padding: 3px 12px; background: #141414; border-top: 1px solid #222;
+      font-size: 11px; color: #666; display: flex; gap: 16px; flex-shrink: 0;
+    }
+    #tool-bar {
+      padding: 6px 12px; background: #171717; border-top: 1px solid #232323;
+      font-size: 12px; color: #c9d2cb; display: flex; gap: 20px; flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    #tool-bar a { color: #9fd3ff; text-decoration: none; }
   </style>
 </head>
 <body>
-
 <div id="toolbar">
-  <!-- subject navigation -->
   <div id="nav-wrap">
     <button class="nav-btn" id="btn-prev">&#8592;</button>
     <select id="subject-select"><option>Loading...</option></select>
@@ -84,13 +107,11 @@
 
   <div class="sep"></div>
 
-  <!-- base image -->
   <span class="lbl">base</span>
   <button class="toggle-btn active-rgb" id="btn-rgb">RGB dynamics</button>
 
   <div class="sep"></div>
 
-  <!-- overlays -->
   <span class="lbl">overlay</span>
   <button class="toggle-btn active-pred" id="btn-pred">Prediction</button>
   <button class="toggle-btn" id="btn-prob">Prob map</button>
@@ -101,11 +122,24 @@
     <input type="range" id="opacity-slider" min="0" max="1" step="0.05" value="0.45" />
   </div>
 
+  <div class="sep"></div>
+
+  <button class="nav-btn" id="btn-place-seed">Place Seed</button>
+  <button class="nav-btn" id="btn-clear-seed">Clear Seed</button>
+  <div class="seed-wrap">
+    <span class="lbl">x</span><input class="seed-input" id="seed-x" type="number" value="112" />
+    <span class="lbl">y</span><input class="seed-input" id="seed-y" type="number" value="94" />
+    <span class="lbl">z</span><input class="seed-input" id="seed-z" type="number" value="51" />
+    <span class="lbl">crop</span><input id="crop-size" value="96,96,96" />
+  </div>
+  <button class="nav-btn seg-run" id="btn-run-interactive">Run Interactive Seg</button>
+
   <span id="status">Loading...</span>
 </div>
 
 <div id="canvas-wrap">
   <canvas id="gl"></canvas>
+  <div id="seed-marker"></div>
 </div>
 
 <div id="metrics-bar">
@@ -135,25 +169,33 @@
           &nbsp;<span class="m-label">gt</span><span class="m-gt" id="m-sph-gt">--</span></span>
   </div>
 </div>
+
+<div id="tool-bar">
+  <span id="tool-state">Seed mode: off</span>
+  <span id="seed-state">Seed: (112, 94, 51)</span>
+  <span id="run-state">Interactive run: not started</span>
+</div>
+
 <div id="info-bar">
   <span id="info-subject">--</span>
   <span id="info-dims">--</span>
   <span id="info-overlay">--</span>
-  <span style="margin-left:auto">scroll = slice &nbsp;|&nbsp; &larr;&rarr; = subject</span>
+  <span style="margin-left:auto">scroll = slice &nbsp;|&nbsp; ←→ = subject</span>
 </div>
 
 <script type="module">
 import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.50.0/+esm";
 
-// ------------------------------------------------------------------ config --
 const MANIFEST_URL = (new URLSearchParams(location.search)).get("manifest")
   ?? "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json";
+const API_BASE = (new URLSearchParams(location.search)).get("api") ?? "http://127.0.0.1:8787";
+const STUDY_UID = (new URLSearchParams(location.search)).get("study_uid") ?? "study-demo";
+const ACTOR_TOKEN = (new URLSearchParams(location.search)).get("token") ?? "patient-demo";
 
-const COLORMAP_PRED = "warm";   // orange-red  (binary mask)
-const COLORMAP_PROB = "hot";    // black-red-yellow-white (continuous probability)
-const COLORMAP_GT   = "blue";   // blue
+const COLORMAP_PRED = "warm";
+const COLORMAP_PROB = "hot";
+const COLORMAP_GT   = "blue";
 
-// ------------------------------------------------------------------ state ---
 let nv = null;
 let manifest = null;
 let subjects = [];
@@ -163,26 +205,36 @@ let showPred = true;
 let showProb = false;
 let showGt   = false;
 let loading  = false;
+let seedMode = false;
+let currentCrosshair = { x: 112, y: 94, z: 51 };
+let activeSeed = null;
 
-// ------------------------------------------------------------------ init ----
 async function init() {
-  nv = new Niivue({
-    backColor: [0.07, 0.07, 0.07, 1],
-    show3Dcrosshair: true,
-    isColorbar: false,
-  });
+  nv = new Niivue({ backColor: [0.07, 0.07, 0.07, 1], show3Dcrosshair: true, isColorbar: false });
   await nv.attachTo("gl");
   nv.setSliceType(nv.sliceTypeMultiplanar);
+  nv.onLocationChange = (data) => {
+    if (data?.vox && data.vox.length >= 3) {
+      currentCrosshair = {
+        x: Math.round(data.vox[0]),
+        y: Math.round(data.vox[1]),
+        z: Math.round(data.vox[2]),
+      };
+      updateSeedMarkerVisibility();
+      if (seedMode) {
+        applySeed(currentCrosshair);
+      }
+    }
+  };
 
   manifest = await fetchManifest();
   if (!manifest) return;
-
   subjects = manifest.subjects;
   populateSelect();
+  bindInteractiveControls();
   await loadSubject(0);
 }
 
-// ------------------------------------------------------------------ manifest --
 async function fetchManifest() {
   setStatus("Fetching manifest...");
   try {
@@ -197,7 +249,6 @@ async function fetchManifest() {
   }
 }
 
-// ------------------------------------------------------------------ subject --
 function populateSelect() {
   const sel = document.getElementById("subject-select");
   sel.innerHTML = "";
@@ -215,13 +266,12 @@ function populateSelect() {
 
 function updateNav() {
   document.getElementById("subject-select").value = subjects[currentIdx].id;
-  document.getElementById("subject-idx").textContent =
-    `${currentIdx + 1}/${subjects.length}`;
+  document.getElementById("subject-idx").textContent = `${currentIdx + 1}/${subjects.length}`;
 }
 
 function _overlayChoice(subject) {
-  if (showGt   && subject.gt)         return { file: subject.gt,         map: COLORMAP_GT   };
-  if (showProb && subject.pred)       return { file: subject.pred,       map: COLORMAP_PROB };
+  if (showGt && subject.gt) return { file: subject.gt, map: COLORMAP_GT };
+  if (showProb && subject.pred) return { file: subject.pred, map: COLORMAP_PROB };
   if (showPred && subject.pred_binary) return { file: subject.pred_binary, map: COLORMAP_PRED };
   return null;
 }
@@ -234,30 +284,25 @@ async function loadSubject(idx) {
   updateNav();
   setStatus(`Loading ${subject.id}...`);
   document.getElementById("info-subject").textContent = `Subject: ${subject.id}`;
+  document.getElementById("run-state").textContent = `Interactive run: not started for ${subject.id}`;
 
   const base = MANIFEST_URL.replace(/\/[^/]+$/, "/");
   const baseFile = (showRgb && subject.rgb) ? subject.rgb : subject.image;
   const ov = _overlayChoice(subject);
-
   const volumes = [{ url: base + baseFile, colormap: "gray", opacity: 1.0 }];
   if (ov) {
-    volumes.push({
-      url: base + ov.file,
-      colormap: ov.map,
-      opacity: parseFloat(document.getElementById("opacity-slider").value),
-    });
+    volumes.push({ url: base + ov.file, colormap: ov.map, opacity: parseFloat(document.getElementById("opacity-slider").value) });
   }
 
   try {
     await nv.loadVolumes(volumes);
     const hdr = nv.volumes[0]?.hdr;
     if (hdr) {
-      document.getElementById("info-dims").textContent =
-        `${hdr.dims[1]} x ${hdr.dims[2]} x ${hdr.dims[3]} vox`;
+      document.getElementById("info-dims").textContent = `${hdr.dims[1]} x ${hdr.dims[2]} x ${hdr.dims[3]} vox`;
     }
     updateOverlayInfo();
     updateMetrics(subject);
-    setStatus(`${subject.id}  (${idx + 1}/${subjects.length})`);
+    setStatus(`${subject.id} (${idx + 1}/${subjects.length})`);
   } catch (e) {
     setStatus(`Load error: ${e.message}`);
     console.error(e);
@@ -270,7 +315,6 @@ async function stepSubject(delta) {
   await loadSubject(next);
 }
 
-// ------------------------------------------------------------------ overlay --
 async function refreshBase() {
   if (!subjects.length) return;
   await loadSubject(currentIdx);
@@ -279,108 +323,190 @@ async function refreshBase() {
 async function refreshOverlay() {
   if (!subjects.length || loading) return;
   while (nv.volumes.length > 1) nv.removeVolume(nv.volumes[1]);
-
   const subject = subjects[currentIdx];
   const base = MANIFEST_URL.replace(/\/[^/]+$/, "/");
   const ov = _overlayChoice(subject);
-
   if (ov) {
-    const img = await NVImage.loadFromUrl({
-      url: base + ov.file,
-      colormap: ov.map,
-      opacity: parseFloat(document.getElementById("opacity-slider").value),
-    });
+    const img = await NVImage.loadFromUrl({ url: base + ov.file, colormap: ov.map, opacity: parseFloat(document.getElementById("opacity-slider").value) });
     nv.addVolume(img);
   }
   updateOverlayInfo();
 }
 
 function updateOverlayInfo() {
-  const base    = showRgb ? "RGB" : "grayscale";
+  const base = showRgb ? "RGB" : "grayscale";
   const overlay = showGt ? "GT (blue)" : showProb ? "Prob map (hot)" : showPred ? "Pred (orange)" : "none";
-  document.getElementById("info-overlay").textContent =
-    `Base: ${base}  |  Overlay: ${overlay}`;
+  document.getElementById("info-overlay").textContent = `Base: ${base} | Overlay: ${overlay}`;
 }
 
 function syncButtons() {
-  document.getElementById("btn-rgb").className =
-    "toggle-btn" + (showRgb  ? " active-rgb"  : "");
-  document.getElementById("btn-pred").className =
-    "toggle-btn" + (showPred ? " active-pred" : "");
-  document.getElementById("btn-prob").className =
-    "toggle-btn" + (showProb ? " active-prob" : "");
-  document.getElementById("btn-gt").className =
-    "toggle-btn" + (showGt   ? " active-gt"   : "");
+  document.getElementById("btn-rgb").className = "toggle-btn" + (showRgb ? " active-rgb" : "");
+  document.getElementById("btn-pred").className = "toggle-btn" + (showPred ? " active-pred" : "");
+  document.getElementById("btn-prob").className = "toggle-btn" + (showProb ? " active-prob" : "");
+  document.getElementById("btn-gt").className = "toggle-btn" + (showGt ? " active-gt" : "");
+  document.getElementById("btn-place-seed").classList.toggle("seed-active", seedMode);
+  document.getElementById("tool-state").textContent = `Seed mode: ${seedMode ? "armed" : "off"}`;
 }
-
-// ------------------------------------------------------------------ controls --
-document.getElementById("btn-prev").addEventListener("click", () => stepSubject(-1));
-document.getElementById("btn-next").addEventListener("click", () => stepSubject(+1));
-
-document.getElementById("btn-rgb").addEventListener("click", () => {
-  showRgb = !showRgb;
-  syncButtons();
-  refreshBase();
-});
-
-document.getElementById("btn-pred").addEventListener("click", () => {
-  showPred = !showPred;
-  if (showPred) { showProb = false; showGt = false; }
-  syncButtons();
-  refreshOverlay();
-});
-
-document.getElementById("btn-prob").addEventListener("click", () => {
-  showProb = !showProb;
-  if (showProb) { showPred = false; showGt = false; }
-  syncButtons();
-  refreshOverlay();
-});
-
-document.getElementById("btn-gt").addEventListener("click", () => {
-  showGt = !showGt;
-  if (showGt) { showPred = false; showProb = false; }
-  syncButtons();
-  refreshOverlay();
-});
-
-document.getElementById("opacity-slider").addEventListener("input", () => {
-  if (nv.volumes.length > 1)
-    nv.setOpacity(1, parseFloat(document.getElementById("opacity-slider").value));
-});
-
-// keyboard: left/right = prev/next subject
-document.addEventListener("keydown", e => {
-  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
-  if (e.key === "ArrowLeft")  stepSubject(-1);
-  if (e.key === "ArrowRight") stepSubject(+1);
-});
 
 function setStatus(msg) {
   document.getElementById("status").textContent = msg;
 }
 
 function updateMetrics(subject) {
-  const fmt_mm  = v => v != null ? v.toFixed(1) + " mm" : "--";
-  const fmt_cc  = v => v != null ? (v / 1000).toFixed(2) + " cm³" : "--";
+  const fmt_mm = v => v != null ? v.toFixed(1) + " mm" : "--";
+  const fmt_cc = v => v != null ? (v / 1000).toFixed(2) + " cm³" : "--";
   const fmt_sph = v => v != null ? v.toFixed(3) : "--";
-
   const p = subject.metrics_pred ?? {};
-  const g = subject.metrics_gt   ?? {};
-
-  document.getElementById("m-ld-pred").textContent  = fmt_mm(p.d1_mm);
-  document.getElementById("m-ld-gt").textContent    = fmt_mm(g.d1_mm);
-  document.getElementById("m-d2-pred").textContent  = fmt_mm(p.d2_mm);
-  document.getElementById("m-d2-gt").textContent    = fmt_mm(g.d2_mm);
-  document.getElementById("m-d3-pred").textContent  = fmt_mm(p.d3_mm);
-  document.getElementById("m-d3-gt").textContent    = fmt_mm(g.d3_mm);
+  const g = subject.metrics_gt ?? {};
+  document.getElementById("m-ld-pred").textContent = fmt_mm(p.d1_mm);
+  document.getElementById("m-ld-gt").textContent = fmt_mm(g.d1_mm);
+  document.getElementById("m-d2-pred").textContent = fmt_mm(p.d2_mm);
+  document.getElementById("m-d2-gt").textContent = fmt_mm(g.d2_mm);
+  document.getElementById("m-d3-pred").textContent = fmt_mm(p.d3_mm);
+  document.getElementById("m-d3-gt").textContent = fmt_mm(g.d3_mm);
   document.getElementById("m-vol-pred").textContent = fmt_cc(p.volume_mm3);
-  document.getElementById("m-vol-gt").textContent   = fmt_cc(g.volume_mm3);
+  document.getElementById("m-vol-gt").textContent = fmt_cc(g.volume_mm3);
   document.getElementById("m-sph-pred").textContent = fmt_sph(p.sphericity);
-  document.getElementById("m-sph-gt").textContent   = fmt_sph(g.sphericity);
+  document.getElementById("m-sph-gt").textContent = fmt_sph(g.sphericity);
 }
 
-// ------------------------------------------------------------------ go ------
+function currentSeed() {
+  return {
+    x: Number(document.getElementById("seed-x").value),
+    y: Number(document.getElementById("seed-y").value),
+    z: Number(document.getElementById("seed-z").value),
+    space: "voxel",
+  };
+}
+
+function updateSeedMarkerVisibility() {
+  const marker = document.getElementById("seed-marker");
+  if (!activeSeed) {
+    marker.style.display = "none";
+    return;
+  }
+  const dx = Math.abs((currentCrosshair?.x ?? 0) - activeSeed.x);
+  const dy = Math.abs((currentCrosshair?.y ?? 0) - activeSeed.y);
+  const dz = Math.abs((currentCrosshair?.z ?? 0) - activeSeed.z);
+  const isNearCurrentSlice = dx <= 1 || dy <= 1 || dz <= 1;
+  marker.style.display = isNearCurrentSlice ? "block" : "none";
+}
+
+function applySeed(seed) {
+  activeSeed = { x: seed.x, y: seed.y, z: seed.z, space: "voxel" };
+  document.getElementById("seed-x").value = activeSeed.x;
+  document.getElementById("seed-y").value = activeSeed.y;
+  document.getElementById("seed-z").value = activeSeed.z;
+  seedMode = false;
+  syncButtons();
+  updateSeedState();
+  updateSeedMarkerVisibility();
+  setStatus(`Seed placed at voxel (${activeSeed.x}, ${activeSeed.y}, ${activeSeed.z}) for ${subjects[currentIdx].id}`);
+}
+
+function currentCrop() {
+  const vals = document.getElementById("crop-size").value.split(",").map(v => Number(v.trim())).filter(v => Number.isFinite(v) && v > 0);
+  return vals.length ? vals : [96, 96, 96];
+}
+
+function updateSeedState() {
+  if (activeSeed) {
+    document.getElementById("seed-state").textContent = `Seed: (${activeSeed.x}, ${activeSeed.y}, ${activeSeed.z})`;
+  } else {
+    document.getElementById("seed-state").textContent = "Seed: none";
+  }
+}
+
+function clearSeed() {
+  const marker = document.getElementById("seed-marker");
+  marker.style.display = "none";
+  activeSeed = null;
+  seedMode = false;
+  syncButtons();
+  updateSeedState();
+  updateSeedMarkerVisibility();
+  setStatus(`Seed cleared for ${subjects[currentIdx]?.id || "current subject"}`);
+}
+
+function placeSeedFromCanvasEvent(evt) {
+  if (!currentCrosshair) return;
+  applySeed(currentCrosshair);
+}
+
+async function runInteractiveSegmentation() {
+  if (!subjects.length) return;
+  if (!activeSeed) {
+    setStatus("Place a seed before running interactive segmentation");
+    return;
+  }
+  const subject = subjects[currentIdx];
+  const payload = {
+    study_uid: STUDY_UID,
+    seed: activeSeed,
+    crop_size: currentCrop(),
+    mode: "local_crop",
+  };
+  setStatus(`Running interactive segmentation for ${subject.id}...`);
+  document.getElementById("run-state").textContent = `Interactive run: running on ${subject.id}`;
+  try {
+    const res = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/ai/tumor-segmentation/interactive`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${ACTOR_TOKEN}`,
+        "X-Case-Id": subject.id,
+      },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body?.error?.message || `HTTP ${res.status}`);
+    const m = body?.metadata?.metrics || {};
+    document.getElementById("m-ld-pred").textContent = m.d1_mm != null ? `${Number(m.d1_mm).toFixed(1)} mm` : "--";
+    document.getElementById("m-d2-pred").textContent = m.d2_mm != null ? `${Number(m.d2_mm).toFixed(1)} mm` : "--";
+    document.getElementById("m-d3-pred").textContent = m.d3_mm != null ? `${Number(m.d3_mm).toFixed(1)} mm` : "--";
+    document.getElementById("m-vol-pred").textContent = m.volume_mm3 != null ? `${(Number(m.volume_mm3) / 1000).toFixed(2)} cm³` : "--";
+    document.getElementById("m-sph-pred").textContent = m.sphericity != null ? Number(m.sphericity).toFixed(3) : "--";
+    document.getElementById("run-state").textContent = `Interactive run: ${body.job_id || "complete"} on ${subject.id}`;
+    setStatus(`Interactive segmentation complete for ${subject.id}`);
+  } catch (err) {
+    document.getElementById("run-state").textContent = `Interactive run: failed on ${subject.id}`;
+    setStatus(`Interactive segmentation error: ${err.message}`);
+    console.error(err);
+  }
+}
+
+function bindInteractiveControls() {
+  document.getElementById("btn-place-seed").addEventListener("click", () => {
+    seedMode = true;
+    syncButtons();
+    setStatus("Click in the viewer to place or replace the tumor seed");
+  });
+  document.getElementById("btn-clear-seed").addEventListener("click", clearSeed);
+  document.getElementById("btn-run-interactive").addEventListener("click", runInteractiveSegmentation);
+  document.getElementById("gl").addEventListener("click", (evt) => {
+    if (!seedMode) return;
+    placeSeedFromCanvasEvent(evt);
+  });
+  ["seed-x", "seed-y", "seed-z"].forEach((id) => {
+    document.getElementById(id).addEventListener("input", updateSeedState);
+  });
+  updateSeedState();
+  syncButtons();
+}
+
+document.getElementById("btn-prev").addEventListener("click", () => stepSubject(-1));
+document.getElementById("btn-next").addEventListener("click", () => stepSubject(+1));
+document.getElementById("btn-rgb").addEventListener("click", () => { showRgb = !showRgb; syncButtons(); refreshBase(); });
+document.getElementById("btn-pred").addEventListener("click", () => { showPred = !showPred; if (showPred) { showProb = false; showGt = false; } syncButtons(); refreshOverlay(); });
+document.getElementById("btn-prob").addEventListener("click", () => { showProb = !showProb; if (showProb) { showPred = false; showGt = false; } syncButtons(); refreshOverlay(); });
+document.getElementById("btn-gt").addEventListener("click", () => { showGt = !showGt; if (showGt) { showPred = false; showProb = false; } syncButtons(); refreshOverlay(); });
+document.getElementById("opacity-slider").addEventListener("input", () => { if (nv.volumes.length > 1) nv.setOpacity(1, parseFloat(document.getElementById("opacity-slider").value)); });
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+  if (e.key === "ArrowLeft") stepSubject(-1);
+  if (e.key === "ArrowRight") stepSubject(+1);
+});
+
 init();
 </script>
 </body>
