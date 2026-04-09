@@ -59,19 +59,6 @@
 
     #canvas-wrap { flex: 1; position: relative; min-height: 0; }
     #gl { width: 100%; height: 100%; display: block; }
-    #seed-marker {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 2px solid #ffd24d;
-      background: rgba(255, 80, 80, 0.75);
-      box-shadow: 0 0 10px rgba(255, 210, 77, 0.9);
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      display: none;
-      z-index: 20;
-    }
 
     #metrics-bar {
       padding: 6px 14px; background: #161a16; border-top: 1px solid #1e2a1e;
@@ -139,7 +126,6 @@
 
 <div id="canvas-wrap">
   <canvas id="gl"></canvas>
-  <div id="seed-marker"></div>
 </div>
 
 <div id="metrics-bar">
@@ -220,7 +206,6 @@ async function init() {
         y: Math.round(data.vox[1]),
         z: Math.round(data.vox[2]),
       };
-      updateSeedMarkerVisibility();
       if (seedMode) {
         applySeed(currentCrosshair);
       }
@@ -379,19 +364,6 @@ function currentSeed() {
   };
 }
 
-function updateSeedMarkerVisibility() {
-  const marker = document.getElementById("seed-marker");
-  if (!activeSeed) {
-    marker.style.display = "none";
-    return;
-  }
-  const dx = Math.abs((currentCrosshair?.x ?? 0) - activeSeed.x);
-  const dy = Math.abs((currentCrosshair?.y ?? 0) - activeSeed.y);
-  const dz = Math.abs((currentCrosshair?.z ?? 0) - activeSeed.z);
-  const isNearCurrentSlice = dx <= 1 || dy <= 1 || dz <= 1;
-  marker.style.display = isNearCurrentSlice ? "block" : "none";
-}
-
 function applySeed(seed) {
   activeSeed = { x: seed.x, y: seed.y, z: seed.z, space: "voxel" };
   document.getElementById("seed-x").value = activeSeed.x;
@@ -400,7 +372,6 @@ function applySeed(seed) {
   seedMode = false;
   syncButtons();
   updateSeedState();
-  updateSeedMarkerVisibility();
   setStatus(`Seed placed at voxel (${activeSeed.x}, ${activeSeed.y}, ${activeSeed.z}) for ${subjects[currentIdx].id}`);
 }
 
@@ -418,13 +389,10 @@ function updateSeedState() {
 }
 
 function clearSeed() {
-  const marker = document.getElementById("seed-marker");
-  marker.style.display = "none";
   activeSeed = null;
   seedMode = false;
   syncButtons();
   updateSeedState();
-  updateSeedMarkerVisibility();
   setStatus(`Seed cleared for ${subjects[currentIdx]?.id || "current subject"}`);
 }
 
