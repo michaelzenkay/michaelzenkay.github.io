@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imgnexus Plugin Preview</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="site-theme.css">
+    <style>
+        .gate {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+        .gate input {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 240px;
+        }
+        .gate button {
+            padding: 0.5rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .gate .error {
+            color: red;
+            font-size: 0.9rem;
+            display: none;
+        }
+        #content { display: none; }
+    </style>
+</head>
+<body class="site-home">
+    <div class="container">
+        <main>
+            <div id="gate" class="gate">
+                <h2>Imgnexus Plugin Preview</h2>
+                <p>Enter the access password to continue.</p>
+                <input type="password" id="pw" placeholder="Password" onkeydown="if(event.key==='Enter')check()" />
+                <button onclick="check()">Enter</button>
+                <span class="error" id="err">Incorrect password.</span>
+            </div>
+            <div id="content">
+                <section class="work-section">
+                    <h2>Imgnexus Plugin Preview</h2>
+                    <p class="site-intro">Preview content goes here.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script>
+        function check() {
+            const val = document.getElementById('pw').value;
+            if (val === 'poweroverwhelming') {
+                document.getElementById('gate').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } else {
+                document.getElementById('err').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
