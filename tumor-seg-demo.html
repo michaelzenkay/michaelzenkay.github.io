@@ -118,8 +118,8 @@
     <span class="lbl">y</span><input class="seed-input" id="seed-y" type="number" value="94" />
     <span class="lbl">z</span><input class="seed-input" id="seed-z" type="number" value="51" />
     <span class="lbl">crop</span><input id="crop-size" value="96,96,96" />
+    <button class="nav-btn seg-run" id="btn-run-interactive">Run Interactive Seg</button>
   </div>
-  <button class="nav-btn seg-run" id="btn-run-interactive">Run Interactive Seg</button>
 
   <span id="status">Loading...</span>
 </div>
@@ -174,7 +174,7 @@ import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.5
 
 const MANIFEST_URL = (new URLSearchParams(location.search)).get("manifest")
   ?? "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json";
-const API_BASE = (new URLSearchParams(location.search)).get("api") ?? "http://127.0.0.1:8787";
+const API_BASE = (new URLSearchParams(location.search)).get("api") ?? "http://127.0.0.1:8080";
 const STUDY_UID = (new URLSearchParams(location.search)).get("study_uid") ?? "study-demo";
 const ACTOR_TOKEN = (new URLSearchParams(location.search)).get("token") ?? "patient-demo";
 
@@ -456,7 +456,10 @@ async function runInteractiveSegmentation() {
     setStatus(`Interactive segmentation complete for ${subject.id}${loaded ? " with returned overlay" : ""}`);
   } catch (err) {
     document.getElementById("run-state").textContent = `Interactive run: failed on ${subject.id}`;
-    setStatus(`Interactive segmentation error: ${err.message}`);
+    const msg = err?.message === "Failed to fetch"
+      ? `Interactive segmentation error: backend not reachable at ${API_BASE}`
+      : `Interactive segmentation error: ${err.message}`;
+    setStatus(msg);
     console.error(err);
   }
 }
