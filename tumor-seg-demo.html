@@ -401,6 +401,23 @@ function placeSeedFromCanvasEvent(evt) {
   applySeed(currentCrosshair);
 }
 
+async function addReturnedMaskOverlay(artifacts) {
+  const maskArtifact = Array.isArray(artifacts) ? artifacts.find((a) => a.kind === "mask" && a.url) : null;
+  if (!maskArtifact) return false;
+  const maskUrl = maskArtifact.url.startsWith("http") ? maskArtifact.url : `${API_BASE.replace(/\/+$/, "")}${maskArtifact.url}`;
+  const img = await NVImage.loadFromUrl({
+    url: maskUrl,
+    colormap: COLORMAP_PRED,
+    opacity: 1.0,
+  });
+  nv.addVolume(img);
+  showPred = true;
+  showProb = false;
+  showGt = false;
+  syncButtons();
+  return true;
+}
+
 async function runInteractiveSegmentation() {
   if (!subjects.length) return;
   if (!activeSeed) {
@@ -434,8 +451,9 @@ async function runInteractiveSegmentation() {
     document.getElementById("m-d3-pred").textContent = m.d3_mm != null ? `${Number(m.d3_mm).toFixed(1)} mm` : "--";
     document.getElementById("m-vol-pred").textContent = m.volume_mm3 != null ? `${(Number(m.volume_mm3) / 1000).toFixed(2)} cm³` : "--";
     document.getElementById("m-sph-pred").textContent = m.sphericity != null ? Number(m.sphericity).toFixed(3) : "--";
-    document.getElementById("run-state").textContent = `Interactive run: ${body.job_id || "complete"} on ${subject.id}`;
-    setStatus(`Interactive segmentation complete for ${subject.id}`);
+    const loaded = await addReturnedMaskOverlay(body.artifacts);
+    document.getElementById("run-state").textContent = `Interactive run: ${body.job_id || "complete"} on ${subject.id}${loaded ? " (overlay loaded)" : ""}`;
+    setStatus(`Interactive segmentation complete for ${subject.id}${loaded ? " with returned overlay" : ""}`);
   } catch (err) {
     document.getElementById("run-state").textContent = `Interactive run: failed on ${subject.id}`;
     setStatus(`Interactive segmentation error: ${err.message}`);
