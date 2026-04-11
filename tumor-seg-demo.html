@@ -103,6 +103,7 @@
   <button class="toggle-btn active-pred" id="btn-pred">Prediction</button>
   <button class="toggle-btn" id="btn-prob">Prob map</button>
   <button class="toggle-btn" id="btn-gt">Ground truth</button>
+  <button class="toggle-btn" id="btn-seeded">Seeded seg</button>
 
   <div id="opacity-wrap">
     <span class="lbl">opacity</span>
@@ -175,12 +176,13 @@ import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.5
 const MANIFEST_URL = (new URLSearchParams(location.search)).get("manifest")
   ?? "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json";
 const API_BASE = (new URLSearchParams(location.search)).get("api") ?? "http://127.0.0.1:8080";
-const STUDY_UID = (new URLSearchParams(location.search)).get("study_uid") ?? "study-demo";
+const INITIAL_STUDY_UID = (new URLSearchParams(location.search)).get("study_uid") ?? "";
 const ACTOR_TOKEN = (new URLSearchParams(location.search)).get("token") ?? "patient-demo";
 
 const COLORMAP_PRED = "warm";
 const COLORMAP_PROB = "hot";
 const COLORMAP_GT   = "blue";
+const COLORMAP_SEEDED = "red";
 
 let nv = null;
 let manifest = null;
@@ -190,10 +192,13 @@ let showRgb  = true;
 let showPred = true;
 let showProb = false;
 let showGt   = false;
+let showSeeded = false;
 let loading  = false;
 let seedMode = false;
 let currentCrosshair = { x: 112, y: 94, z: 51 };
 let activeSeed = null;
+let seededMaskUrl = null;
+let runtimeStudyUID = INITIAL_STUDY_UID;
 
 async function init() {
   nv = new Niivue({ backColor: [0.07, 0.07, 0.07, 1], show3Dcrosshair: true, isColorbar: false });
@@ -255,6 +260,7 @@ function updateNav() {
 }
 
 function _overlayChoice(subject) {
+  if (showSeeded && seededMaskUrl) return { url: seededMaskUrl, map: COLORMAP_SEEDED };
   if (showGt && subject.gt) return { file: subject.gt, map: COLORMAP_GT };
   if (showProb && subject.pred) return { file: subject.pred, map: COLORMAP_PROB };
   if (showPred && subject.pred_binary) return { file: subject.pred_binary, map: COLORMAP_PRED };
@@ -266,6 +272,8 @@ async function loadSubject(idx) {
   loading = true;
   currentIdx = idx;
   const subject = subjects[idx];
+  seededMaskUrl = null;
+  showSeeded = false;
   updateNav();
   setStatus(`Loading ${subject.id}...`);
   document.getElementById("info-subject").textContent = `Subject: ${subject.id}`;
@@ -312,7 +320,8 @@ async function refreshOverlay() {
   const base = MANIFEST_URL.replace(/\/[^/]+$/, "/");
   const ov = _overlayChoice(subject);
   if (ov) {
-    const img = await NVImage.loadFromUrl({ url: base + ov.file, colormap: ov.map, opacity: parseFloat(document.getElementById("opacity-slider").value) });
+    const overlayUrl = ov.url || (base + ov.file);
+    const img = await NVImage.loadFromUrl({ url: overlayUrl, colormap: ov.map, opacity: parseFloat(document.getElementById("opacity-slider").value) });
     nv.addVolume(img);
   }
   updateOverlayInfo();
@@ -320,7 +329,7 @@ async function refreshOverlay() {
 
 function updateOverlayInfo() {
   const base = showRgb ? "RGB" : "grayscale";
-  const overlay = showGt ? "GT (blue)" : showProb ? "Prob map (hot)" : showPred ? "Pred (orange)" : "none";
+  const overlay = showSeeded ? "Seeded seg (red)" : showGt ? "GT (blue)" : showProb ? "Prob map (hot)" : showPred ? "Pred (orange)" : "none";
   document.getElementById("info-overlay").textContent = `Base: ${base} | Overlay: ${overlay}`;
 }
 
@@ -329,6 +338,8 @@ function syncButtons() {
   document.getElementById("btn-pred").className = "toggle-btn" + (showPred ? " active-pred" : "");
   document.getElementById("btn-prob").className = "toggle-btn" + (showProb ? " active-prob" : "");
   document.getElementById("btn-gt").className = "toggle-btn" + (showGt ? " active-gt" : "");
+  document.getElementById("btn-seeded").className = "toggle-btn" + (showSeeded ? " active-gt" : "");
+  document.getElementById("btn-seeded").disabled = !seededMaskUrl;
   document.getElementById("btn-place-seed").classList.toggle("seed-active", seedMode);
   document.getElementById("tool-state").textContent = `Seed mode: ${seedMode ? "armed" : "off"}`;
 }
@@ -396,6 +407,72 @@ function clearSeed() {
   setStatus(`Seed cleared for ${subjects[currentIdx]?.id || "current subject"}`);
 }
 
+function buildDemoDICOM() {
+  const bytes = new Uint8Array(132);
+  bytes.set([68, 73, 67, 77], 128); // "DICM"
+  return bytes;
+}
+
+async function ensureInteractiveStudy() {
+  if (runtimeStudyUID) {
+    const existing = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/studies/${encodeURIComponent(runtimeStudyUID)}`, {
+      headers: { "Authorization": `Bearer ${ACTOR_TOKEN}` },
+    });
+    if (existing.ok) return runtimeStudyUID;
+    if (existing.status !== 404) {
+      const body = await existing.json().catch(() => null);
+      throw new Error(body?.error?.message || `study lookup failed with HTTP ${existing.status}`);
+    }
+  }
+
+  setStatus("Bootstrapping demo study on local API...");
+  const createRes = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/upload-sessions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${ACTOR_TOKEN}`,
+    },
+    body: JSON.stringify({ expires_in_minutes: 30, max_bytes: 1024 * 1024 }),
+  });
+  const createBody = await createRes.json().catch(() => null);
+  if (!createRes.ok) {
+    throw new Error(createBody?.error?.message || `upload bootstrap failed with HTTP ${createRes.status}`);
+  }
+
+  const sessionId = createBody?.session_id;
+  const uploadURL = createBody?.upload_url;
+  const uploadToken = uploadURL ? new URL(uploadURL).searchParams.get("token") : null;
+  if (!sessionId || !uploadToken) {
+    throw new Error("upload bootstrap response missing session id or token");
+  }
+
+  const objectId = `demo-${Date.now()}`;
+  const uploadRes = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/upload-sessions/${encodeURIComponent(sessionId)}/objects/${encodeURIComponent(objectId)}`, {
+    method: "PUT",
+    headers: { "X-Upload-Token": uploadToken },
+    body: buildDemoDICOM(),
+  });
+  const uploadBody = await uploadRes.json().catch(() => null);
+  if (!uploadRes.ok) {
+    throw new Error(uploadBody?.error?.message || `demo DICOM upload failed with HTTP ${uploadRes.status}`);
+  }
+
+  const finalizeRes = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/upload-sessions/${encodeURIComponent(sessionId)}/finalize`, {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${ACTOR_TOKEN}` },
+  });
+  const finalizeBody = await finalizeRes.json().catch(() => null);
+  if (!finalizeRes.ok) {
+    throw new Error(finalizeBody?.error?.message || `study finalize failed with HTTP ${finalizeRes.status}`);
+  }
+
+  runtimeStudyUID = finalizeBody?.study_uids?.[0] ?? "";
+  if (!runtimeStudyUID) {
+    throw new Error("study finalize response missing study uid");
+  }
+  return runtimeStudyUID;
+}
+
 function placeSeedFromCanvasEvent(evt) {
   if (!currentCrosshair) return;
   applySeed(currentCrosshair);
@@ -404,17 +481,13 @@ function placeSeedFromCanvasEvent(evt) {
 async function addReturnedMaskOverlay(artifacts) {
   const maskArtifact = Array.isArray(artifacts) ? artifacts.find((a) => a.kind === "mask" && a.url) : null;
   if (!maskArtifact) return false;
-  const maskUrl = maskArtifact.url.startsWith("http") ? maskArtifact.url : `${API_BASE.replace(/\/+$/, "")}${maskArtifact.url}`;
-  const img = await NVImage.loadFromUrl({
-    url: maskUrl,
-    colormap: COLORMAP_PRED,
-    opacity: 1.0,
-  });
-  nv.addVolume(img);
-  showPred = true;
+  seededMaskUrl = maskArtifact.url.startsWith("http") ? maskArtifact.url : `${API_BASE.replace(/\/+$/, "")}${maskArtifact.url}`;
+  showSeeded = true;
+  showPred = false;
   showProb = false;
   showGt = false;
   syncButtons();
+  await refreshOverlay();
   return true;
 }
 
@@ -425,15 +498,16 @@ async function runInteractiveSegmentation() {
     return;
   }
   const subject = subjects[currentIdx];
-  const payload = {
-    study_uid: STUDY_UID,
-    seed: activeSeed,
-    crop_size: currentCrop(),
-    mode: "local_crop",
-  };
-  setStatus(`Running interactive segmentation for ${subject.id}...`);
-  document.getElementById("run-state").textContent = `Interactive run: running on ${subject.id}`;
   try {
+    const studyUID = await ensureInteractiveStudy();
+    const payload = {
+      study_uid: studyUID,
+      seed: activeSeed,
+      crop_size: currentCrop(),
+      mode: "local_crop",
+    };
+    setStatus(`Running interactive segmentation for ${subject.id}...`);
+    document.getElementById("run-state").textContent = `Interactive run: running on ${subject.id}`;
     const res = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/ai/tumor-segmentation/interactive`, {
       method: "POST",
       headers: {
@@ -486,9 +560,10 @@ function bindInteractiveControls() {
 document.getElementById("btn-prev").addEventListener("click", () => stepSubject(-1));
 document.getElementById("btn-next").addEventListener("click", () => stepSubject(+1));
 document.getElementById("btn-rgb").addEventListener("click", () => { showRgb = !showRgb; syncButtons(); refreshBase(); });
-document.getElementById("btn-pred").addEventListener("click", () => { showPred = !showPred; if (showPred) { showProb = false; showGt = false; } syncButtons(); refreshOverlay(); });
-document.getElementById("btn-prob").addEventListener("click", () => { showProb = !showProb; if (showProb) { showPred = false; showGt = false; } syncButtons(); refreshOverlay(); });
-document.getElementById("btn-gt").addEventListener("click", () => { showGt = !showGt; if (showGt) { showPred = false; showProb = false; } syncButtons(); refreshOverlay(); });
+document.getElementById("btn-pred").addEventListener("click", () => { showPred = !showPred; if (showPred) { showProb = false; showGt = false; showSeeded = false; } syncButtons(); refreshOverlay(); });
+document.getElementById("btn-prob").addEventListener("click", () => { showProb = !showProb; if (showProb) { showPred = false; showGt = false; showSeeded = false; } syncButtons(); refreshOverlay(); });
+document.getElementById("btn-gt").addEventListener("click", () => { showGt = !showGt; if (showGt) { showPred = false; showProb = false; showSeeded = false; } syncButtons(); refreshOverlay(); });
+document.getElementById("btn-seeded").addEventListener("click", () => { if (!seededMaskUrl) return; showSeeded = !showSeeded; if (showSeeded) { showPred = false; showProb = false; showGt = false; } syncButtons(); refreshOverlay(); });
 document.getElementById("opacity-slider").addEventListener("input", () => { if (nv.volumes.length > 1) nv.setOpacity(1, parseFloat(document.getElementById("opacity-slider").value)); });
 document.addEventListener("keydown", e => {
   if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
