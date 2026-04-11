@@ -348,6 +348,10 @@ function setStatus(msg) {
   document.getElementById("status").textContent = msg;
 }
 
+function setRunState(msg) {
+  document.getElementById("run-state").textContent = msg;
+}
+
 function updateMetrics(subject) {
   const fmt_mm = v => v != null ? v.toFixed(1) + " mm" : "--";
   const fmt_cc = v => v != null ? (v / 1000).toFixed(2) + " cm³" : "--";
@@ -480,15 +484,22 @@ function placeSeedFromCanvasEvent(evt) {
 
 async function addReturnedMaskOverlay(artifacts) {
   const maskArtifact = Array.isArray(artifacts) ? artifacts.find((a) => a.kind === "mask" && a.url) : null;
-  if (!maskArtifact) return false;
+  if (!maskArtifact) {
+    return { loaded: false, reason: "no mask artifact returned", url: null };
+  }
   seededMaskUrl = maskArtifact.url.startsWith("http") ? maskArtifact.url : `${API_BASE.replace(/\/+$/, "")}${maskArtifact.url}`;
   showSeeded = true;
   showPred = false;
   showProb = false;
   showGt = false;
   syncButtons();
-  await refreshOverlay();
-  return true;
+  try {
+    await refreshOverlay();
+    return { loaded: true, reason: null, url: seededMaskUrl };
+  } catch (err) {
+    console.error("Seeded seg load failed", err);
+    return { loaded: false, reason: err?.message || String(err), url: seededMaskUrl };
+  }
 }
 
 async function runInteractiveSegmentation() {
@@ -507,7 +518,7 @@ async function runInteractiveSegmentation() {
       mode: "local_crop",
     };
     setStatus(`Running interactive segmentation for ${subject.id}...`);
-    document.getElementById("run-state").textContent = `Interactive run: running on ${subject.id}`;
+    setRunState(`Interactive run: running on ${subject.id}`);
     const res = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/ai/tumor-segmentation/interactive`, {
       method: "POST",
       headers: {
@@ -525,11 +536,17 @@ async function runInteractiveSegmentation() {
     document.getElementById("m-d3-pred").textContent = m.d3_mm != null ? `${Number(m.d3_mm).toFixed(1)} mm` : "--";
     document.getElementById("m-vol-pred").textContent = m.volume_mm3 != null ? `${(Number(m.volume_mm3) / 1000).toFixed(2)} cm³` : "--";
     document.getElementById("m-sph-pred").textContent = m.sphericity != null ? Number(m.sphericity).toFixed(3) : "--";
-    const loaded = await addReturnedMaskOverlay(body.artifacts);
-    document.getElementById("run-state").textContent = `Interactive run: ${body.job_id || "complete"} on ${subject.id}${loaded ? " (overlay loaded)" : ""}`;
-    setStatus(`Interactive segmentation complete for ${subject.id}${loaded ? " with returned overlay" : ""}`);
+    const maskResult = await addReturnedMaskOverlay(body.artifacts);
+    if (maskResult.loaded) {
+      setRunState(`Interactive run: ${body.job_id || "complete"} on ${subject.id} (Seeded seg loaded)`);
+      setStatus(`Interactive segmentation complete for ${subject.id}; Seeded seg loaded from ${maskResult.url}`);
+    } else {
+      setRunState(`Interactive run: ${body.job_id || "complete"} on ${subject.id} (no Seeded seg loaded)`);
+      setStatus(`Interactive segmentation complete for ${subject.id}, but Seeded seg did not load: ${maskResult.reason}${maskResult.url ? ` [${maskResult.url}]` : ""}`);
+      console.warn("Interactive segmentation mask artifact issue", { maskResult, artifacts: body.artifacts, response: body });
+    }
   } catch (err) {
-    document.getElementById("run-state").textContent = `Interactive run: failed on ${subject.id}`;
+    setRunState(`Interactive run: failed on ${subject.id}`);
     const msg = err?.message === "Failed to fetch"
       ? `Interactive segmentation error: backend not reachable at ${API_BASE}`
       : `Interactive segmentation error: ${err.message}`;
