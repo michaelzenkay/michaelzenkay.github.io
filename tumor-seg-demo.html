@@ -6,40 +6,70 @@
   <title>ISPY Tumor Segmentation Viewer</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #111; color: #ddd; font-family: system-ui, sans-serif;
-           display: flex; flex-direction: column; height: 100vh; user-select: none; }
+    body {
+      background: #111;
+      color: #ddd;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      user-select: none;
+    }
 
     #toolbar {
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-      padding: 7px 12px; background: #1a1a1a; border-bottom: 1px solid #2e2e2e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 7px 12px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #2e2e2e;
       flex-shrink: 0;
     }
 
     #nav-wrap { display: flex; align-items: center; gap: 4px; }
     .nav-btn {
-      background: #2a2a2a; color: #bbb; border: 1px solid #444;
-      padding: 3px 8px; border-radius: 4px; font-size: 13px; cursor: pointer;
+      background: #2a2a2a;
+      color: #bbb;
+      border: 1px solid #444;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
       line-height: 1.4;
     }
     .nav-btn:hover { background: #333; }
     .nav-btn.seed-active { background: #6a3a20; color: #ffd7b8; border-color: #9a5a2a; }
     .nav-btn.seg-run { background: #2a5a2a; color: #d7ffd7; border-color: #4a8a4a; }
     #subject-select {
-      background: #222; color: #eee; border: 1px solid #444;
-      padding: 3px 7px; border-radius: 4px; font-size: 13px; min-width: 100px;
+      background: #222;
+      color: #eee;
+      border: 1px solid #444;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-size: 13px;
+      min-width: 120px;
     }
     #subject-idx { font-size: 11px; color: #555; min-width: 48px; text-align: center; }
 
     .sep { width: 1px; height: 20px; background: #333; margin: 0 2px; }
-    .toggle-btn {
-      background: #2a2a2a; color: #999; border: 1px solid #444;
-      padding: 3px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;
+    .toggle-btn,
+    .mip-series-btn {
+      background: #2a2a2a;
+      color: #999;
+      border: 1px solid #444;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
     }
-    .toggle-btn:hover { background: #333; }
+    .toggle-btn:hover,
+    .mip-series-btn:hover { background: #333; }
     .toggle-btn.active-rgb  { background: #1a3a1a; color: #8e8; border-color: #3a6a3a; }
     .toggle-btn.active-pred { background: #3a1a10; color: #f96; border-color: #6a3a20; }
     .toggle-btn.active-prob { background: #2a1a3a; color: #d9a; border-color: #5a3a7a; }
     .toggle-btn.active-gt   { background: #10203a; color: #8af; border-color: #204a7a; }
+    .mip-series-btn.active  { background: #183038; color: #9ee7ff; border-color: #2f5968; }
     .lbl { font-size: 11px; color: #555; }
 
     #opacity-wrap { display: flex; align-items: center; gap: 5px; }
@@ -57,7 +87,19 @@
 
     #status { margin-left: auto; font-size: 11px; color: #777; white-space: nowrap; }
 
-    #canvas-wrap { flex: 1; position: relative; min-height: 0; }
+    #main-layout {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      overflow: hidden;
+    }
+
+    #canvas-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+    }
     #gl { width: 100%; height: 100%; display: block; }
 
     #metrics-bar {
@@ -65,22 +107,173 @@
       font-size: 12px; color: #d7dde4; display: flex; gap: 28px; flex-shrink: 0;
       flex-wrap: wrap; align-items: baseline;
     }
+
+    #mip-panel {
+      width: 360px;
+      max-width: 42vw;
+      background: linear-gradient(180deg, #13171b 0%, #0d1013 100%);
+      border-left: 1px solid #23272b;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      flex-shrink: 0;
+    }
+    #mip-panel.is-hidden { display: none; }
+
+    #mip-head {
+      padding: 12px 12px 8px;
+      border-bottom: 1px solid #1f2328;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    #mip-title { font-size: 13px; color: #d8dee4; font-weight: 600; }
+    #mip-subtitle { font-size: 11px; color: #6f7a84; }
+    #mip-series {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    #mip-focus-wrap {
+      padding: 12px;
+      border-bottom: 1px solid #1f2328;
+      flex-shrink: 0;
+    }
+    #mip-focus-frame {
+      background: #060708;
+      border: 1px solid #1f2328;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 1.1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #mip-focus-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    #mip-focus-caption {
+      font-size: 11px;
+      color: #7d8790;
+      margin-top: 8px;
+    }
+
+    #mip-grid {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      overflow: auto;
+    }
+    .mip-card {
+      background: #0b0d10;
+      border: 1px solid #1f2328;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      text-align: left;
+    }
+    .mip-card.active { border-color: #4f93a6; box-shadow: 0 0 0 1px #4f93a6 inset; }
+    .mip-thumb {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+    .mip-meta {
+      padding: 7px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .mip-view {
+      font-size: 11px;
+      color: #d7dde3;
+      text-transform: capitalize;
+    }
+    .mip-series-label {
+      font-size: 10px;
+      color: #6f7a84;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    #mip-empty {
+      padding: 18px 14px;
+      font-size: 12px;
+      color: #65717b;
+    }
+    #mip-empty.is-hidden { display: none; }
+
+    #metrics-bar {
+      padding: 6px 14px;
+      background: #161a16;
+      border-top: 1px solid #1e2a1e;
+      font-size: 12px;
+      color: #d7dde4;
+      display: flex;
+      gap: 28px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      align-items: baseline;
+    }
     #metrics-bar .m-label { color: #d7dde4; font-size: 11px; margin-right: 4px; }
     #metrics-bar .m-pred  { color: #ffe7d6; }
     #metrics-bar .m-gt    { color: #e6f0ff; }
     #metrics-bar .m-group { display: flex; flex-direction: column; gap: 2px; }
-    #metrics-bar .m-title { font-size: 10px; color: #f8fafc; text-transform: uppercase; letter-spacing: 0.05em; }
-
-    #info-bar {
-      padding: 3px 12px; background: #141414; border-top: 1px solid #222;
-      font-size: 11px; color: #666; display: flex; gap: 16px; flex-shrink: 0;
+    #metrics-bar .m-title {
+      font-size: 10px;
+      color: #f8fafc;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
+
     #tool-bar {
-      padding: 6px 12px; background: #171717; border-top: 1px solid #232323;
-      font-size: 12px; color: #c9d2cb; display: flex; gap: 20px; flex-wrap: wrap;
+      padding: 6px 12px;
+      background: #171717;
+      border-top: 1px solid #232323;
+      font-size: 12px;
+      color: #c9d2cb;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
       flex-shrink: 0;
     }
-    #tool-bar a { color: #9fd3ff; text-decoration: none; }
+
+    #info-bar {
+      padding: 3px 12px;
+      background: #141414;
+      border-top: 1px solid #222;
+      font-size: 11px;
+      color: #666;
+      display: flex;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1080px) {
+      #main-layout { flex-direction: column; }
+      #mip-panel {
+        width: 100%;
+        max-width: none;
+        height: 42vh;
+        border-left: none;
+        border-top: 1px solid #23272b;
+      }
+      #mip-focus-frame { aspect-ratio: 2 / 1; }
+      #mip-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      #mip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #status { width: 100%; margin-left: 0; }
+    }
   </style>
 </head>
 <body>
@@ -125,8 +318,30 @@
   <span id="status">Loading...</span>
 </div>
 
-<div id="canvas-wrap">
-  <canvas id="gl"></canvas>
+<div id="main-layout">
+  <div id="canvas-wrap">
+    <canvas id="gl"></canvas>
+  </div>
+
+  <aside id="mip-panel" class="is-hidden">
+    <div id="mip-head">
+      <div>
+        <div id="mip-title">Companion MIPs</div>
+        <div id="mip-subtitle">Fixed-angle gallery</div>
+      </div>
+      <div id="mip-series"></div>
+    </div>
+
+    <div id="mip-focus-wrap">
+      <div id="mip-focus-frame">
+        <img id="mip-focus-image" alt="Selected MIP view" />
+      </div>
+      <div id="mip-focus-caption">--</div>
+    </div>
+
+    <div id="mip-grid"></div>
+    <div id="mip-empty">No companion MIPs available for this subject.</div>
+  </aside>
 </div>
 
 <div id="metrics-bar">
@@ -167,38 +382,58 @@
   <span id="info-subject">--</span>
   <span id="info-dims">--</span>
   <span id="info-overlay">--</span>
-  <span style="margin-left:auto">scroll = slice &nbsp;|&nbsp; ←→ = subject</span>
+  <span style="margin-left:auto">scroll = slice &nbsp;|&nbsp; &larr;&rarr; = subject</span>
 </div>
 
 <script type="module">
 import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.50.0/+esm";
 
-const MANIFEST_URL = (new URLSearchParams(location.search)).get("manifest")
+const MANIFEST_QUERY_URL = (new URLSearchParams(location.search)).get("manifest")
   ?? "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json";
+const MANIFEST_URL = new URL(MANIFEST_QUERY_URL, window.location.href).href;
 const API_BASE = (new URLSearchParams(location.search)).get("api") ?? "http://127.0.0.1:8080";
 const INITIAL_STUDY_UID = (new URLSearchParams(location.search)).get("study_uid") ?? "";
 const ACTOR_TOKEN = (new URLSearchParams(location.search)).get("token") ?? "patient-demo";
 
 const COLORMAP_PRED = "warm";
 const COLORMAP_PROB = "hot";
-const COLORMAP_GT   = "blue";
+const COLORMAP_GT = "blue";
 const COLORMAP_SEEDED = "red";
-
+const MIP_VIEW_ORDER = ["axial", "coronal", "sagittal", "oblique_045", "oblique_135"];
+const MIP_SERIES_PREFERENCE = [
+  "tumor_overlay",
+  "analysis_mask_overlay",
+  "enhancement",
+  "peak",
+  "post",
+  "pre",
+];
+const MIP_SERIES_LABELS = {
+  tumor_overlay: "Tumor overlay",
+  analysis_mask_overlay: "GT / analysis overlay",
+  enhancement: "Enhancement",
+  peak: "Peak",
+  post: "Post",
+  pre: "Pre",
+};
 let nv = null;
 let manifest = null;
 let subjects = [];
 let currentIdx = 0;
-let showRgb  = true;
+let showRgb = true;
 let showPred = true;
 let showProb = false;
-let showGt   = false;
+let showGt = false;
 let showSeeded = false;
-let loading  = false;
+let loading = false;
 let seedMode = false;
 let currentCrosshair = { x: 112, y: 94, z: 51 };
 let activeSeed = null;
 let seededMaskUrl = null;
 let runtimeStudyUID = INITIAL_STUDY_UID;
+let currentMipSeries = null;
+let currentMipIndex = 0;
+const mipManifestCache = new Map();
 
 async function init() {
   nv = new Niivue({ backColor: [0.07, 0.07, 0.07, 1], show3Dcrosshair: true, isColorbar: false });
@@ -219,7 +454,7 @@ async function init() {
 
   manifest = await fetchManifest();
   if (!manifest) return;
-  subjects = manifest.subjects;
+  subjects = manifest.subjects ?? [];
   populateSelect();
   bindInteractiveControls();
   await loadSubject(0);
@@ -249,7 +484,7 @@ function populateSelect() {
     sel.appendChild(opt);
   }
   sel.addEventListener("change", () => {
-    const idx = subjects.findIndex(x => x.id === sel.value);
+    const idx = subjects.findIndex((x) => x.id === sel.value);
     if (idx >= 0) loadSubject(idx);
   });
 }
@@ -259,7 +494,224 @@ function updateNav() {
   document.getElementById("subject-idx").textContent = `${currentIdx + 1}/${subjects.length}`;
 }
 
-function _overlayChoice(subject) {
+function manifestBaseUrl() {
+  return new URL(".", MANIFEST_URL).href;
+}
+
+function resolveAssetUrl(path, baseUrl) {
+  if (!path) return null;
+  const normalized = String(path).replace(/\\/g, "/");
+  if (/^https?:\/\//i.test(normalized) || normalized.startsWith("data:")) return normalized;
+  if (/^[a-zA-Z]:\//.test(normalized)) return normalized;
+  return new URL(normalized, baseUrl).href;
+}
+
+function viewLabel(view) {
+  if (!view) return "--";
+  const text = String(view);
+  const sweepMatch = text.match(/^sweep_(\d+(?:\.\d+)?)$/i);
+  if (sweepMatch) return `${Number(sweepMatch[1])} deg`;
+  return text.replace(/_/g, " ");
+}
+
+function seriesLabel(series) {
+  return MIP_SERIES_LABELS[series] ?? series.replace(/_/g, " ");
+}
+
+function sortSeriesNames(names) {
+  return [...names].sort((a, b) => {
+    const ai = MIP_SERIES_PREFERENCE.indexOf(a);
+    const bi = MIP_SERIES_PREFERENCE.indexOf(b);
+    const ao = ai >= 0 ? ai : MIP_SERIES_PREFERENCE.length + 1;
+    const bo = bi >= 0 ? bi : MIP_SERIES_PREFERENCE.length + 1;
+    return ao - bo || a.localeCompare(b);
+  });
+}
+
+function chooseDefaultMipSeries(seriesNames) {
+  const prefs = [];
+  if (showGt) prefs.push("analysis_mask_overlay");
+  if (showPred) prefs.push("tumor_overlay");
+  prefs.push(...MIP_SERIES_PREFERENCE);
+  for (const pref of prefs) {
+    if (seriesNames.includes(pref)) return pref;
+  }
+  return seriesNames[0] ?? null;
+}
+
+function groupMipEntries(payload) {
+  const grouped = {};
+  for (const entry of payload.entries ?? []) {
+    if (!grouped[entry.series]) grouped[entry.series] = [];
+    grouped[entry.series].push(entry);
+  }
+  for (const entries of Object.values(grouped)) {
+    entries.sort((a, b) => {
+      const ai = MIP_VIEW_ORDER.indexOf(a.view);
+      const bi = MIP_VIEW_ORDER.indexOf(b.view);
+      const ao = ai >= 0 ? ai : MIP_VIEW_ORDER.length + 1;
+      const bo = bi >= 0 ? bi : MIP_VIEW_ORDER.length + 1;
+      return ao - bo || String(a.view).localeCompare(String(b.view));
+    });
+  }
+  return grouped;
+}
+
+function getSubjectMipManifestPath(subject) {
+  return (
+    subject.mip_manifest
+    ?? subject.prepeakpost_mip_manifest_path
+    ?? subject.first3_mip_manifest_path
+    ?? null
+  );
+}
+
+async function loadSubjectMipManifest(subject) {
+  const relPath = getSubjectMipManifestPath(subject);
+  if (!relPath) return null;
+  const manifestUrl = resolveAssetUrl(relPath, manifestBaseUrl());
+  if (!manifestUrl) return null;
+  if (mipManifestCache.has(manifestUrl)) return mipManifestCache.get(manifestUrl);
+
+  const promise = fetch(manifestUrl)
+    .then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then((payload) => ({ ...payload, __manifestUrl: manifestUrl }));
+  mipManifestCache.set(manifestUrl, promise);
+  return promise;
+}
+
+function setMipUnavailable(message) {
+  document.getElementById("mip-panel").classList.add("is-hidden");
+  document.getElementById("mip-series").innerHTML = "";
+  document.getElementById("mip-grid").innerHTML = "";
+  document.getElementById("mip-empty").textContent = message;
+  document.getElementById("mip-empty").classList.remove("is-hidden");
+  document.getElementById("mip-focus-image").removeAttribute("src");
+  document.getElementById("mip-focus-caption").textContent = "--";
+}
+
+function renderMipSeriesButtons(seriesNames, grouped, payload) {
+  const wrap = document.getElementById("mip-series");
+  wrap.innerHTML = "";
+  for (const series of sortSeriesNames(seriesNames)) {
+    const btn = document.createElement("button");
+    btn.className = "mip-series-btn" + (series === currentMipSeries ? " active" : "");
+    btn.textContent = seriesLabel(series);
+    btn.addEventListener("click", () => {
+      currentMipSeries = series;
+      currentMipIndex = 0;
+      renderMipSeriesButtons(seriesNames, grouped, payload);
+      renderMipEntries(grouped[currentMipSeries] ?? [], payload);
+    });
+    wrap.appendChild(btn);
+  }
+}
+
+function renderMipEntries(entries, payload) {
+  const panel = document.getElementById("mip-panel");
+  const grid = document.getElementById("mip-grid");
+  const empty = document.getElementById("mip-empty");
+  const focusImage = document.getElementById("mip-focus-image");
+  const focusCaption = document.getElementById("mip-focus-caption");
+  const mipBaseUrl = new URL(".", payload.__manifestUrl).href;
+
+  if (!entries.length) {
+    panel.classList.remove("is-hidden");
+    grid.innerHTML = "";
+    empty.textContent = "No rendered views for this MIP series.";
+    empty.classList.remove("is-hidden");
+    focusImage.removeAttribute("src");
+    focusCaption.textContent = "--";
+    return;
+  }
+
+  if (currentMipIndex >= entries.length) currentMipIndex = 0;
+  const selected = entries[currentMipIndex];
+  const selectedUrl = resolveAssetUrl(selected.path, mipBaseUrl);
+
+  panel.classList.remove("is-hidden");
+  empty.classList.add("is-hidden");
+  focusImage.src = selectedUrl;
+  focusCaption.textContent =
+    `${seriesLabel(selected.series)}  · ${viewLabel(selected.view)}  · ${payload.mode ?? "MIP"}`;
+
+  grid.innerHTML = "";
+  for (const [idx, entry] of entries.entries()) {
+    const button = document.createElement("button");
+    button.className = "mip-card" + (idx === currentMipIndex ? " active" : "");
+    button.type = "button";
+    button.addEventListener("click", () => {
+      currentMipIndex = idx;
+      renderMipEntries(entries, payload);
+    });
+
+    const img = document.createElement("img");
+    img.className = "mip-thumb";
+    img.loading = "lazy";
+    img.alt = `${seriesLabel(entry.series)} ${viewLabel(entry.view)}`;
+    img.src = resolveAssetUrl(entry.path, mipBaseUrl);
+    button.appendChild(img);
+
+    const meta = document.createElement("div");
+    meta.className = "mip-meta";
+
+    const view = document.createElement("div");
+    view.className = "mip-view";
+    view.textContent = viewLabel(entry.view);
+    meta.appendChild(view);
+
+    const series = document.createElement("div");
+    series.className = "mip-series-label";
+    series.textContent = seriesLabel(entry.series);
+    meta.appendChild(series);
+
+    button.appendChild(meta);
+    grid.appendChild(button);
+  }
+}
+
+async function refreshMipGallery() {
+  if (!subjects.length) {
+    setMipUnavailable("No subjects loaded.");
+    return;
+  }
+  const subject = subjects[currentIdx];
+  const relPath = getSubjectMipManifestPath(subject);
+  if (!relPath) {
+    setMipUnavailable("No companion MIPs available for this subject.");
+    return;
+  }
+
+  try {
+    const payload = await loadSubjectMipManifest(subject);
+    const grouped = groupMipEntries(payload);
+    const seriesNames = Object.keys(grouped);
+    if (!seriesNames.length) {
+      setMipUnavailable("MIP manifest loaded, but it contains no entries.");
+      return;
+    }
+
+    if (!currentMipSeries || !grouped[currentMipSeries]) {
+      currentMipSeries = chooseDefaultMipSeries(seriesNames);
+      currentMipIndex = 0;
+    }
+
+    document.getElementById("mip-title").textContent = "Companion MIPs";
+    document.getElementById("mip-subtitle").textContent =
+      `${subject.id}  · ${payload.mode ?? "prepeakpost"}  · ${payload.label_kind ?? "none"}`;
+
+    renderMipSeriesButtons(seriesNames, grouped, payload);
+    renderMipEntries(grouped[currentMipSeries] ?? [], payload);
+  } catch (e) {
+    console.error(e);
+    setMipUnavailable(`Unable to load MIPs: ${e.message}`);
+  }
+}
+
+function overlayChoice(subject) {
   if (showSeeded && seededMaskUrl) return { url: seededMaskUrl, map: COLORMAP_SEEDED };
   if (showGt && subject.gt) return { file: subject.gt, map: COLORMAP_GT };
   if (showProb && subject.pred) return { file: subject.pred, map: COLORMAP_PROB };
@@ -271,6 +723,9 @@ async function loadSubject(idx) {
   if (loading) return;
   loading = true;
   currentIdx = idx;
+  currentMipSeries = null;
+  currentMipIndex = 0;
+
   const subject = subjects[idx];
   seededMaskUrl = null;
   showSeeded = false;
@@ -279,12 +734,19 @@ async function loadSubject(idx) {
   document.getElementById("info-subject").textContent = `Subject: ${subject.id}`;
   document.getElementById("run-state").textContent = `Interactive run: not started for ${subject.id}`;
 
-  const base = MANIFEST_URL.replace(/\/[^/]+$/, "/");
   const baseFile = (showRgb && subject.rgb) ? subject.rgb : subject.image;
-  const ov = _overlayChoice(subject);
-  const volumes = [{ url: base + baseFile, colormap: "gray", opacity: 1.0 }];
+  const ov = overlayChoice(subject);
+  const volumes = [{
+    url: resolveAssetUrl(baseFile, manifestBaseUrl()),
+    colormap: "gray",
+    opacity: 1.0,
+  }];
   if (ov) {
-    volumes.push({ url: base + ov.file, colormap: ov.map, opacity: parseFloat(document.getElementById("opacity-slider").value) });
+    volumes.push({
+      url: resolveAssetUrl(ov.file, manifestBaseUrl()),
+      colormap: ov.map,
+      opacity: parseFloat(document.getElementById("opacity-slider").value),
+    });
   }
 
   try {
@@ -295,10 +757,12 @@ async function loadSubject(idx) {
     }
     updateOverlayInfo();
     updateMetrics(subject);
+    await refreshMipGallery();
     setStatus(`${subject.id} (${idx + 1}/${subjects.length})`);
   } catch (e) {
-    setStatus(`Load error: ${e.message}`);
     console.error(e);
+    setStatus(`Load error: ${e.message}`);
+    setMipUnavailable("Companion MIPs unavailable because the subject failed to load.");
   }
   loading = false;
 }
@@ -317,11 +781,13 @@ async function refreshOverlay() {
   if (!subjects.length || loading) return;
   while (nv.volumes.length > 1) nv.removeVolume(nv.volumes[1]);
   const subject = subjects[currentIdx];
-  const base = MANIFEST_URL.replace(/\/[^/]+$/, "/");
-  const ov = _overlayChoice(subject);
+  const ov = overlayChoice(subject);
   if (ov) {
-    const overlayUrl = ov.url || (base + ov.file);
-    const img = await NVImage.loadFromUrl({ url: overlayUrl, colormap: ov.map, opacity: parseFloat(document.getElementById("opacity-slider").value) });
+    const img = await NVImage.loadFromUrl({
+      url: ov.url || resolveAssetUrl(ov.file, manifestBaseUrl()),
+      colormap: ov.map,
+      opacity: parseFloat(document.getElementById("opacity-slider").value),
+    });
     nv.addVolume(img);
   }
   updateOverlayInfo();
@@ -353,21 +819,21 @@ function setRunState(msg) {
 }
 
 function updateMetrics(subject) {
-  const fmt_mm = v => v != null ? v.toFixed(1) + " mm" : "--";
-  const fmt_cc = v => v != null ? (v / 1000).toFixed(2) + " cm³" : "--";
-  const fmt_sph = v => v != null ? v.toFixed(3) : "--";
+  const fmtMm = (v) => (v != null ? `${v.toFixed(1)} mm` : "--");
+  const fmtCc = (v) => (v != null ? `${(v / 1000).toFixed(2)} cm3` : "--");
+  const fmtSph = (v) => (v != null ? v.toFixed(3) : "--");
   const p = subject.metrics_pred ?? {};
   const g = subject.metrics_gt ?? {};
-  document.getElementById("m-ld-pred").textContent = fmt_mm(p.d1_mm);
-  document.getElementById("m-ld-gt").textContent = fmt_mm(g.d1_mm);
-  document.getElementById("m-d2-pred").textContent = fmt_mm(p.d2_mm);
-  document.getElementById("m-d2-gt").textContent = fmt_mm(g.d2_mm);
-  document.getElementById("m-d3-pred").textContent = fmt_mm(p.d3_mm);
-  document.getElementById("m-d3-gt").textContent = fmt_mm(g.d3_mm);
-  document.getElementById("m-vol-pred").textContent = fmt_cc(p.volume_mm3);
-  document.getElementById("m-vol-gt").textContent = fmt_cc(g.volume_mm3);
-  document.getElementById("m-sph-pred").textContent = fmt_sph(p.sphericity);
-  document.getElementById("m-sph-gt").textContent = fmt_sph(g.sphericity);
+  document.getElementById("m-ld-pred").textContent = fmtMm(p.d1_mm);
+  document.getElementById("m-ld-gt").textContent = fmtMm(g.d1_mm);
+  document.getElementById("m-d2-pred").textContent = fmtMm(p.d2_mm);
+  document.getElementById("m-d2-gt").textContent = fmtMm(g.d2_mm);
+  document.getElementById("m-d3-pred").textContent = fmtMm(p.d3_mm);
+  document.getElementById("m-d3-gt").textContent = fmtMm(g.d3_mm);
+  document.getElementById("m-vol-pred").textContent = fmtCc(p.volume_mm3);
+  document.getElementById("m-vol-gt").textContent = fmtCc(g.volume_mm3);
+  document.getElementById("m-sph-pred").textContent = fmtSph(p.sphericity);
+  document.getElementById("m-sph-gt").textContent = fmtSph(g.sphericity);
 }
 
 function currentSeed() {
@@ -391,7 +857,7 @@ function applySeed(seed) {
 }
 
 function currentCrop() {
-  const vals = document.getElementById("crop-size").value.split(",").map(v => Number(v.trim())).filter(v => Number.isFinite(v) && v > 0);
+  const vals = document.getElementById("crop-size").value.split(",").map((v) => Number(v.trim())).filter((v) => Number.isFinite(v) && v > 0);
   return vals.length ? vals : [96, 96, 96];
 }
 
@@ -413,7 +879,7 @@ function clearSeed() {
 
 function buildDemoDICOM() {
   const bytes = new Uint8Array(132);
-  bytes.set([68, 73, 67, 77], 128); // "DICM"
+  bytes.set([68, 73, 67, 77], 128);
   return bytes;
 }
 
@@ -477,11 +943,6 @@ async function ensureInteractiveStudy() {
   return runtimeStudyUID;
 }
 
-function placeSeedFromCanvasEvent(evt) {
-  if (!currentCrosshair) return;
-  applySeed(currentCrosshair);
-}
-
 async function addReturnedMaskOverlay(artifacts) {
   const maskArtifact = Array.isArray(artifacts) ? artifacts.find((a) => a.kind === "mask" && a.url) : null;
   if (!maskArtifact) {
@@ -534,9 +995,11 @@ async function runInteractiveSegmentation() {
     document.getElementById("m-ld-pred").textContent = m.d1_mm != null ? `${Number(m.d1_mm).toFixed(1)} mm` : "--";
     document.getElementById("m-d2-pred").textContent = m.d2_mm != null ? `${Number(m.d2_mm).toFixed(1)} mm` : "--";
     document.getElementById("m-d3-pred").textContent = m.d3_mm != null ? `${Number(m.d3_mm).toFixed(1)} mm` : "--";
-    document.getElementById("m-vol-pred").textContent = m.volume_mm3 != null ? `${(Number(m.volume_mm3) / 1000).toFixed(2)} cm³` : "--";
+    document.getElementById("m-vol-pred").textContent = m.volume_mm3 != null ? `${(Number(m.volume_mm3) / 1000).toFixed(2)} cm3` : "--";
     document.getElementById("m-sph-pred").textContent = m.sphericity != null ? Number(m.sphericity).toFixed(3) : "--";
     const maskResult = await addReturnedMaskOverlay(body.artifacts);
+    currentMipSeries = null;
+    await refreshMipGallery();
     if (maskResult.loaded) {
       setRunState(`Interactive run: ${body.job_id || "complete"} on ${subject.id} (Seeded seg loaded)`);
       setStatus(`Interactive segmentation complete for ${subject.id}; Seeded seg loaded from ${maskResult.url}`);
@@ -563,9 +1026,9 @@ function bindInteractiveControls() {
   });
   document.getElementById("btn-clear-seed").addEventListener("click", clearSeed);
   document.getElementById("btn-run-interactive").addEventListener("click", runInteractiveSegmentation);
-  document.getElementById("gl").addEventListener("click", (evt) => {
+  document.getElementById("gl").addEventListener("click", () => {
     if (!seedMode) return;
-    placeSeedFromCanvasEvent(evt);
+    applySeed(currentCrosshair);
   });
   ["seed-x", "seed-y", "seed-z"].forEach((id) => {
     document.getElementById(id).addEventListener("input", updateSeedState);
@@ -577,12 +1040,12 @@ function bindInteractiveControls() {
 document.getElementById("btn-prev").addEventListener("click", () => stepSubject(-1));
 document.getElementById("btn-next").addEventListener("click", () => stepSubject(+1));
 document.getElementById("btn-rgb").addEventListener("click", () => { showRgb = !showRgb; syncButtons(); refreshBase(); });
-document.getElementById("btn-pred").addEventListener("click", () => { showPred = !showPred; if (showPred) { showProb = false; showGt = false; showSeeded = false; } syncButtons(); refreshOverlay(); });
-document.getElementById("btn-prob").addEventListener("click", () => { showProb = !showProb; if (showProb) { showPred = false; showGt = false; showSeeded = false; } syncButtons(); refreshOverlay(); });
-document.getElementById("btn-gt").addEventListener("click", () => { showGt = !showGt; if (showGt) { showPred = false; showProb = false; showSeeded = false; } syncButtons(); refreshOverlay(); });
+document.getElementById("btn-pred").addEventListener("click", () => { showPred = !showPred; if (showPred) { showProb = false; showGt = false; showSeeded = false; } currentMipSeries = null; syncButtons(); refreshOverlay(); refreshMipGallery(); });
+document.getElementById("btn-prob").addEventListener("click", () => { showProb = !showProb; if (showProb) { showPred = false; showGt = false; showSeeded = false; } currentMipSeries = null; syncButtons(); refreshOverlay(); refreshMipGallery(); });
+document.getElementById("btn-gt").addEventListener("click", () => { showGt = !showGt; if (showGt) { showPred = false; showProb = false; showSeeded = false; } currentMipSeries = null; syncButtons(); refreshOverlay(); refreshMipGallery(); });
 document.getElementById("btn-seeded").addEventListener("click", () => { if (!seededMaskUrl) return; showSeeded = !showSeeded; if (showSeeded) { showPred = false; showProb = false; showGt = false; } syncButtons(); refreshOverlay(); });
 document.getElementById("opacity-slider").addEventListener("input", () => { if (nv.volumes.length > 1) nv.setOpacity(1, parseFloat(document.getElementById("opacity-slider").value)); });
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
   if (e.key === "ArrowLeft") stepSubject(-1);
   if (e.key === "ArrowRight") stepSubject(+1);
@@ -592,3 +1055,5 @@ init();
 </script>
 </body>
 </html>
+
+
