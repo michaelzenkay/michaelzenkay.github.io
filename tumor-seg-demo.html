@@ -376,6 +376,7 @@
   <span id="tool-state">Seed mode: off</span>
   <span id="seed-state">Seed: (112, 94, 51)</span>
   <span id="run-state">Interactive run: not started</span>
+  <span id="runner-state">Runner target: auto subject header</span>
 </div>
 
 <div id="info-bar">
@@ -393,6 +394,7 @@ const MANIFEST_QUERY_URL = (new URLSearchParams(location.search)).get("manifest"
 const MANIFEST_URL = new URL(MANIFEST_QUERY_URL, window.location.href).href;
 const API_BASE = (new URLSearchParams(location.search)).get("api") ?? "http://127.0.0.1:8080";
 const INITIAL_STUDY_UID = (new URLSearchParams(location.search)).get("study_uid") ?? "";
+const INITIAL_RUNNER_CASE_DIR = (new URLSearchParams(location.search)).get("runner_case_dir") ?? "";
 const ACTOR_TOKEN = (new URLSearchParams(location.search)).get("token") ?? "patient-demo";
 
 const COLORMAP_PRED = "warm";
@@ -431,9 +433,31 @@ let currentCrosshair = { x: 112, y: 94, z: 51 };
 let activeSeed = null;
 let seededMaskUrl = null;
 let runtimeStudyUID = INITIAL_STUDY_UID;
+let runnerCaseDir = INITIAL_RUNNER_CASE_DIR;
 let currentMipSeries = null;
 let currentMipIndex = 0;
 const mipManifestCache = new Map();
+
+function runnerCaseIdFromPath(path) {
+  if (!path) return "";
+  const normalized = String(path).replace(/[\\/]+$/, "");
+  const parts = normalized.split(/[\\/]/).filter(Boolean);
+  return parts.length ? parts[parts.length - 1] : "";
+}
+
+function subjectIndexForCaseId(caseID) {
+  if (!caseID) return -1;
+  return subjects.findIndex((s) => String(s.id).toLowerCase() === String(caseID).toLowerCase());
+}
+
+function syncSubjectToRunnerCase() {
+  const runnerCaseID = runnerCaseIdFromPath(runnerCaseDir);
+  if (!runnerCaseID) return false;
+  const idx = subjectIndexForCaseId(runnerCaseID);
+  if (idx < 0 || idx === currentIdx) return false;
+  currentIdx = idx;
+  return true;
+}
 
 async function init() {
   nv = new Niivue({ backColor: [0.07, 0.07, 0.07, 1], show3Dcrosshair: true, isColorbar: false });
@@ -455,9 +479,10 @@ async function init() {
   manifest = await fetchManifest();
   if (!manifest) return;
   subjects = manifest.subjects ?? [];
+  syncSubjectToRunnerCase();
   populateSelect();
   bindInteractiveControls();
-  await loadSubject(0);
+  await loadSubject(currentIdx);
 }
 
 async function fetchManifest() {
@@ -730,6 +755,7 @@ async function loadSubject(idx) {
   seededMaskUrl = null;
   showSeeded = false;
   updateNav();
+  updateRunnerState();
   setStatus(`Loading ${subject.id}...`);
   document.getElementById("info-subject").textContent = `Subject: ${subject.id}`;
   document.getElementById("run-state").textContent = `Interactive run: not started for ${subject.id}`;
@@ -816,6 +842,20 @@ function setStatus(msg) {
 
 function setRunState(msg) {
   document.getElementById("run-state").textContent = msg;
+}
+
+function updateRunnerState() {
+  const runnerCaseID = runnerCaseIdFromPath(runnerCaseDir);
+  const subjectID = subjects[currentIdx]?.id ?? "";
+  if (!runnerCaseDir) {
+    document.getElementById("runner-state").textContent = "Runner target: auto subject header";
+    return;
+  }
+  if (runnerCaseID && subjectID && runnerCaseID.toLowerCase() !== String(subjectID).toLowerCase()) {
+    document.getElementById("runner-state").textContent = `Runner target: ${runnerCaseID} (view mismatch)`;
+    return;
+  }
+  document.getElementById("runner-state").textContent = `Runner target: ${runnerCaseDir}`;
 }
 
 function updateMetrics(subject) {
@@ -965,6 +1005,11 @@ async function addReturnedMaskOverlay(artifacts) {
 
 async function runInteractiveSegmentation() {
   if (!subjects.length) return;
+  if (syncSubjectToRunnerCase()) {
+    updateNav();
+    updateRunnerState();
+    await loadSubject(currentIdx);
+  }
   if (!activeSeed) {
     setStatus("Place a seed before running interactive segmentation");
     return;
@@ -974,6 +1019,7 @@ async function runInteractiveSegmentation() {
     const studyUID = await ensureInteractiveStudy();
     const payload = {
       study_uid: studyUID,
+      runner_case_dir: runnerCaseDir || undefined,
       seed: activeSeed,
       crop_size: currentCrop(),
       mode: "local_crop",
@@ -997,15 +1043,24 @@ async function runInteractiveSegmentation() {
     document.getElementById("m-d3-pred").textContent = m.d3_mm != null ? `${Number(m.d3_mm).toFixed(1)} mm` : "--";
     document.getElementById("m-vol-pred").textContent = m.volume_mm3 != null ? `${(Number(m.volume_mm3) / 1000).toFixed(2)} cm3` : "--";
     document.getElementById("m-sph-pred").textContent = m.sphericity != null ? Number(m.sphericity).toFixed(3) : "--";
+    const responseCaseID = body?.metadata?.case_id || runnerCaseIdFromPath(body?.metadata?.runner_case_dir);
+    const responseIdx = subjectIndexForCaseId(responseCaseID);
+    if (responseIdx >= 0 && responseIdx !== currentIdx) {
+      currentIdx = responseIdx;
+      updateNav();
+      await loadSubject(currentIdx);
+    }
     const maskResult = await addReturnedMaskOverlay(body.artifacts);
     currentMipSeries = null;
     await refreshMipGallery();
+    const activeSubjectID = subjects[currentIdx]?.id || responseCaseID || subject.id;
+    updateRunnerState();
     if (maskResult.loaded) {
-      setRunState(`Interactive run: ${body.job_id || "complete"} on ${subject.id} (Seeded seg loaded)`);
-      setStatus(`Interactive segmentation complete for ${subject.id}; Seeded seg loaded from ${maskResult.url}`);
+      setRunState(`Interactive run: ${body.job_id || "complete"} on ${activeSubjectID} (Seeded seg loaded)`);
+      setStatus(`Interactive segmentation complete for ${activeSubjectID}; Seeded seg loaded from ${maskResult.url}`);
     } else {
-      setRunState(`Interactive run: ${body.job_id || "complete"} on ${subject.id} (no Seeded seg loaded)`);
-      setStatus(`Interactive segmentation complete for ${subject.id}, but Seeded seg did not load: ${maskResult.reason}${maskResult.url ? ` [${maskResult.url}]` : ""}`);
+      setRunState(`Interactive run: ${body.job_id || "complete"} on ${activeSubjectID} (no Seeded seg loaded)`);
+      setStatus(`Interactive segmentation complete for ${activeSubjectID}, but Seeded seg did not load: ${maskResult.reason}${maskResult.url ? ` [${maskResult.url}]` : ""}`);
       console.warn("Interactive segmentation mask artifact issue", { maskResult, artifacts: body.artifacts, response: body });
     }
   } catch (err) {
@@ -1034,6 +1089,7 @@ function bindInteractiveControls() {
     document.getElementById(id).addEventListener("input", updateSeedState);
   });
   updateSeedState();
+  updateRunnerState();
   syncButtons();
 }
 

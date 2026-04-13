@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imgnexus Plugin Preview</title>
+    <title>Imgnexus Preview</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="site-theme.css">
     <style>
@@ -15,31 +15,99 @@
             min-height: 60vh;
             gap: 1rem;
         }
-        .gate input {
-            padding: 0.5rem 1rem;
+        .gate input,
+        .panel input {
+            padding: 0.65rem 0.9rem;
             font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 240px;
+            border: 1px solid #cfc8bf;
+            border-radius: 10px;
+            width: 100%;
+            background: #fffaf5;
+            color: #2f251d;
         }
-        .gate button {
-            padding: 0.5rem 1.5rem;
+        .gate button,
+        .launch-btn,
+        .mini-btn {
+            padding: 0.7rem 1.2rem;
             font-size: 1rem;
             cursor: pointer;
+            border: 0;
+            border-radius: 999px;
+        }
+        .gate button,
+        .launch-btn {
+            background: #b85c38;
+            color: #fff7f0;
+        }
+        .mini-btn {
+            background: #efe2d2;
+            color: #6a4432;
         }
         .gate .error {
-            color: red;
-            font-size: 0.9rem;
+            color: #b42318;
+            font-size: 0.95rem;
             display: none;
         }
         #content { display: none; }
+        .panel {
+            margin-top: 2rem;
+            background: rgba(255, 250, 245, 0.92);
+            border: 1px solid rgba(184, 92, 56, 0.18);
+            border-radius: 22px;
+            padding: 1.4rem;
+            box-shadow: 0 20px 50px rgba(74, 46, 30, 0.08);
+        }
+        .panel h3 {
+            margin-bottom: 0.35rem;
+        }
+        .panel p {
+            margin-bottom: 1rem;
+            color: #6a5a4e;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .field label {
+            font-size: 0.9rem;
+            color: #7a6659;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .status {
+            margin-top: 1rem;
+            min-height: 1.25rem;
+            color: #6a5a4e;
+            font-size: 0.95rem;
+        }
+        .hint {
+            margin-top: 1rem;
+            font-size: 0.92rem;
+            color: #8a7668;
+        }
+        code {
+            background: rgba(184, 92, 56, 0.08);
+            padding: 0.1rem 0.35rem;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body class="site-home">
     <div class="container">
         <main>
             <div id="gate" class="gate">
-                <h2>Imgnexus Plugin Preview</h2>
+                <h2>Imgnexus Preview</h2>
                 <p>Enter the access password to continue.</p>
                 <input type="password" id="pw" placeholder="Password" onkeydown="if(event.key==='Enter')check()" />
                 <button onclick="check()">Enter</button>
@@ -47,22 +115,159 @@
             </div>
             <div id="content">
                 <section class="work-section">
-                    <h2>Imgnexus Plugin Preview</h2>
-                    <p class="site-intro">Preview content goes here.</p>
+                    <h2>Imgnexus Preview</h2>
+                    <p class="site-intro">One-click launchpad for the local tumor segmentation flow.</p>
+                    <div class="panel">
+                        <h3>Interactive Tumor Segmentation</h3>
+                        <p>This opens the segmentation demo already pointed at your local Imgvault API. If no study is supplied, the demo bootstraps one automatically.</p>
+                        <div class="grid">
+                            <div class="field">
+                                <label for="api-base">API Base</label>
+                                <input id="api-base" type="text" value="http://127.0.0.1:8080" />
+                            </div>
+                            <div class="field">
+                                <label for="actor-token">Bearer Token</label>
+                                <input id="actor-token" type="text" value="patient-demo" />
+                            </div>
+                            <div class="field">
+                                <label for="study-uid">Study UID (optional)</label>
+                                <input id="study-uid" type="text" placeholder="leave blank to auto-bootstrap" />
+                            </div>
+                            <div class="field">
+                                <label for="runner-case-dir">Runner Case Dir</label>
+                                <input id="runner-case-dir" type="text" value="C:\data\ispy\ACRIN-6698-102212__T0" />
+                            </div>
+                            <div class="field">
+                                <label for="manifest-url">Manifest URL</label>
+                                <input id="manifest-url" type="text" value="https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json" />
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="launch-btn" id="launch-seg">Open Segmentation Demo</button>
+                            <button class="mini-btn" id="probe-api">Check Local API</button>
+                        </div>
+                        <div class="status" id="launch-status"></div>
+                        <div class="hint">The viewer target is <code>tumor-seg-demo.html</code>. Query params are persisted in this page so you should only need to set them once.</div>
+                    </div>
                 </section>
             </div>
         </main>
     </div>
     <script>
-        function check() {
-            const val = document.getElementById('pw').value;
-            if (val === 'poweroverwhelming') {
-                document.getElementById('gate').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-            } else {
-                document.getElementById('err').style.display = 'block';
+        const STORAGE_KEY = "imgnexus-preview-config-v1";
+        const DEFAULTS = {
+            apiBase: "http://127.0.0.1:8080",
+            actorToken: "patient-demo",
+            studyUID: "",
+            runnerCaseDir: "C:\\data\\ispy\\ACRIN-6698-102212__T0",
+            manifestURL: "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json",
+        };
+
+        function setStatus(msg, isError = false) {
+            const el = document.getElementById("launch-status");
+            el.textContent = msg;
+            el.style.color = isError ? "#b42318" : "#6a5a4e";
+        }
+
+        function readConfig() {
+            return {
+                apiBase: document.getElementById("api-base").value.trim(),
+                actorToken: document.getElementById("actor-token").value.trim(),
+                studyUID: document.getElementById("study-uid").value.trim(),
+                runnerCaseDir: document.getElementById("runner-case-dir").value.trim(),
+                manifestURL: document.getElementById("manifest-url").value.trim(),
+            };
+        }
+
+        function saveConfig() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(readConfig()));
+        }
+
+        function loadConfig() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const cfg = raw ? { ...DEFAULTS, ...JSON.parse(raw) } : DEFAULTS;
+            document.getElementById("api-base").value = cfg.apiBase;
+            document.getElementById("actor-token").value = cfg.actorToken;
+            document.getElementById("study-uid").value = cfg.studyUID;
+            document.getElementById("runner-case-dir").value = cfg.runnerCaseDir;
+            document.getElementById("manifest-url").value = cfg.manifestURL;
+        }
+
+        function buildDemoURL() {
+            const cfg = readConfig();
+            const url = new URL("tumor-seg-demo.html", window.location.href);
+            if (cfg.apiBase) url.searchParams.set("api", cfg.apiBase);
+            if (cfg.actorToken) url.searchParams.set("token", cfg.actorToken);
+            if (cfg.studyUID) url.searchParams.set("study_uid", cfg.studyUID);
+            if (cfg.runnerCaseDir) url.searchParams.set("runner_case_dir", cfg.runnerCaseDir);
+            if (cfg.manifestURL) url.searchParams.set("manifest", cfg.manifestURL);
+            return url.toString();
+        }
+
+        async function probeAPI() {
+            saveConfig();
+            const { apiBase, actorToken, studyUID } = readConfig();
+            if (!apiBase) {
+                setStatus("Enter an API base first.", true);
+                return;
+            }
+            setStatus(`Checking ${apiBase} ...`);
+            try {
+                const health = await fetch(`${apiBase.replace(/\/+$/, "")}/healthz`);
+                if (!health.ok) throw new Error(`healthz returned HTTP ${health.status}`);
+                if (studyUID && actorToken) {
+                    const study = await fetch(`${apiBase.replace(/\/+$/, "")}/api/v1/studies/${encodeURIComponent(studyUID)}`, {
+                        headers: { Authorization: `Bearer ${actorToken}` },
+                    });
+                    if (study.ok) {
+                        setStatus(`API is up and study ${studyUID} is available.`);
+                        return;
+                    }
+                    if (study.status !== 404) {
+                        throw new Error(`study lookup returned HTTP ${study.status}`);
+                    }
+                    setStatus(`API is up. Study ${studyUID} was not found, but the demo can auto-bootstrap one.`);
+                    return;
+                }
+                setStatus("API is up. No study UID set, so the demo will auto-bootstrap one.");
+            } catch (err) {
+                setStatus(`API check failed: ${err.message}`, true);
             }
         }
+
+        function openSegmentationDemo() {
+            saveConfig();
+            const url = buildDemoURL();
+            setStatus("Opening segmentation demo...");
+            window.open(url, "_blank", "noopener");
+        }
+
+        function unlock() {
+            document.getElementById("gate").style.display = "none";
+            document.getElementById("content").style.display = "block";
+            loadConfig();
+            setStatus("Ready.");
+        }
+
+        function check() {
+            const val = document.getElementById("pw").value;
+            if (val === "poweroverwhelming") {
+                sessionStorage.setItem("imgnexus-preview-unlocked", "1");
+                unlock();
+            } else {
+                document.getElementById("err").style.display = "block";
+            }
+        }
+
+        if (sessionStorage.getItem("imgnexus-preview-unlocked") === "1") {
+            unlock();
+        }
+
+        document.getElementById("launch-seg").addEventListener("click", openSegmentationDemo);
+        document.getElementById("probe-api").addEventListener("click", probeAPI);
+        ["api-base", "actor-token", "study-uid", "runner-case-dir", "manifest-url"].forEach((id) => {
+            document.getElementById(id).addEventListener("change", saveConfig);
+        });
     </script>
 </body>
 </html>
