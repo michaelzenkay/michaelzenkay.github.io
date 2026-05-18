@@ -3,54 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Breast Imaging Research</title>
+    <title>Michael Zenkay Liu | Medical Imaging AI Portfolio</title>
+    <meta name="description" content="Portfolio for Michael Zenkay Liu, PhD: medical imaging AI, mammography risk modeling, MRI physics, and clinical research infrastructure.">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="site-theme.css">
 </head>
-<body class="site-home">
-    <div class="container">
-        <main>
-            <section class="work-section" id="research-section">
-                <h2>Breast Imaging Research</h2>
-                <ul class="work-list" id="research-list">
-                    <li data-type="demo">
-                        <a href="tumor-seg-demo.html">
-                            <h3>Tumor Segmentation</h3>
-                            <p>3D breast tumor segmentation viewer with ISPY cohort data and per-subject MIP gallery.</p>
-                            <span class="date">Demo</span>
-                        </a>
-                    </li>
-                    <li style="opacity: 0.42; pointer-events: none;">
-                        <div class="work-card-disabled">
-                            <h3>Interactive Tumor Segmentation</h3>
-                            <p>Seed-point interactive segmentation via local Imgvault API. Refer to Open Brain for setup details.</p>
-                            <span class="date">API · unavailable</span>
+<body class="site-home portfolio-home">
+    <header class="portfolio-hero">
+        <div class="hero-copy">
+            <p class="eyebrow">Medical imaging AI + clinical physics</p>
+            <h1>Michael Z. Liu,<br>PhD</h1>
+            <p class="hero-lede">
+                Board-certified medical physicist building end-to-end clinical AI — pipeline, model, and review tools.
+            </p>
+            <div class="hero-actions" aria-label="Contact and profile links">
+                <a href="mailto:michaelzenkay@gmail.com">Email</a>
+                <a href="https://github.com/michaelzenkay">GitHub</a>
+                <a href="https://scholar.google.com/citations?user=zXdIlDkAAAAJ&hl=en">Google Scholar</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="portfolio-main">
+
+        <section class="portfolio-section" aria-labelledby="featured-work-title">
+            <div class="section-head">
+                <p class="eyebrow">Featured work</p>
+            </div>
+
+            <div class="featured-grid">
+                <article class="portfolio-card">
+                    <a href="tumor-seg-demo.html"><img src="figures/tumor-seg-preview-crop.png" alt="3D breast MRI tumor segmentation — probability map overlay across axial, coronal, and sagittal views."></a>
+                    <div class="card-body">
+                        <span class="tag tag-blue">3D imaging AI</span>
+                        <h3>3D breast tumor segmentation</h3>
+                        <p>
+                            Interactive 3D viewer for breast MRI tumor segmentation on the publicly available ISPY cohort,
+                            using a standard 3D U-Net. Multi-planar slices, prediction vs ground-truth overlays, and per-subject
+                            MIP galleries across pre, peak, and post-contrast series.
+                        </p>
+                        <ul class="proof-list">
+                            <li>Adjustable overlay comparison: model prediction vs expert ground truth, with colormap selection.</li>
+                            <li>Morphometric readout per subject: longest diameter, volume, and sphericity.</li>
+                        </ul>
+                        <div class="card-links">
+                            <a href="tumor-seg-demo.html">Open viewer</a>
                         </div>
-                    </li>
-                    <li data-type="report">
-                        <a href="reports/mg_best_report.html">
-                            <h3>Cancer Risk Training Report</h3>
-                            <p>Current best-run mammography training report and output summary.</p>
-                            <span class="date">Report</span>
-                        </a>
-                    </li>
-                    <li data-type="draft">
-                        <a href="reports/mg_manuscript_latest.html">
-                            <h3>Mammography Cancer Risk Transformer</h3>
-                            <p>Latest mammography manuscript draft with linked figures and tables.</p>
-                            <span class="date">Draft</span>
-                        </a>
-                    </li>
-                    <li data-type="reference">
-                        <a href="breast-mri-artifacts.html">
-                            <h3>Breast MRI Artifacts</h3>
-                            <p>Artifact reference outputs and related breast MRI quality and readability material.</p>
-                            <span class="date">Reference</span>
-                        </a>
-                    </li>
-                </ul>
-            </section>
-        </main>
-    </div>
+                    </div>
+                </article>
+
+                <article class="portfolio-card">
+                    <svg class="card-visual" viewBox="0 0 620 380" xmlns="http://www.w3.org/2000/svg" style="background:#0c1820;" aria-hidden="true">
+                        <defs>
+                            <marker id="mg-arr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+                                <path d="M0,1 L0,6 L6,3.5 z" fill="#1e3a50"/>
+                            </marker>
+                        </defs>
+                        <!-- 4 view inputs -->
+                        <rect x="28"  y="28" width="108" height="36" rx="6" fill="none" stroke="#1e3044" stroke-width="1.5"/>
+                        <text x="82"  y="51" font-family="system-ui,sans-serif" font-size="13" fill="#5a8aaa" text-anchor="middle" font-weight="600">L-CC</text>
+                        <rect x="163" y="28" width="108" height="36" rx="6" fill="none" stroke="#1e3044" stroke-width="1.5"/>
+                        <text x="217" y="51" font-family="system-ui,sans-serif" font-size="13" fill="#5a8aaa" text-anchor="middle" font-weight="600">L-MLO</text>
+                        <rect x="349" y="28" width="108" height="36" rx="6" fill="none" stroke="#1e3044" stroke-width="1.5"/>
+                        <text x="403" y="51" font-family="system-ui,sans-serif" font-size="13" fill="#5a8aaa" text-anchor="middle" font-weight="600">R-CC</text>
+                        <rect x="484" y="28" width="108" height="36" rx="6" fill="none" stroke="#1e3044" stroke-width="1.5"/>
+                        <text x="538" y="51" font-family="system-ui,sans-serif" font-size="13" fill="#5a8aaa" text-anchor="middle" font-weight="600">R-MLO</text>
+                        <!-- Converging connector -->
+                        <polyline points="82,64 82,94 538,94 538,64" fill="none" stroke="#1e3044" stroke-width="1.5"/>
+                        <line x1="310" y1="94" x2="310" y2="112" stroke="#1e3044" stroke-width="1.5" marker-end="url(#mg-arr)"/>
+                        <!-- EfficientNetV2S backbone -->
+                        <rect x="58" y="114" width="504" height="54" rx="8" fill="rgba(72,32,6,0.5)" stroke="#6a3818" stroke-width="1.5"/>
+                        <text x="310" y="137" font-family="system-ui,sans-serif" font-size="13" fill="#e09868" text-anchor="middle" font-weight="700">Shared EfficientNetV2-S Backbone</text>
+                        <text x="310" y="155" font-family="system-ui,sans-serif" font-size="10" fill="#906040" text-anchor="middle">grayscale-adapted · shared weights · 1280-d feature per view</text>
+                        <!-- Arrow -->
+                        <line x1="310" y1="168" x2="310" y2="186" stroke="#1e3044" stroke-width="1.5" marker-end="url(#mg-arr)"/>
+                        <!-- ViewTransformer -->
+                        <rect x="143" y="188" width="334" height="54" rx="8" fill="rgba(10,44,22,0.55)" stroke="#265832" stroke-width="1.5"/>
+                        <text x="310" y="211" font-family="system-ui,sans-serif" font-size="13" fill="#60d878" text-anchor="middle" font-weight="700">ViewTransformer (CLS)</text>
+                        <text x="310" y="229" font-family="system-ui,sans-serif" font-size="10" fill="#387848" text-anchor="middle">2-layer · 8-head · learnable view embeddings · 1280-d exam feature</text>
+                        <!-- Arrow -->
+                        <line x1="310" y1="242" x2="310" y2="260" stroke="#1e3044" stroke-width="1.5" marker-end="url(#mg-arr)"/>
+                        <!-- Risk output + AUC -->
+                        <rect x="58" y="262" width="504" height="96" rx="8" fill="rgba(10,22,40,0.65)" stroke="#1e3858" stroke-width="1.5"/>
+                        <text x="148" y="290" font-family="system-ui,sans-serif" font-size="10" fill="#2e5070" text-anchor="middle" font-weight="700" letter-spacing="0.08em">RISK HEAD</text>
+                        <text x="148" y="308" font-family="system-ui,sans-serif" font-size="10" fill="#284860">5 hazard logits · discrete F(t)</text>
+                        <text x="148" y="323" font-family="system-ui,sans-serif" font-size="10" fill="#284860">cumulative risk · 1–4 yr horizons</text>
+                        <text x="148" y="338" font-family="system-ui,sans-serif" font-size="10" fill="#284860">+ auxiliary heads (view, age, kVp…)</text>
+                        <line x1="230" y1="274" x2="230" y2="348" stroke="#1e3858" stroke-width="1"/>
+                        <text x="400" y="316" font-family="system-ui,sans-serif" font-size="46" fill="#9ecde8" text-anchor="middle" font-weight="800">0.793</text>
+                        <text x="400" y="337" font-family="system-ui,sans-serif" font-size="9"  fill="rgba(158,205,232,0.42)" text-anchor="middle" letter-spacing="0.1em">MEAN AUC · 1–4 YR HORIZONS</text>
+                        <text x="400" y="351" font-family="system-ui,sans-serif" font-size="9"  fill="rgba(158,205,232,0.24)" text-anchor="middle">42,987 exams · 33,488 patients</text>
+                    </svg>
+                    <div class="card-body">
+                        <span class="tag tag-green">Breast imaging AI</span>
+                        <h3>Mammography cancer risk modeling</h3>
+                        <p>
+                            IRB-governed pipeline and imaging-only multi-horizon risk model across 42,987 complete 4-view exams
+                            from the Montefiore Einstein Comprehensive Cancer Center cohort.
+                        </p>
+                        <ul class="proof-list">
+                            <li>EfficientNetV2S with view/laterality-aware Transformer aggregation — mean AUC 0.793 across 1–4 year horizons.</li>
+                            <li>214,154 auxiliary 2D images for pretraining; dual A100 multi-GPU training environment.</li>
+                            <li>Secure DICOM/PACS ingest, anonymization, HPC sharding, and calibration reporting.</li>
+                        </ul>
+                        <div class="card-links">
+                            <a href="reports/mg_manuscript_latest.html">Manuscript draft</a>
+                            <a href="reports/mg_best_report.html">Training report</a>
+                            <a href="https://github.com/michaelzenkay/mg-public">Code</a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="portfolio-section capability-section" aria-labelledby="capabilities-title">
+            <div class="section-head">
+                <p class="eyebrow">Core capabilities</p>
+            </div>
+            <div class="capability-grid">
+                <div>
+                    <h3>Imaging data at scale</h3>
+                    <p>DICOM/PACS retrieval through HPC handoff: anonymization, normalization, outcome linkage, and dataset construction.</p>
+                </div>
+                <div>
+                    <h3>Hands-on deep learning</h3>
+                    <p>CNNs, Transformers, and segmentation models in PyTorch — multi-horizon risk, calibration, and model comparison.</p>
+                </div>
+                <div>
+                    <h3>Clinical physics grounding</h3>
+                    <p>Board-certified medical physicist: MR safety, ACR accreditation, protocol QC, and multi-vendor scanner experience.</p>
+                </div>
+                <div>
+                    <h3>PHI-aware tooling</h3>
+                    <p>Offline-first agent workflows with scoped access, namespace isolation, and semantic retrieval for sensitive environments.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="portfolio-section project-index" aria-labelledby="more-work-title">
+            <div class="section-head">
+                <p class="eyebrow">Reference material</p>
+            </div>
+            <ul class="work-list">
+                <li data-type="reference">
+                    <a href="breast-mri-artifacts.html">
+                        <h3>Breast MRI Artifacts Reference</h3>
+                        <p>Practical artifact reference for breast MRI quality assessment, connecting image appearance to acquisition physics and corrective actions.</p>
+                        <span class="date">Reference</span>
+                    </a>
+                </li>
+                <li style="opacity: 0.38; pointer-events: none;">
+                    <div class="work-card-disabled">
+                        <h3>AI Scoring Console</h3>
+                        <p>Authenticated demo environment for mammography model inference.</p>
+                        <span class="date">Restricted</span>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="portfolio-section publications-section" aria-labelledby="publications-title">
+            <div class="section-head">
+                <p class="eyebrow">Selected publications</p>
+            </div>
+            <ul class="publication-list">
+                <li>Deep learning approaches with digital mammography for evaluating breast cancer risk, <em>Tomography</em>.</li>
+                <li>Weakly supervised deep learning approach to breast MRI assessment, <em>Academic Radiology</em>.</li>
+                <li>CNN algorithm for pathological complete response prediction using I-SPY breast MRI data, <em>Magnetic Resonance Imaging</em>.</li>
+                <li>Convolutional neural network based breast cancer risk stratification using a mammographic dataset, <em>Academic Radiology</em>.</li>
+            </ul>
+            <a class="text-link" href="https://scholar.google.com/citations?user=zXdIlDkAAAAJ&hl=en">View full publication record</a>
+        </section>
+    </main>
 </body>
 </html>

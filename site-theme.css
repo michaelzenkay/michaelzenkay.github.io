@@ -724,3 +724,433 @@ body.site-home .work-list .work-card-disabled .date {
     grid-template-columns: 1fr;
   }
 }
+
+/* Portfolio home */
+body.portfolio-home {
+  --portfolio-green: #2f6f55;
+  --portfolio-gold: #8f6a20;
+  --portfolio-rose: #8a4351;
+  --portfolio-ink: #14212c;
+  --portfolio-paper: #fffdf8;
+  margin: 0;
+  overflow-x: hidden;
+  background: #f4f7f4;
+  color: var(--portfolio-ink);
+}
+
+body.portfolio-home .portfolio-hero {
+  min-height: clamp(430px, 58vh, 620px);
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: clamp(40px, 7vw, 88px) clamp(22px, 6vw, 88px);
+  background:
+    linear-gradient(90deg, rgba(249, 251, 246, 0.98) 0%, rgba(249, 251, 246, 0.9) 45%, rgba(249, 251, 246, 0.34) 76%, rgba(249, 251, 246, 0.16) 100%),
+    url("figures/ghost43sagt2fs.png") center right / cover no-repeat;
+  border-bottom: 1px solid rgba(83, 101, 88, 0.18);
+}
+
+body.portfolio-home .hero-copy {
+  position: relative;
+  min-width: 0;
+  width: min(760px, 100%);
+  max-width: 760px;
+  z-index: 1;
+}
+
+body.portfolio-home .eyebrow {
+  margin: 0 0 12px;
+  color: var(--portfolio-green);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+body.portfolio-home h1 {
+  max-width: 760px;
+  margin: 0 0 18px;
+  color: var(--portfolio-ink);
+  font-size: clamp(2.8rem, 7vw, 6rem);
+  font-weight: 760;
+  line-height: 0.94;
+  letter-spacing: 0;
+}
+
+body.portfolio-home .hero-lede {
+  max-width: 680px;
+  margin: 0;
+  color: #374554;
+  font-size: clamp(1.08rem, 2vw, 1.35rem);
+  line-height: 1.64;
+  overflow-wrap: anywhere;
+}
+
+body.portfolio-home .hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+body.portfolio-home .hero-actions a,
+body.portfolio-home .card-links a,
+body.portfolio-home .text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0.62rem 0.95rem;
+  border: 1px solid rgba(47, 111, 85, 0.32);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #214f3d;
+  font-size: 0.92rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+body.portfolio-home .hero-actions a:hover,
+body.portfolio-home .card-links a:hover,
+body.portfolio-home .text-link:hover {
+  background: #ffffff;
+  border-color: rgba(47, 111, 85, 0.56);
+}
+
+body.portfolio-home .portfolio-main {
+  width: calc(100% - 32px);
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 0 64px;
+}
+
+body.portfolio-home .proof-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid rgba(83, 101, 88, 0.18);
+  border-radius: 8px;
+  background: rgba(83, 101, 88, 0.18);
+}
+
+body.portfolio-home .proof-strip div {
+  min-height: 118px;
+  padding: 18px;
+  background: var(--portfolio-paper);
+}
+
+body.portfolio-home .proof-strip strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #17362b;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  line-height: 1;
+}
+
+body.portfolio-home .proof-strip span {
+  display: block;
+  color: #5d655f;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+body.portfolio-home .portfolio-section {
+  padding: 36px 0 0;
+}
+
+body.portfolio-home .section-head {
+  width: min(760px, 100%);
+  max-width: 760px;
+  margin-bottom: 14px;
+}
+
+body.portfolio-home .section-head h2 {
+  margin: 0 0 12px;
+  color: var(--portfolio-ink);
+  font-size: clamp(1.7rem, 3vw, 2.55rem);
+  line-height: 1.05;
+}
+
+body.portfolio-home .section-head p {
+  margin: 0;
+  color: #58656f;
+  font-size: 1rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+body.portfolio-home .featured-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+body.portfolio-home .portfolio-card {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: #ffffff;
+  border: 1px solid rgba(190, 199, 190, 0.92);
+  border-radius: 8px;
+}
+
+body.portfolio-home .feature-card img {
+  object-position: left center;
+}
+
+
+body.portfolio-home .mammo-metric-visual {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #0c1820 0%, #112030 100%);
+}
+
+body.portfolio-home .metric-hero {
+  text-align: center;
+  padding: 12px;
+}
+
+body.portfolio-home .metric-hero .metric-value {
+  display: block;
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  font-weight: 800;
+  color: #9ecde8;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+body.portfolio-home .metric-hero .metric-label {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(158,205,232,0.45);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+body.portfolio-home .metric-hero .metric-sub {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.7rem;
+  color: rgba(158,205,232,0.28);
+  letter-spacing: 0.04em;
+}
+
+body.portfolio-home .portfolio-card img,
+body.portfolio-home .card-visual {
+  width: 100%;
+  aspect-ratio: 1.55 / 1;
+  object-fit: cover;
+  background: #122019;
+}
+
+body.portfolio-home .portfolio-card svg.card-visual {
+  display: block;
+  object-fit: unset;
+}
+
+body.portfolio-home .risk-visual {
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba(20, 42, 34, 0.92), rgba(34, 57, 74, 0.9)),
+    url("figures/alias.png") center / cover no-repeat;
+}
+
+body.portfolio-home .risk-flow {
+  width: min(100%, 360px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body.portfolio-home .risk-flow span {
+  min-height: 58px;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f5fbf7;
+  font-size: 0.84rem;
+  font-weight: 750;
+  line-height: 1.25;
+  text-align: center;
+}
+
+body.portfolio-home .card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+}
+
+body.portfolio-home .tag {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.32rem 0.58rem;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+body.portfolio-home .tag-green {
+  background: #e8f4ed;
+  color: #255f47;
+}
+
+body.portfolio-home .tag-blue {
+  background: #eaf1f7;
+  color: #254d6a;
+}
+
+body.portfolio-home .tag-gold {
+  background: #f7efd8;
+  color: #755514;
+}
+
+body.portfolio-home .portfolio-card h3,
+body.portfolio-home .capability-grid h3 {
+  margin: 0;
+  color: var(--portfolio-ink);
+  font-size: 1.28rem;
+  line-height: 1.22;
+}
+
+body.portfolio-home .portfolio-card p,
+body.portfolio-home .capability-grid p {
+  margin: 0;
+  color: #566470;
+  line-height: 1.62;
+}
+
+body.portfolio-home .proof-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #485761;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+body.portfolio-home .proof-list li + li {
+  margin-top: 0.45rem;
+}
+
+body.portfolio-home .card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: auto;
+}
+
+body.portfolio-home .capability-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid rgba(190, 199, 190, 0.92);
+  border-radius: 8px;
+  background: rgba(190, 199, 190, 0.92);
+}
+
+body.portfolio-home .capability-grid div {
+  padding: 22px;
+  background: #ffffff;
+}
+
+body.portfolio-home .capability-grid h3 {
+  margin-bottom: 10px;
+  font-size: 1.08rem;
+}
+
+body.portfolio-home .project-index .work-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body.portfolio-home .project-index .work-list a {
+  min-height: 184px;
+  border-radius: 8px;
+}
+
+body.portfolio-home .project-index .work-list a::after {
+  content: "";
+}
+
+body.portfolio-home .publication-list {
+  max-width: 880px;
+  margin: 0 0 18px;
+  padding-left: 1.2rem;
+  color: #485761;
+  line-height: 1.7;
+}
+
+body.portfolio-home .publication-list li + li {
+  margin-top: 0.45rem;
+}
+
+@media (max-width: 980px) {
+  body.portfolio-home .proof-strip,
+  body.portfolio-home .featured-grid,
+  body.portfolio-home .capability-grid,
+  body.portfolio-home .project-index .work-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  body.portfolio-home .portfolio-hero {
+    display: block;
+    min-height: 430px;
+    padding: 34px 18px;
+    background:
+      linear-gradient(180deg, rgba(249, 251, 246, 0.98) 0%, rgba(249, 251, 246, 0.9) 72%, rgba(249, 251, 246, 0.58) 100%),
+      url("figures/ghost43sagt2fs.png") center / cover no-repeat;
+  }
+
+  body.portfolio-home .hero-copy {
+    width: auto;
+    max-width: none;
+  }
+
+  body.portfolio-home h1 {
+    font-size: clamp(2.25rem, 10vw, 2.95rem);
+    line-height: 0.98;
+  }
+
+  body.portfolio-home .hero-actions a,
+  body.portfolio-home .card-links a,
+  body.portfolio-home .text-link {
+    width: 100%;
+    justify-content: center;
+  }
+
+  body.portfolio-home .proof-strip,
+  body.portfolio-home .featured-grid,
+  body.portfolio-home .capability-grid,
+  body.portfolio-home .project-index .work-list {
+    grid-template-columns: 1fr;
+  }
+
+  body.portfolio-home .proof-strip div {
+    min-height: auto;
+  }
+
+  body.portfolio-home .portfolio-section {
+    padding-top: 44px;
+  }
+
+  body.portfolio-home .card-body,
+  body.portfolio-home .capability-grid div {
+    padding: 18px;
+  }
+}
