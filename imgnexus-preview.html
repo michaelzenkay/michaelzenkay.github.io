@@ -7,15 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="site-theme.css">
     <style>
-        .gate {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 60vh;
-            gap: 1rem;
-        }
-        .gate input,
         .panel input {
             padding: 0.65rem 0.9rem;
             font-size: 1rem;
@@ -25,7 +16,6 @@
             background: #fffaf5;
             color: #2f251d;
         }
-        .gate button,
         .launch-btn,
         .mini-btn {
             padding: 0.7rem 1.2rem;
@@ -34,7 +24,6 @@
             border: 0;
             border-radius: 999px;
         }
-        .gate button,
         .launch-btn {
             background: #b85c38;
             color: #fff7f0;
@@ -43,12 +32,6 @@
             background: #efe2d2;
             color: #6a4432;
         }
-        .gate .error {
-            color: #b42318;
-            font-size: 0.95rem;
-            display: none;
-        }
-        #content { display: none; }
         .panel {
             margin-top: 2rem;
             background: rgba(255, 250, 245, 0.92);
@@ -106,13 +89,6 @@
 <body class="site-home">
     <div class="container">
         <main>
-            <div id="gate" class="gate">
-                <h2>Imgnexus Preview</h2>
-                <p>Enter the access password to continue.</p>
-                <input type="password" id="pw" placeholder="Password" onkeydown="if(event.key==='Enter')check()" />
-                <button onclick="check()">Enter</button>
-                <span class="error" id="err">Incorrect password.</span>
-            </div>
             <div id="content">
                 <section class="work-section">
                     <h2>Imgnexus Preview</h2>
@@ -242,26 +218,8 @@
             window.open(url, "_blank", "noopener");
         }
 
-        function unlock() {
-            document.getElementById("gate").style.display = "none";
-            document.getElementById("content").style.display = "block";
-            loadConfig();
-            setStatus("Ready.");
-        }
-
-        function check() {
-            const val = document.getElementById("pw").value;
-            if (val === "poweroverwhelming") {
-                sessionStorage.setItem("imgnexus-preview-unlocked", "1");
-                unlock();
-            } else {
-                document.getElementById("err").style.display = "block";
-            }
-        }
-
-        if (sessionStorage.getItem("imgnexus-preview-unlocked") === "1") {
-            unlock();
-        }
+        loadConfig();
+        setStatus("Ready.");
 
         document.getElementById("launch-seg").addEventListener("click", openSegmentationDemo);
         document.getElementById("probe-api").addEventListener("click", probeAPI);
