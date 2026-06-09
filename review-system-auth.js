@@ -1,8 +1,8 @@
 /**
  * review-system-auth.js
  *
- * Password gate + identified comments via AWS /login + /comment endpoints.
- * Supports both training reports and manuscript pages.
+ * Optional identified comments via AWS /comment endpoints.
+ * Reports are public; reviewer controls only appear for existing signed-in sessions.
  */
 (function () {
   const API_BASE = "https://2tu79n9lw0.execute-api.us-east-1.amazonaws.com";
@@ -494,9 +494,9 @@
 
   async function init() {
     injectStyles();
-    let session = loadSession();
+    const session = loadSession();
     if (!session) {
-      session = await showGate();
+      return;
     }
     let commentsBySection = new Map();
     try {

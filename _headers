@@ -21,3 +21,6 @@
 
 /site-theme.css
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/review-system-auth.js
+  Cache-Control: public, max-age=0, must-revalidate
