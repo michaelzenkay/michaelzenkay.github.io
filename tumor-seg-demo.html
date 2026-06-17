@@ -41,6 +41,14 @@
     .nav-btn:hover { background: #333; }
     .nav-btn.seed-active { background: #6a3a20; color: #ffd7b8; border-color: #9a5a2a; }
     .nav-btn.seg-run { background: #2a5a2a; color: #d7ffd7; border-color: #4a8a4a; }
+    .nav-btn:disabled,
+    .nav-btn.seg-run:disabled {
+      background: #242424;
+      color: #686868;
+      border-color: #383838;
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
     #subject-select {
       background: #222;
       color: #eee;
@@ -83,6 +91,13 @@
     #crop-size {
       width: 88px; background: #222; color: #eee; border: 1px solid #444;
       padding: 3px 6px; border-radius: 4px; font-size: 12px;
+    }
+    .seed-input:disabled,
+    #crop-size:disabled {
+      background: #1b1b1b;
+      color: #676767;
+      border-color: #333;
+      cursor: not-allowed;
     }
 
     #status { margin-left: auto; font-size: 11px; color: #777; white-space: nowrap; }
@@ -389,13 +404,20 @@
 <script type="module">
 import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.50.0/+esm";
 
-const MANIFEST_QUERY_URL = (new URLSearchParams(location.search)).get("manifest")
+const QUERY = new URLSearchParams(location.search);
+const MANIFEST_QUERY_URL = QUERY.get("manifest")
   ?? "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json";
 const MANIFEST_URL = new URL(MANIFEST_QUERY_URL, window.location.href).href;
-const API_BASE = (new URLSearchParams(location.search)).get("api") ?? "http://127.0.0.1:8080";
-const INITIAL_STUDY_UID = (new URLSearchParams(location.search)).get("study_uid") ?? "";
-const INITIAL_RUNNER_CASE_DIR = (new URLSearchParams(location.search)).get("runner_case_dir") ?? "";
-const ACTOR_TOKEN = (new URLSearchParams(location.search)).get("token") ?? "patient-demo";
+const API_QUERY_BASE = QUERY.get("api");
+const API_BASE = API_QUERY_BASE ?? "http://127.0.0.1:8080";
+const IS_LOCAL_PAGE = location.protocol === "file:"
+  || location.hostname === "localhost"
+  || location.hostname === "127.0.0.1";
+const INTERACTIVE_ENABLED = Boolean(API_QUERY_BASE) || IS_LOCAL_PAGE;
+const INTERACTIVE_OFFLINE_MSG = "Interactive seeded segmentation is available in the local research environment; public backend is offline.";
+const INITIAL_STUDY_UID = QUERY.get("study_uid") ?? "";
+const INITIAL_RUNNER_CASE_DIR = QUERY.get("runner_case_dir") ?? "";
+const ACTOR_TOKEN = QUERY.get("token") ?? "patient-demo";
 
 const COLORMAP_PRED = "warm";
 const COLORMAP_PROB = "hot";
@@ -832,8 +854,10 @@ function syncButtons() {
   document.getElementById("btn-gt").className = "toggle-btn" + (showGt ? " active-gt" : "");
   document.getElementById("btn-seeded").className = "toggle-btn" + (showSeeded ? " active-gt" : "");
   document.getElementById("btn-seeded").disabled = !seededMaskUrl;
-  document.getElementById("btn-place-seed").classList.toggle("seed-active", seedMode);
-  document.getElementById("tool-state").textContent = `Seed mode: ${seedMode ? "armed" : "off"}`;
+  document.getElementById("btn-place-seed").classList.toggle("seed-active", INTERACTIVE_ENABLED && seedMode);
+  document.getElementById("tool-state").textContent = INTERACTIVE_ENABLED
+    ? `Seed mode: ${seedMode ? "armed" : "off"}`
+    : "Seed mode: local backend required";
 }
 
 function setStatus(msg) {
@@ -1004,6 +1028,11 @@ async function addReturnedMaskOverlay(artifacts) {
 }
 
 async function runInteractiveSegmentation() {
+  if (!INTERACTIVE_ENABLED) {
+    setRunState("Interactive run: offline on public site");
+    setStatus(INTERACTIVE_OFFLINE_MSG);
+    return;
+  }
   if (!subjects.length) return;
   if (syncSubjectToRunnerCase()) {
     updateNav();
@@ -1075,6 +1104,10 @@ async function runInteractiveSegmentation() {
 
 function bindInteractiveControls() {
   document.getElementById("btn-place-seed").addEventListener("click", () => {
+    if (!INTERACTIVE_ENABLED) {
+      setStatus(INTERACTIVE_OFFLINE_MSG);
+      return;
+    }
     seedMode = true;
     syncButtons();
     setStatus("Click in the viewer to place or replace the tumor seed");
@@ -1090,6 +1123,15 @@ function bindInteractiveControls() {
   });
   updateSeedState();
   updateRunnerState();
+  if (!INTERACTIVE_ENABLED) {
+    ["btn-place-seed", "btn-clear-seed", "btn-run-interactive", "seed-x", "seed-y", "seed-z", "crop-size"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = true;
+    });
+    document.getElementById("btn-run-interactive").title = INTERACTIVE_OFFLINE_MSG;
+    document.getElementById("btn-place-seed").title = INTERACTIVE_OFFLINE_MSG;
+    setRunState("Interactive run: local backend only");
+  }
   syncButtons();
 }
 
