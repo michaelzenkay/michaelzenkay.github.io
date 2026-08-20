@@ -52,7 +52,6 @@ publish-hpc.bat
 
 | Content | Authoritative source repo | Build / sync command | Published path |
 |---|---|---|---|
-| Breast MRI artifacts article | `src/breastmri-artifacts/` | `.\publish.ps1` from that repo | `breast-mri-artifacts.html` + `figures/` |
 | MG best run + manuscript + reports index | `src/mg/` | `python scripts/prepare_best_publish.py --site-root d:\src\michaelzenkay.github.io` | `reports/` + `results/` + `index.html` |
 | Site-only pages and demos | `src/michaelzenkay.github.io/` | edit here, then `publish.bat` | repo root |
 
@@ -61,7 +60,6 @@ publish-hpc.bat
 | Content | Source | Published to |
 |---|---|---|
 | MG manuscript + report | `src/mg/` (via HPC) | michaelzenkay.com |
-| Breast MRI artifacts article | `src/breastmri-artifacts/` | michaelzenkay.com only |
 
 `breastmri.org` is reserved for the final polished article and nothing publishes there yet.
 
@@ -70,7 +68,7 @@ publish-hpc.bat
 ```powershell
 git fetch origin main --prune
 git pull --no-rebase origin main
-git -c core.filemode=false add reports/ results/ figures/ mnt/ index.html breast-mri-artifacts.html demo.html mg-risk-demo.html site-theme.css _headers review-system-auth.js
+git -c core.filemode=false add reports/ results/ figures/ mnt/ index.html demo.html mg-risk-demo.html site-theme.css _headers review-system-auth.js
 git commit -m "refresh site artifacts"
 git push origin main
 ```

@@ -308,6 +308,16 @@
       flex-shrink: 0;
     }
 
+    #data-notice {
+      padding: 6px 12px;
+      background: #10151a;
+      border-top: 1px solid #222a31;
+      color: #7e8b96;
+      font-size: 11px;
+      line-height: 1.45;
+      flex-shrink: 0;
+    }
+
     @media (max-width: 1080px) {
       #main-layout { flex-direction: column; }
       #mip-panel {
@@ -439,6 +449,10 @@
   <span style="margin-left:auto">scroll = slice &nbsp;|&nbsp; &larr;&rarr; = subject</span>
 </div>
 
+<div id="data-notice">
+  Research/demo viewer using public TCIA I-SPY imaging data under CC BY 4.0. Cite The Cancer Imaging Archive and the I-SPY dataset when reusing; not for clinical decision-making.
+</div>
+
 <script type="module">
 import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.50.0/+esm";
 
@@ -462,6 +476,10 @@ const COLORMAP_PROB = "hot";
 const COLORMAP_GT = "blue";
 const COLORMAP_SEEDED = "red";
 const MIP_VIEW_ORDER = ["axial", "coronal", "sagittal", "oblique_045", "oblique_135"];
+function publicCaseLabel(idx) {
+  return `Case ${idx + 1}`;
+}
+
 const MIP_SERIES_PREFERENCE = [
   "tumor_overlay",
   "analysis_mask_overlay",
@@ -551,7 +569,7 @@ async function fetchManifest() {
     const r = await fetch(MANIFEST_URL);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
-    setStatus(`${data.subjects.length} subjects`);
+    setStatus(`${data.subjects.length} cases`);
     return data;
   } catch (e) {
     setStatus(`Error: ${e.message}`);
@@ -562,10 +580,10 @@ async function fetchManifest() {
 function populateSelect() {
   const sel = document.getElementById("subject-select");
   sel.innerHTML = "";
-  for (const s of subjects) {
+  for (const [idx, s] of subjects.entries()) {
     const opt = document.createElement("option");
     opt.value = s.id;
-    opt.textContent = s.id;
+    opt.textContent = publicCaseLabel(idx);
     sel.appendChild(opt);
   }
   sel.addEventListener("change", () => {
@@ -786,7 +804,7 @@ async function refreshMipGallery() {
 
     document.getElementById("mip-title").textContent = "Companion MIPs";
     document.getElementById("mip-subtitle").textContent =
-      `${subject.id}  · ${payload.mode ?? "prepeakpost"}  · ${payload.label_kind ?? "none"}`;
+      `${publicCaseLabel(currentIdx)}  · ${payload.mode ?? "prepeakpost"}  · ${payload.label_kind ?? "none"}`;
 
     renderMipSeriesButtons(seriesNames, grouped, payload);
     renderMipEntries(grouped[currentMipSeries] ?? [], payload);
@@ -812,13 +830,14 @@ async function loadSubject(idx) {
   currentMipIndex = 0;
 
   const subject = subjects[idx];
+  const caseLabel = publicCaseLabel(idx);
   seededMaskUrl = null;
   showSeeded = false;
   updateNav();
   updateRunnerState();
-  setStatus(`Loading ${subject.id}...`);
-  document.getElementById("info-subject").textContent = `Subject: ${subject.id}`;
-  document.getElementById("run-state").textContent = `Interactive run: not started for ${subject.id}`;
+  setStatus(`Loading ${caseLabel}...`);
+  document.getElementById("info-subject").textContent = caseLabel;
+  document.getElementById("run-state").textContent = `Interactive run: not started for ${caseLabel}`;
 
   const baseFile = (showRgb && subject.rgb) ? subject.rgb : subject.image;
   const ov = overlayChoice(subject);
@@ -844,7 +863,7 @@ async function loadSubject(idx) {
     updateOverlayInfo();
     updateMetrics(subject);
     await refreshMipGallery();
-    setStatus(`${subject.id} (${idx + 1}/${subjects.length})`);
+    setStatus(`${caseLabel} (${idx + 1}/${subjects.length})`);
   } catch (e) {
     console.error(e);
     setStatus(`Load error: ${e.message}`);
@@ -955,7 +974,7 @@ function applySeed(seed) {
   seedMode = false;
   syncButtons();
   updateSeedState();
-  setStatus(`Seed placed at voxel (${activeSeed.x}, ${activeSeed.y}, ${activeSeed.z}) for ${subjects[currentIdx].id}`);
+  setStatus(`Seed placed at voxel (${activeSeed.x}, ${activeSeed.y}, ${activeSeed.z}) for ${publicCaseLabel(currentIdx)}`);
 }
 
 function currentCrop() {
@@ -976,7 +995,7 @@ function clearSeed() {
   seedMode = false;
   syncButtons();
   updateSeedState();
-  setStatus(`Seed cleared for ${subjects[currentIdx]?.id || "current subject"}`);
+  setStatus(`Seed cleared for ${subjects.length ? publicCaseLabel(currentIdx) : "current case"}`);
 }
 
 function buildDemoDICOM() {
@@ -1082,6 +1101,7 @@ async function runInteractiveSegmentation() {
     return;
   }
   const subject = subjects[currentIdx];
+  const caseLabel = publicCaseLabel(currentIdx);
   try {
     const studyUID = await ensureInteractiveStudy();
     const payload = {
@@ -1091,8 +1111,8 @@ async function runInteractiveSegmentation() {
       crop_size: currentCrop(),
       mode: "local_crop",
     };
-    setStatus(`Running interactive segmentation for ${subject.id}...`);
-    setRunState(`Interactive run: running on ${subject.id}`);
+    setStatus(`Running interactive segmentation for ${caseLabel}...`);
+    setRunState(`Interactive run: running on ${caseLabel}`);
     const res = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/ai/tumor-segmentation/interactive`, {
       method: "POST",
       headers: {
@@ -1120,18 +1140,18 @@ async function runInteractiveSegmentation() {
     const maskResult = await addReturnedMaskOverlay(body.artifacts);
     currentMipSeries = null;
     await refreshMipGallery();
-    const activeSubjectID = subjects[currentIdx]?.id || responseCaseID || subject.id;
+    const activeCaseLabel = subjects[currentIdx] ? publicCaseLabel(currentIdx) : "current case";
     updateRunnerState();
     if (maskResult.loaded) {
-      setRunState(`Interactive run: ${body.job_id || "complete"} on ${activeSubjectID} (Seeded seg loaded)`);
-      setStatus(`Interactive segmentation complete for ${activeSubjectID}; Seeded seg loaded from ${maskResult.url}`);
+      setRunState(`Interactive run: ${body.job_id || "complete"} on ${activeCaseLabel} (Seeded seg loaded)`);
+      setStatus(`Interactive segmentation complete for ${activeCaseLabel}; Seeded seg loaded`);
     } else {
-      setRunState(`Interactive run: ${body.job_id || "complete"} on ${activeSubjectID} (no Seeded seg loaded)`);
-      setStatus(`Interactive segmentation complete for ${activeSubjectID}, but Seeded seg did not load: ${maskResult.reason}${maskResult.url ? ` [${maskResult.url}]` : ""}`);
+      setRunState(`Interactive run: ${body.job_id || "complete"} on ${activeCaseLabel} (no Seeded seg loaded)`);
+      setStatus(`Interactive segmentation complete for ${activeCaseLabel}, but Seeded seg did not load: ${maskResult.reason}`);
       console.warn("Interactive segmentation mask artifact issue", { maskResult, artifacts: body.artifacts, response: body });
     }
   } catch (err) {
-    setRunState(`Interactive run: failed on ${subject.id}`);
+    setRunState(`Interactive run: failed on ${caseLabel}`);
     const msg = err?.message === "Failed to fetch"
       ? `Interactive segmentation error: backend not reachable at ${API_BASE}`
       : `Interactive segmentation error: ${err.message}`;

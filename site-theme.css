@@ -155,6 +155,14 @@ body.site-home .work-list p {
   line-height: 1.6;
 }
 
+body.site-home .data-note,
+body.site-results .data-note {
+  margin-top: 0.85rem;
+  color: var(--site-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
 body.site-home .date {
   display: inline-flex;
   align-items: center;
@@ -744,9 +752,7 @@ body.portfolio-home .portfolio-hero {
   display: flex;
   align-items: center;
   padding: clamp(40px, 7vw, 88px) clamp(22px, 6vw, 88px);
-  background:
-    linear-gradient(90deg, rgba(249, 251, 246, 0.98) 0%, rgba(249, 251, 246, 0.9) 45%, rgba(249, 251, 246, 0.34) 76%, rgba(249, 251, 246, 0.16) 100%),
-    url("figures/ghost43sagt2fs.png") center right / cover no-repeat;
+  background: linear-gradient(90deg, #f9fbf6 0%, #f2f7f1 52%, #e8f0ea 100%);
   border-bottom: 1px solid rgba(83, 101, 88, 0.18);
 }
 
@@ -1019,6 +1025,17 @@ body.portfolio-home .tag-gold {
   color: #755514;
 }
 
+body.portfolio-home .tag-purple {
+  background: #ede8f7;
+  color: #4a2a82;
+}
+
+@media (prefers-color-scheme: dark) {
+  body.portfolio-home .tag-purple { background: #2a1c48; color: #b8a0e8; }
+}
+:root[data-theme="dark"] body.portfolio-home .tag-purple { background: #2a1c48; color: #b8a0e8; }
+:root[data-theme="light"] body.portfolio-home .tag-purple { background: #ede8f7; color: #4a2a82; }
+
 body.portfolio-home .portfolio-card h3,
 body.portfolio-home .capability-grid h3 {
   margin: 0;
@@ -1112,9 +1129,7 @@ body.portfolio-home .publication-list li + li {
     display: block;
     min-height: 430px;
     padding: 34px 18px;
-    background:
-      linear-gradient(180deg, rgba(249, 251, 246, 0.98) 0%, rgba(249, 251, 246, 0.9) 72%, rgba(249, 251, 246, 0.58) 100%),
-      url("figures/ghost43sagt2fs.png") center / cover no-repeat;
+    background: linear-gradient(180deg, #f9fbf6 0%, #f2f7f1 72%, #e8f0ea 100%);
   }
 
   body.portfolio-home .hero-copy {
