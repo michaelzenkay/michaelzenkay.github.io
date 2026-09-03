@@ -136,7 +136,7 @@
       cursor: not-allowed;
     }
 
-    #status { margin-left: auto; font-size: 11px; color: #777; white-space: nowrap; }
+    #status { margin-left: auto; min-width: 0; max-width: 260px; overflow: hidden; text-overflow: ellipsis; font-size: 11px; color: #777; white-space: nowrap; }
 
     #main-layout {
       flex: 1;
@@ -524,6 +524,7 @@ let loading = false;
 let seedMode = false;
 let currentCrosshair = { x: 112, y: 94, z: 51 };
 let activeSeed = null;
+let seedMarkerPoint = null;
 let seededMaskUrl = null;
 let runtimeStudyUID = INITIAL_STUDY_UID;
 let runnerCaseDir = INITIAL_RUNNER_CASE_DIR;
@@ -847,8 +848,11 @@ async function loadSubject(idx) {
 
   const subject = subjects[idx];
   const caseLabel = publicCaseLabel(idx);
+  activeSeed = null;
+  seedMarkerPoint = null;
   seededMaskUrl = null;
   showSeeded = false;
+  updateSeedMarkerVisibility();
   updateNav();
   updateRunnerState();
   setStatus(`Loading ${caseLabel}...`);
@@ -996,15 +1000,17 @@ function applySeed(seed) {
 
 function updateSeedMarkerVisibility() {
   const marker = document.getElementById("seed-marker");
-  if (!activeSeed) {
+  if (!activeSeed || !seedMarkerPoint) {
     marker.style.display = "none";
     return;
   }
   const dx = Math.abs((currentCrosshair?.x ?? 0) - activeSeed.x);
   const dy = Math.abs((currentCrosshair?.y ?? 0) - activeSeed.y);
   const dz = Math.abs((currentCrosshair?.z ?? 0) - activeSeed.z);
-  const isNearCurrentSlice = dx <= 1 || dy <= 1 || dz <= 1;
-  marker.style.display = isNearCurrentSlice ? "block" : "none";
+  const isAtSeed = dx <= 1 && dy <= 1 && dz <= 1;
+  marker.style.left = `${seedMarkerPoint.x}px`;
+  marker.style.top = `${seedMarkerPoint.y}px`;
+  marker.style.display = isAtSeed ? "block" : "none";
 }
 
 function currentCrop() {
@@ -1023,6 +1029,7 @@ function updateSeedState() {
 function clearSeed() {
   document.getElementById("seed-marker").style.display = "none";
   activeSeed = null;
+  seedMarkerPoint = null;
   seedMode = false;
   syncButtons();
   updateSeedState();
@@ -1200,10 +1207,18 @@ function bindInteractiveControls() {
     }
     seedMode = true;
     syncButtons();
-    setStatus("Click in the viewer to place or replace the tumor seed");
+    setStatus("Click image to place seed");
   });
   document.getElementById("btn-clear-seed").addEventListener("click", clearSeed);
   document.getElementById("btn-run-interactive").addEventListener("click", runInteractiveSegmentation);
+  document.getElementById("gl").addEventListener("pointerdown", (event) => {
+    if (!seedMode) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    seedMarkerPoint = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  }, { capture: true });
   document.getElementById("gl").addEventListener("click", () => {
     if (!seedMode) return;
     applySeed(currentCrosshair);
