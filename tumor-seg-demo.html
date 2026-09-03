@@ -154,19 +154,6 @@
 
     #gl { width: 100%; height: 100%; display: block; }
 
-    #seed-marker {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 2px solid #ffd24d;
-      background: rgba(255, 80, 80, 0.75);
-      box-shadow: 0 0 10px rgba(255, 210, 77, 0.9);
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      display: none;
-      z-index: 20;
-    }
     #metrics-bar {
       padding: 6px 14px; background: #161a16; border-top: 1px solid #1e2a1e;
       font-size: 12px; color: #d7dde4; display: flex; gap: 28px; flex-shrink: 0;
@@ -398,7 +385,6 @@
 <div id="main-layout">
   <div id="canvas-wrap">
     <canvas id="gl"></canvas>
-    <div id="seed-marker" aria-hidden="true"></div>
   </div>
 
   <aside id="mip-panel" class="is-hidden">
@@ -524,7 +510,6 @@ let loading = false;
 let seedMode = false;
 let currentCrosshair = { x: 112, y: 94, z: 51 };
 let activeSeed = null;
-let seedMarkerPoint = null;
 let seededMaskUrl = null;
 let runtimeStudyUID = INITIAL_STUDY_UID;
 let runnerCaseDir = INITIAL_RUNNER_CASE_DIR;
@@ -564,7 +549,6 @@ async function init() {
         y: Math.round(data.vox[1]),
         z: Math.round(data.vox[2]),
       };
-      updateSeedMarkerVisibility();
       if (seedMode) {
         applySeed(currentCrosshair);
       }
@@ -849,10 +833,8 @@ async function loadSubject(idx) {
   const subject = subjects[idx];
   const caseLabel = publicCaseLabel(idx);
   activeSeed = null;
-  seedMarkerPoint = null;
   seededMaskUrl = null;
   showSeeded = false;
-  updateSeedMarkerVisibility();
   updateNav();
   updateRunnerState();
   setStatus(`Loading ${caseLabel}...`);
@@ -876,6 +858,7 @@ async function loadSubject(idx) {
 
   try {
     await nv.loadVolumes(volumes);
+    renderSeedPoint();
     const hdr = nv.volumes[0]?.hdr;
     if (hdr) {
       document.getElementById("info-dims").textContent = `${hdr.dims[1]} x ${hdr.dims[2]} x ${hdr.dims[3]} vox`;
@@ -994,19 +977,19 @@ function applySeed(seed) {
   seedMode = false;
   syncButtons();
   updateSeedState();
-  updateSeedMarkerVisibility();
+  renderSeedPoint();
   setStatus(`Seed placed at voxel (${activeSeed.x}, ${activeSeed.y}, ${activeSeed.z}) for ${publicCaseLabel(currentIdx)}`);
 }
 
-function updateSeedMarkerVisibility() {
-  const marker = document.getElementById("seed-marker");
-  if (!activeSeed || !seedMarkerPoint) {
-    marker.style.display = "none";
-    return;
+function renderSeedPoint() {
+  if (!nv?.back?.dims) return;
+  nv.createEmptyDrawing();
+  if (activeSeed) {
+    nv.opts.penSize = 1;
+    nv.setDrawOpacity(1);
+    nv.drawPt(activeSeed.x, activeSeed.y, activeSeed.z, 1);
   }
-  marker.style.left = `${seedMarkerPoint.x}px`;
-  marker.style.top = `${seedMarkerPoint.y}px`;
-  marker.style.display = "block";
+  nv.refreshDrawing(true);
 }
 
 function currentCrop() {
@@ -1023,13 +1006,11 @@ function updateSeedState() {
 }
 
 function clearSeed() {
-  document.getElementById("seed-marker").style.display = "none";
   activeSeed = null;
-  seedMarkerPoint = null;
   seedMode = false;
   syncButtons();
   updateSeedState();
-  updateSeedMarkerVisibility();
+  renderSeedPoint();
   setStatus(`Seed cleared for ${subjects.length ? publicCaseLabel(currentIdx) : "current case"}`);
 }
 
@@ -1207,14 +1188,6 @@ function bindInteractiveControls() {
   });
   document.getElementById("btn-clear-seed").addEventListener("click", clearSeed);
   document.getElementById("btn-run-interactive").addEventListener("click", runInteractiveSegmentation);
-  document.getElementById("gl").addEventListener("pointerdown", (event) => {
-    if (!seedMode) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    seedMarkerPoint = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    };
-  }, { capture: true });
   document.getElementById("gl").addEventListener("click", () => {
     if (!seedMode) return;
     applySeed(currentCrosshair);
