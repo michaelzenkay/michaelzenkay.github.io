@@ -858,7 +858,7 @@ async function loadSubject(idx) {
 
   try {
     await nv.loadVolumes(volumes);
-    renderSeedPoint();
+    renderSeedMarker();
     const hdr = nv.volumes[0]?.hdr;
     if (hdr) {
       document.getElementById("info-dims").textContent = `${hdr.dims[1]} x ${hdr.dims[2]} x ${hdr.dims[3]} vox`;
@@ -977,17 +977,25 @@ function applySeed(seed) {
   seedMode = false;
   syncButtons();
   updateSeedState();
-  renderSeedPoint();
+  renderSeedMarker();
   setStatus(`Seed placed at voxel (${activeSeed.x}, ${activeSeed.y}, ${activeSeed.z}) for ${publicCaseLabel(currentIdx)}`);
 }
 
-function renderSeedPoint() {
+function renderSeedMarker() {
   if (!nv?.back?.dims) return;
   nv.createEmptyDrawing();
   if (activeSeed) {
+    const radius = 2;
     nv.opts.penSize = 1;
     nv.setDrawOpacity(1);
-    nv.drawPt(activeSeed.x, activeSeed.y, activeSeed.z, 1);
+    for (let dz = -radius; dz <= radius; dz++) {
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          if ((dx * dx) + (dy * dy) + (dz * dz) > radius * radius) continue;
+          nv.drawPt(activeSeed.x + dx, activeSeed.y + dy, activeSeed.z + dz, 1);
+        }
+      }
+    }
   }
   nv.refreshDrawing(true);
 }
@@ -1010,7 +1018,7 @@ function clearSeed() {
   seedMode = false;
   syncButtons();
   updateSeedState();
-  renderSeedPoint();
+  renderSeedMarker();
   setStatus(`Seed cleared for ${subjects.length ? publicCaseLabel(currentIdx) : "current case"}`);
 }
 
