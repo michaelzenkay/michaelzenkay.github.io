@@ -1004,13 +1004,9 @@ function updateSeedMarkerVisibility() {
     marker.style.display = "none";
     return;
   }
-  const dx = Math.abs((currentCrosshair?.x ?? 0) - activeSeed.x);
-  const dy = Math.abs((currentCrosshair?.y ?? 0) - activeSeed.y);
-  const dz = Math.abs((currentCrosshair?.z ?? 0) - activeSeed.z);
-  const isAtSeed = dx <= 1 && dy <= 1 && dz <= 1;
   marker.style.left = `${seedMarkerPoint.x}px`;
   marker.style.top = `${seedMarkerPoint.y}px`;
-  marker.style.display = isAtSeed ? "block" : "none";
+  marker.style.display = "block";
 }
 
 function currentCrop() {
