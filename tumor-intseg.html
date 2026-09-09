@@ -19,11 +19,15 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      flex-shrink: 0;
+      overflow-x: auto;
+      white-space: nowrap;
       padding: 10px 14px;
       background: #171b21;
       border-bottom: 1px solid #2b323b;
     }
+    header > * { flex-shrink: 0; }
     h1 { margin: 0; font-size: 15px; font-weight: 650; }
     .badge {
       padding: 2px 7px;
@@ -55,7 +59,7 @@
       cursor: pointer;
     }
     button:hover { background: #25455c; }
-    #health { min-width: 190px; color: #98a3ae; font-size: 12px; }
+    #health { width: 190px; overflow: hidden; text-overflow: ellipsis; color: #98a3ae; font-size: 12px; }
     #health.ok { color: #8be09b; }
     #health.bad { color: #ff9898; }
     #viewer { flex: 1; width: 100%; border: 0; background: #111; }
@@ -83,12 +87,13 @@
   <iframe id="viewer" title="Interactive breast MRI tumor segmentation viewer"></iframe>
 
   <footer>
+    <a href="https://michaelzenkay.com/tumor-seg-demo.html" target="_blank" rel="noopener" style="color:#9ed7ff">Open saved demo (no live GPU required)</a> |
     Public I-SPY research data only. Development endpoint; not for clinical use. Endpoint choice is stored only in this browser.
   </footer>
 
   <script>
-    const DEFAULT_LOCAL_API = "http://127.0.0.1:8080";
-    const STORAGE_KEY = "tumor-intseg-api";
+    const DEFAULT_LOCAL_API = "http://127.0.0.1:8081";
+    const STORAGE_KEY = "tumor-intseg-local-seed-api";
     const endpointInput = document.getElementById("endpoint");
     const health = document.getElementById("health");
     const viewer = document.getElementById("viewer");
@@ -100,6 +105,7 @@
     function loadViewer(endpoint) {
       const url = new URL("tumor-seg-demo.html", window.location.href);
       url.searchParams.set("api", endpoint);
+      url.searchParams.set("backend", "local-seed");
       viewer.src = url.href;
     }
 
@@ -108,11 +114,18 @@
       health.className = "";
       health.textContent = "Checking backend…";
       try {
-        const response = await fetch(`${endpoint}/health`, { cache: "no-store" });
+        const response = await fetch(`${endpoint}/health`, { cache: "no-store", signal: AbortSignal.timeout(4000) });
+        if (endpoint !== normalizedEndpoint(endpointInput.value)) return;
         const elapsed = performance.now() - started;
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const body = await response.json().catch(() => ({}));
-        const device = body.device || body.gpu || "ready";
+        if (body.state === 'paused') {
+          health.className = '';
+          health.textContent = 'Live GPU paused; saved demo available';
+          return;
+        }
+        if (body.ready === false || body.model_loaded === false) throw new Error('Backend has no ready model/cases');
+        const device = body.state === 'busy' ? `GPU busy (${body.queued} waiting)` : 'Live GPU available';
         health.className = "ok";
         health.textContent = `${device} · ${elapsed.toFixed(0)} ms health RTT`;
       } catch (error) {
@@ -120,6 +133,8 @@
         health.textContent = `Offline · ${error.message}`;
       }
     }
+
+    new MutationObserver(() => { health.title = health.textContent; }).observe(health, {childList: true});
 
     function connect(rawEndpoint) {
       const endpoint = normalizedEndpoint(rawEndpoint);
@@ -134,8 +149,10 @@
       connect(endpointInput.value);
     });
 
-    endpointInput.value = localStorage.getItem(STORAGE_KEY) || DEFAULT_LOCAL_API;
+    endpointInput.value = new URLSearchParams(location.search).get('same_origin') === '1'
+      ? window.location.origin : (localStorage.getItem(STORAGE_KEY) || DEFAULT_LOCAL_API);
     connect(endpointInput.value);
+    setInterval(() => checkHealth(normalizedEndpoint(endpointInput.value)), 15000);
   </script>
 </body>
 </html>

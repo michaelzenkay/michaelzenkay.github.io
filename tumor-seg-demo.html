@@ -19,14 +19,18 @@
     #toolbar {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 7px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      white-space: nowrap;
       padding: 7px 12px;
       background: #1a1a1a;
       border-bottom: 1px solid #2e2e2e;
       flex-shrink: 0;
     }
 
+    #toolbar > * { flex-shrink: 0; }
+    #toolbar { min-height: 46px; }
     #nav-wrap { display: flex; align-items: center; gap: 4px; }
     .nav-btn {
       background: #2a2a2a;
@@ -121,9 +125,12 @@
       pointer-events: none;
     }
     .seed-input {
-      width: 64px; background: #222; color: #eee; border: 1px solid #444;
-      padding: 3px 6px; border-radius: 4px; font-size: 12px;
+      width: calc(4ch + 16px); background: #222; color: #eee; border: 1px solid #444;
+      padding: 3px 5px; border-radius: 4px; font: 12px ui-monospace, monospace;
+      appearance: textfield; -moz-appearance: textfield;
     }
+    .seed-input::-webkit-inner-spin-button,
+    .seed-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     #crop-size {
       width: 88px; background: #222; color: #eee; border: 1px solid #444;
       padding: 3px 6px; border-radius: 4px; font-size: 12px;
@@ -136,7 +143,9 @@
       cursor: not-allowed;
     }
 
-    #status { margin-left: auto; min-width: 0; max-width: 260px; overflow: hidden; text-overflow: ellipsis; font-size: 11px; color: #777; white-space: nowrap; }
+    #status { display: block; height: 28px; line-height: 18px; padding: 4px 12px;
+      overflow-x: auto; white-space: nowrap; font-size: 11px; color: #aaa;
+      user-select: text; background: #141414; flex-shrink: 0; }
 
     #main-layout {
       flex: 1;
@@ -294,9 +303,13 @@
       color: #c9d2cb;
       display: flex;
       gap: 20px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      overflow-x: auto;
+      height: 34px;
       flex-shrink: 0;
     }
+    #tool-bar > * { flex-shrink: 0; }
 
     #info-bar {
       padding: 3px 12px;
@@ -334,12 +347,11 @@
 
     @media (max-width: 720px) {
       #mip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      #status { width: 100%; margin-left: 0; }
     }
   </style>
 </head>
 <body>
-<div id="toolbar">
+<div id="toolbar" tabindex="0" aria-label="Viewer controls; scroll horizontally on narrow screens">
   <div id="nav-wrap">
     <button class="nav-btn" id="btn-prev">&#8592;</button>
     <select id="subject-select"><option>Loading...</option></select>
@@ -379,7 +391,6 @@
     </span>
   </div>
 
-  <span id="status">Loading...</span>
 </div>
 
 <div id="main-layout">
@@ -412,36 +423,38 @@
   <div class="m-group">
     <span class="m-title">Longest diameter</span>
     <span><span class="m-label">pred</span><span class="m-pred" id="m-ld-pred">--</span>
-          &nbsp;<span class="m-label">gt</span><span class="m-gt" id="m-ld-gt">--</span></span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-ld-gt">--</span></span>
   </div>
   <div class="m-group">
     <span class="m-title">d2 (perp.)</span>
     <span><span class="m-label">pred</span><span class="m-pred" id="m-d2-pred">--</span>
-          &nbsp;<span class="m-label">gt</span><span class="m-gt" id="m-d2-gt">--</span></span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-d2-gt">--</span></span>
   </div>
   <div class="m-group">
     <span class="m-title">d3 (short)</span>
     <span><span class="m-label">pred</span><span class="m-pred" id="m-d3-pred">--</span>
-          &nbsp;<span class="m-label">gt</span><span class="m-gt" id="m-d3-gt">--</span></span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-d3-gt">--</span></span>
   </div>
   <div class="m-group">
     <span class="m-title">Volume</span>
     <span><span class="m-label">pred</span><span class="m-pred" id="m-vol-pred">--</span>
-          &nbsp;<span class="m-label">gt</span><span class="m-gt" id="m-vol-gt">--</span></span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-vol-gt">--</span></span>
   </div>
   <div class="m-group">
     <span class="m-title">Sphericity</span>
     <span><span class="m-label">pred</span><span class="m-pred" id="m-sph-pred">--</span>
-          &nbsp;<span class="m-label">gt</span><span class="m-gt" id="m-sph-gt">--</span></span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-sph-gt">--</span></span>
   </div>
 </div>
 
-<div id="tool-bar">
+<div id="tool-bar" tabindex="0" aria-label="Seed and inference details">
+  <span id="live-state" role="status">Live GPU: checking</span>
   <span id="tool-state">Seed mode: off</span>
   <span id="seed-state">Seed: (112, 94, 51)</span>
   <span id="run-state">Interactive run: not started</span>
   <span id="runner-state">Runner target: auto subject header</span>
 </div>
+<div id="status" role="status" aria-live="polite" tabindex="0" aria-label="Viewer status; scroll horizontally for long messages">Loading...</div>
 
 <div id="info-bar">
   <span id="info-subject">--</span>
@@ -463,6 +476,7 @@ const MANIFEST_QUERY_URL = QUERY.get("manifest")
 const MANIFEST_URL = new URL(MANIFEST_QUERY_URL, window.location.href).href;
 const API_QUERY_BASE = QUERY.get("api");
 const API_BASE = API_QUERY_BASE ?? "http://127.0.0.1:8080";
+const LOCAL_SEED_API = QUERY.get("backend") === "local-seed";
 const IS_LOCAL_PAGE = location.protocol === "file:"
   || location.hostname === "localhost"
   || location.hostname === "127.0.0.1";
@@ -511,6 +525,10 @@ let seedMode = false;
 let currentCrosshair = { x: 112, y: 94, z: 51 };
 let activeSeed = null;
 let seededMaskUrl = null;
+let inferenceBusy = false;
+let liveState = null;
+let cropBoundary = null;
+let cropPreviewVersion = 0;
 let runtimeStudyUID = INITIAL_STUDY_UID;
 let runnerCaseDir = INITIAL_RUNNER_CASE_DIR;
 let currentMipSeries = null;
@@ -541,6 +559,7 @@ function syncSubjectToRunnerCase() {
 async function init() {
   nv = new Niivue({ backColor: [0.07, 0.07, 0.07, 1], show3Dcrosshair: true, isColorbar: false });
   await nv.attachTo("gl");
+  nv.addColormap('crop-boundary', {R:[0,0], G:[255,255], B:[255,255], A:[0,255], I:[0,255]});
   nv.setSliceType(nv.sliceTypeMultiplanar);
   nv.onLocationChange = (data) => {
     if (data?.vox && data.vox.length >= 3) {
@@ -561,6 +580,8 @@ async function init() {
   syncSubjectToRunnerCase();
   populateSelect();
   bindInteractiveControls();
+  if (LOCAL_SEED_API) checkAvailability();
+  else document.getElementById('live-state').textContent = INTERACTIVE_ENABLED ? 'Live GPU: legacy endpoint' : 'Saved demo';
   await loadSubject(currentIdx);
 }
 
@@ -823,8 +844,8 @@ function overlayChoice(subject) {
   return null;
 }
 
-async function loadSubject(idx) {
-  if (loading) return;
+async function loadSubject(idx, preserveSeed = false) {
+  if (loading || inferenceBusy) return;
   loading = true;
   currentIdx = idx;
   currentMipSeries = null;
@@ -832,14 +853,19 @@ async function loadSubject(idx) {
 
   const subject = subjects[idx];
   const caseLabel = publicCaseLabel(idx);
-  activeSeed = null;
-  seededMaskUrl = null;
-  showSeeded = false;
+  if (!preserveSeed) {
+    cropPreviewVersion++;
+    cropBoundary = null;
+    activeSeed = null;
+    if (seededMaskUrl?.startsWith('blob:')) URL.revokeObjectURL(seededMaskUrl);
+    seededMaskUrl = null;
+    showSeeded = false;
+  }
   updateNav();
   updateRunnerState();
   setStatus(`Loading ${caseLabel}...`);
   document.getElementById("info-subject").textContent = caseLabel;
-  document.getElementById("run-state").textContent = `Interactive run: not started for ${caseLabel}`;
+  if (!preserveSeed) document.getElementById("run-state").textContent = `Interactive run: not started for ${caseLabel}`;
 
   const baseFile = (showRgb && subject.rgb) ? subject.rgb : subject.image;
   const ov = overlayChoice(subject);
@@ -850,7 +876,8 @@ async function loadSubject(idx) {
   }];
   if (ov) {
     volumes.push({
-      url: resolveAssetUrl(ov.file, manifestBaseUrl()),
+      url: ov.url || resolveAssetUrl(ov.file, manifestBaseUrl()),
+      name: ov.url ? 'seeded-mask.nii.gz' : undefined,
       colormap: ov.map,
       opacity: parseFloat(document.getElementById("opacity-slider").value),
     });
@@ -858,6 +885,7 @@ async function loadSubject(idx) {
 
   try {
     await nv.loadVolumes(volumes);
+    if (showSeeded && cropBoundary) nv.addVolume(cropBoundary);
     renderSeedMarker();
     const hdr = nv.volumes[0]?.hdr;
     if (hdr) {
@@ -882,7 +910,7 @@ async function stepSubject(delta) {
 
 async function refreshBase() {
   if (!subjects.length) return;
-  await loadSubject(currentIdx);
+  await loadSubject(currentIdx, true);
 }
 
 async function refreshOverlay() {
@@ -894,10 +922,12 @@ async function refreshOverlay() {
     const img = await NVImage.loadFromUrl({
       url: ov.url || resolveAssetUrl(ov.file, manifestBaseUrl()),
       colormap: ov.map,
+      name: ov.url ? 'seeded-mask.nii.gz' : undefined,
       opacity: parseFloat(document.getElementById("opacity-slider").value),
     });
     nv.addVolume(img);
   }
+  if (showSeeded && cropBoundary && !nv.volumes.includes(cropBoundary)) nv.addVolume(cropBoundary);
   updateOverlayInfo();
 }
 
@@ -908,6 +938,12 @@ function updateOverlayInfo() {
 }
 
 function syncButtons() {
+  if (LOCAL_SEED_API) {
+    const supported = !liveState?.case_ids || liveState.case_ids.includes(subjects[currentIdx]?.id);
+    const unavailable = liveState && !['available', 'busy'].includes(liveState.state);
+    document.getElementById('btn-run-interactive').disabled = inferenceBusy || loading || !!unavailable || !supported;
+    document.getElementById('btn-run-interactive').title = !supported ? 'Live inference is not configured for this case; saved results remain available.' : '';
+  }
   document.getElementById("btn-rgb").className = "toggle-btn" + (showRgb ? " active-rgb" : "");
   document.getElementById("btn-pred").className = "toggle-btn" + (showPred ? " active-pred" : "");
   document.getElementById("btn-prob").className = "toggle-btn" + (showProb ? " active-prob" : "");
@@ -979,12 +1015,40 @@ function applySeed(seed) {
   updateSeedState();
   renderSeedMarker();
   setStatus(`Seed placed at voxel (${activeSeed.x}, ${activeSeed.y}, ${activeSeed.z}) for ${publicCaseLabel(currentIdx)}`);
+  updateCropBoundary();
+}
+
+async function updateCropBoundary() {
+  const version = ++cropPreviewVersion;
+  if (cropBoundary && nv.volumes.includes(cropBoundary)) nv.removeVolume(cropBoundary);
+  cropBoundary = null;
+  if (!LOCAL_SEED_API || !activeSeed) return;
+  let url;
+  try {
+    const response = await fetch(`${API_BASE.replace(/\/+$/, '')}/api/v1/crop-world`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({case_id:subjects[currentIdx].id, seed_mm:seedWorldMM()}),
+      signal:AbortSignal.timeout(10000),
+    });
+    if (!response.ok) throw new Error(await response.text());
+    url = URL.createObjectURL(await response.blob());
+    const boundary = await NVImage.loadFromUrl({url, name:'crop-boundary.nii.gz', colormap:'crop-boundary',
+      opacity:0.8, cal_min:0, cal_max:1});
+    if (version !== cropPreviewVersion) return;
+    cropBoundary = boundary;
+    if (!loading && showSeeded) nv.addVolume(boundary);
+    setStatus('Crop boundary ready; shown only with Seeded seg. Outside that boundary is not evaluated.');
+  } catch (error) {
+    if (version === cropPreviewVersion) setStatus(`Crop boundary unavailable: ${error.message}`);
+  } finally {if (url) URL.revokeObjectURL(url);}
 }
 
 function renderSeedMarker() {
   if (!nv?.back?.dims) return;
   nv.createEmptyDrawing();
   if (activeSeed) {
+    // Location events and drawing voxels both use Niivue's display/RAS grid.
+    const point = [activeSeed.x, activeSeed.y, activeSeed.z];
     const radius = 2;
     nv.opts.penSize = 1;
     nv.setDrawOpacity(1);
@@ -992,7 +1056,8 @@ function renderSeedMarker() {
       for (let dy = -radius; dy <= radius; dy++) {
         for (let dx = -radius; dx <= radius; dx++) {
           if ((dx * dx) + (dy * dy) + (dz * dz) > radius * radius) continue;
-          nv.drawPt(activeSeed.x + dx, activeSeed.y + dy, activeSeed.z + dz, 1);
+          const p = [point[0] + dx, point[1] + dy, point[2] + dz];
+          if (p.every((v, i) => v >= 0 && v < nv.back.dims[i + 1])) nv.drawPt(...p, 1);
         }
       }
     }
@@ -1014,6 +1079,9 @@ function updateSeedState() {
 }
 
 function clearSeed() {
+  cropPreviewVersion++;
+  if (cropBoundary && nv.volumes.includes(cropBoundary)) nv.removeVolume(cropBoundary);
+  cropBoundary = null;
   activeSeed = null;
   seedMode = false;
   syncButtons();
@@ -1108,7 +1176,65 @@ async function addReturnedMaskOverlay(artifacts) {
   }
 }
 
+function seedWorldMM() {
+  const frac = nv.vox2frac([activeSeed.x, activeSeed.y, activeSeed.z]);
+  return Array.from(nv.frac2mm(frac, 0, true)).slice(0, 3);
+}
+
+async function checkAvailability() {
+  try {
+    const response = await fetch(`${API_BASE.replace(/\/+$/, '')}/health`, {cache:'no-store', signal:AbortSignal.timeout(4000)});
+    if (!response.ok) throw new Error('Unavailable');
+    const body = await response.json();
+    liveState = {...body, state:body.state || (body.ready ? 'available' : 'offline')};
+  } catch (_) { liveState = {state:'offline'}; }
+  const labels = {available:'Live GPU available', busy:`Live GPU busy (${liveState.queued || 0} waiting)`,
+    paused:'Live GPU paused - saved results available', offline:'Live GPU unavailable - saved results available'};
+  document.getElementById('live-state').textContent = labels[liveState.state] || labels.offline;
+  syncButtons();
+  setTimeout(checkAvailability, 5000);
+}
+
+async function runLocalSeedSegmentation() {
+  if (inferenceBusy || loading) return;
+  if (!activeSeed) { setStatus('Place a seed before running interactive segmentation'); return; }
+  const controls = Array.from(document.querySelectorAll('#toolbar button, #toolbar input, #toolbar select'));
+  const disabled = controls.map(el => el.disabled);
+  inferenceBusy = true;
+  seedMode = false;
+  controls.forEach(el => { el.disabled = true; });
+  const started = performance.now();
+  try {
+    setRunState('Interactive run: queued / running (queue wait limited to 10 seconds)');
+    const response = await fetch(`${API_BASE.replace(/\/+$/, '')}/api/v1/segment-world`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({case_id: subjects[currentIdx].id, seed_mm: seedWorldMM()}),
+      signal: AbortSignal.timeout(60000),
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(typeof body.detail === 'string' ? body.detail : `Service unavailable (HTTP ${response.status})`);
+    }
+    const url = URL.createObjectURL(await response.blob());
+    if (seededMaskUrl?.startsWith('blob:')) URL.revokeObjectURL(seededMaskUrl);
+    seededMaskUrl = url;
+    showSeeded = true; showPred = false; showProb = false; showGt = false;
+    await refreshOverlay();
+    const elapsed = Math.round(performance.now() - started);
+    setRunState(`Interactive run: Seeded seg loaded in ${elapsed} ms; ${response.headers.get('X-Mask-Voxels')} voxels`);
+    setStatus('Local mask loaded. Measurements below remain the saved prediction / training-label measurements.');
+  } catch (error) {
+    setRunState('Interactive run: unavailable; saved results remain usable');
+    setStatus(`Live inference: ${error.message}. Use Prediction, Prob map, or Training label; no saved results were removed.`);
+  } finally {
+    inferenceBusy = false;
+    controls.forEach((el, i) => { el.disabled = disabled[i]; });
+    syncButtons();
+  }
+}
+
 async function runInteractiveSegmentation() {
+  if (LOCAL_SEED_API) return runLocalSeedSegmentation();
   if (!INTERACTIVE_ENABLED) {
     setRunState("Interactive run: offline on public site");
     setStatus(INTERACTIVE_OFFLINE_MSG);
@@ -1185,22 +1311,28 @@ async function runInteractiveSegmentation() {
 }
 
 function bindInteractiveControls() {
+  if (LOCAL_SEED_API) {
+    document.getElementById('crop-size').value = '96,96,96';
+    document.getElementById('crop-size').disabled = true;
+    document.getElementById('crop-size').title = 'Fixed 96 native-voxel crop for this checkpoint';
+  }
   document.getElementById("btn-place-seed").addEventListener("click", () => {
     if (!INTERACTIVE_ENABLED) {
       setStatus(INTERACTIVE_OFFLINE_MSG);
       return;
     }
-    seedMode = true;
-    syncButtons();
-    setStatus("Click image to place seed");
+    if (loading || inferenceBusy || !nv?.volumes.length) return;
+    const voxel = nv.frac2vox(nv.scene.crosshairPos);
+    applySeed({x: voxel[0], y: voxel[1], z: voxel[2]});
   });
   document.getElementById("btn-clear-seed").addEventListener("click", clearSeed);
   document.getElementById("btn-run-interactive").addEventListener("click", runInteractiveSegmentation);
-  document.getElementById("gl").addEventListener("click", () => {
-    if (!seedMode) return;
-    applySeed(currentCrosshair);
-  });
   ["seed-x", "seed-y", "seed-z"].forEach((id) => {
+    document.getElementById(id).addEventListener('change', () => {
+      if (loading || inferenceBusy) return;
+      const seed = currentSeed();
+      if ([seed.x, seed.y, seed.z].every((v, i) => Number.isInteger(v) && v >= 0 && v < nv.back.dims[i + 1])) applySeed(seed);
+    });
     document.getElementById(id).addEventListener("input", updateSeedState);
   });
   updateSeedState();
@@ -1225,7 +1357,7 @@ document.getElementById("btn-pred").addEventListener("click", () => { showPred =
 document.getElementById("btn-prob").addEventListener("click", () => { showProb = !showProb; if (showProb) { showPred = false; showGt = false; showSeeded = false; } currentMipSeries = null; syncButtons(); refreshOverlay(); refreshMipGallery(); });
 document.getElementById("btn-gt").addEventListener("click", () => { showGt = !showGt; if (showGt) { showPred = false; showProb = false; showSeeded = false; } currentMipSeries = null; syncButtons(); refreshOverlay(); refreshMipGallery(); });
 document.getElementById("btn-seeded").addEventListener("click", () => { if (!seededMaskUrl) return; showSeeded = !showSeeded; if (showSeeded) { showPred = false; showProb = false; showGt = false; } syncButtons(); refreshOverlay(); });
-document.getElementById("opacity-slider").addEventListener("input", () => { if (nv.volumes.length > 1) nv.setOpacity(1, parseFloat(document.getElementById("opacity-slider").value)); });
+document.getElementById("opacity-slider").addEventListener("input", () => { if (nv.volumes.length > 1 && nv.volumes[1] !== cropBoundary) nv.setOpacity(1, parseFloat(document.getElementById("opacity-slider").value)); });
 document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
   if (e.key === "ArrowLeft") stepSubject(-1);

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Local seeded segmentation test</title>
+<style>
+body{margin:0;background:#111;color:#eee;font:14px system-ui;height:100vh;display:flex;flex-direction:column}
+header{padding:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+button,input,select{padding:6px;background:#222;color:#eee;border:1px solid #666}
+main{flex:1;min-height:0}canvas{width:100%;height:100%;display:block}
+#status{padding:8px;height:40px;overflow:auto}button:disabled{opacity:.4}
+</style>
+<header><input id="api" value="http://127.0.0.1:8081" aria-label="Local API">
+<button id="connect">Connect</button><select id="cases" aria-label="Case"></select>
+<button id="place" disabled>Place seed</button><button id="run" disabled>Segment</button>
+<span id="seed">No seed</span></header>
+<main><canvas id="gl"></canvas></main><div id="status" role="status">Connect to the local service.</div>
+<script type="module">
+import {Niivue, NVImage} from 'https://cdn.jsdelivr.net/npm/@niivue/niivue@0.50.0/+esm';
+const el = id => document.getElementById(id);
+const nv = new Niivue({backColor:[.05,.05,.05,1],isColorbar:false});
+await nv.attachTo('gl'); nv.setSliceType(nv.sliceTypeMultiplanar);
+let base='', seed=null, armed=false, busy=false;
+function controls(){el('run').disabled=busy||!seed;el('place').disabled=busy||!nv.volumes.length;el('cases').disabled=busy;el('connect').disabled=busy;}
+async function checked(url, options){const response=await fetch(url,options);if(!response.ok)throw new Error(`${response.status}: ${await response.text()}`);return response;}
+nv.onLocationChange = data => {
+  if(!armed||busy||!data.vox)return;
+  armed=false; seed=Array.from(data.vox).slice(0,3).map(Math.round);
+  el('seed').textContent=`Seed: ${seed.join(', ')}`;
+  // Niivue's drawing buffer uses its RAS grid, whereas the API uses native voxels.
+  const p=nv.scene.crosshairPos.map((v,i)=>Math.round(v*nv.back.dims[i+1]-.5));
+  nv.createEmptyDrawing(); nv.opts.penSize=1;
+  for(let z=-2;z<=2;z++)for(let y=-2;y<=2;y++)for(let x=-2;x<=2;x++)
+    if(x*x+y*y+z*z<=4)nv.drawPt(p[0]+x,p[1]+y,p[2]+z,1);
+  nv.refreshDrawing(true);controls();
+};
+async function loadCase(){
+  seed=null;armed=false;busy=true;controls();el('seed').textContent='No seed';
+  try{await nv.loadVolumes([{url:`${base}/api/v1/cases/${encodeURIComponent(el('cases').value)}/image`,name:'image.nii.gz'}]);nv.createEmptyDrawing();el('status').textContent='Place a seed, then click Segment.';}
+  catch(e){el('status').textContent=e.message;}finally{busy=false;controls();}
+}
+el('connect').onclick=async()=>{
+  base=el('api').value.trim().replace(/\/+$/,'');busy=true;controls();
+  try{const cases=await (await checked(`${base}/api/v1/cases`)).json();el('cases').replaceChildren(...cases.map(c=>new Option(c.id,c.id)));if(!cases.length)throw new Error('Model service has no configured MRI cases.');await loadCase();}
+  catch(e){el('status').textContent=e.message;}finally{busy=false;controls();}
+};
+el('cases').onchange=loadCase;
+el('place').onclick=()=>{armed=true;el('status').textContent='Click the image to select the crop center.';};
+el('run').onclick=async()=>{
+  busy=true;armed=false;controls();const start=performance.now();el('status').textContent='Running GPU inference…';let url;
+  try{
+    const response=await checked(`${base}/api/v1/segment`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({case_id:el('cases').value,seed}),signal:AbortSignal.timeout(60000)});
+    const blob=await response.blob();url=URL.createObjectURL(blob);
+    const mask=await NVImage.loadFromUrl({url,name:'seeded-mask.nii.gz',colormap:'red',opacity:.65});
+    while(nv.volumes.length>1)nv.removeVolume(nv.volumes[1]);nv.addVolume(mask);
+    el('status').textContent=`Mask displayed: ${(performance.now()-start).toFixed(0)} ms; ${response.headers.get('X-Mask-Voxels')} voxels; ${response.headers.get('Server-Timing')}`;
+  }catch(e){el('status').textContent=e.message;}finally{if(url)URL.revokeObjectURL(url);busy=false;controls();}
+};
+</script>
+</html>
