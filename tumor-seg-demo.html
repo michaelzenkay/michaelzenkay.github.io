@@ -136,7 +136,7 @@
       cursor: not-allowed;
     }
 
-    #status { margin-left: auto; font-size: 11px; color: #777; white-space: nowrap; }
+    #status { margin-left: auto; min-width: 0; max-width: 260px; overflow: hidden; text-overflow: ellipsis; font-size: 11px; color: #777; white-space: nowrap; }
 
     #main-layout {
       flex: 1;
@@ -151,6 +151,7 @@
       min-width: 0;
       min-height: 0;
     }
+
     #gl { width: 100%; height: 100%; display: block; }
 
     #metrics-bar {
@@ -356,7 +357,7 @@
   <span class="lbl">overlay</span>
   <button class="toggle-btn active-pred" id="btn-pred">Prediction</button>
   <button class="toggle-btn" id="btn-prob">Prob map</button>
-  <button class="toggle-btn" id="btn-gt">Ground truth</button>
+  <button class="toggle-btn" id="btn-gt">Training label</button>
   <button class="toggle-btn" id="btn-seeded">Seeded seg</button>
 
   <div id="opacity-wrap">
@@ -831,6 +832,7 @@ async function loadSubject(idx) {
 
   const subject = subjects[idx];
   const caseLabel = publicCaseLabel(idx);
+  activeSeed = null;
   seededMaskUrl = null;
   showSeeded = false;
   updateNav();
@@ -856,6 +858,7 @@ async function loadSubject(idx) {
 
   try {
     await nv.loadVolumes(volumes);
+    renderSeedMarker();
     const hdr = nv.volumes[0]?.hdr;
     if (hdr) {
       document.getElementById("info-dims").textContent = `${hdr.dims[1]} x ${hdr.dims[2]} x ${hdr.dims[3]} vox`;
@@ -974,7 +977,27 @@ function applySeed(seed) {
   seedMode = false;
   syncButtons();
   updateSeedState();
+  renderSeedMarker();
   setStatus(`Seed placed at voxel (${activeSeed.x}, ${activeSeed.y}, ${activeSeed.z}) for ${publicCaseLabel(currentIdx)}`);
+}
+
+function renderSeedMarker() {
+  if (!nv?.back?.dims) return;
+  nv.createEmptyDrawing();
+  if (activeSeed) {
+    const radius = 2;
+    nv.opts.penSize = 1;
+    nv.setDrawOpacity(1);
+    for (let dz = -radius; dz <= radius; dz++) {
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          if ((dx * dx) + (dy * dy) + (dz * dz) > radius * radius) continue;
+          nv.drawPt(activeSeed.x + dx, activeSeed.y + dy, activeSeed.z + dz, 1);
+        }
+      }
+    }
+  }
+  nv.refreshDrawing(true);
 }
 
 function currentCrop() {
@@ -995,6 +1018,7 @@ function clearSeed() {
   seedMode = false;
   syncButtons();
   updateSeedState();
+  renderSeedMarker();
   setStatus(`Seed cleared for ${subjects.length ? publicCaseLabel(currentIdx) : "current case"}`);
 }
 
@@ -1168,7 +1192,7 @@ function bindInteractiveControls() {
     }
     seedMode = true;
     syncButtons();
-    setStatus("Click in the viewer to place or replace the tumor seed");
+    setStatus("Click image to place seed");
   });
   document.getElementById("btn-clear-seed").addEventListener("click", clearSeed);
   document.getElementById("btn-run-interactive").addEventListener("click", runInteractiveSegmentation);
