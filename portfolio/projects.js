@@ -86,10 +86,6 @@ window.PORTFOLIO={
       [
         "Detailed training report",
         "../reports/mg_best_report.html"
-      ],
-      [
-        "Historical results archive",
-        "../results/reports.html"
       ]
     ],
     "mode": "Historical evaluation",
@@ -110,11 +106,6 @@ window.PORTFOLIO={
         "label": "Training report",
         "url": "../reports/mg_best_report.html",
         "detail": "Detailed model, training configuration, learning curves and evaluation plots."
-      },
-      {
-        "label": "Results archive",
-        "url": "../results/reports.html",
-        "detail": "Existing index of historical run reports."
       }
     ]
   },
