@@ -1,0 +1,144 @@
+{
+  "subjects": [
+    {
+      "id": "1_001",
+      "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_001_image.nii.gz",
+      "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_001_prob.nii.gz",
+      "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_001_mask.nii.gz",
+      "rgb": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_001_rgb.nii.gz",
+      "gt": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_001_mask_gt.nii.gz",
+      "metrics_pred": {
+        "d1_mm": 148.34475708007812,
+        "d2_mm": 52.6993408203125,
+        "d3_mm": 38.40264129638672,
+        "volume_mm3": 40447.0,
+        "sphericity": 0.5723476310880112
+      },
+      "metrics_gt": {
+        "d1_mm": 60.54,
+        "d2_mm": 39.8,
+        "d3_mm": 32.85,
+        "volume_mm3": 24278.0,
+        "sphericity": 0.5
+      },
+      "prediction_method": "Full-volume 1 mm inference in a single pass; no internal crop boundaries.",
+      "focus_mm": [
+        -85.39999389648438,
+        41.890625,
+        -13.109375
+      ]
+    },
+    {
+      "id": "1_002",
+      "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_002_image.nii.gz",
+      "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_002_prob.nii.gz",
+      "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_002_mask.nii.gz",
+      "rgb": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_002_rgb.nii.gz",
+      "gt": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_002_mask_gt.nii.gz",
+      "metrics_pred": {
+        "d1_mm": 29.95657730102539,
+        "d2_mm": 28.2523250579834,
+        "d3_mm": 23.828697204589844,
+        "volume_mm3": 8692.0,
+        "sphericity": 0.8263543129267571
+      },
+      "metrics_gt": {
+        "d1_mm": 29.06,
+        "d2_mm": 28.22,
+        "d3_mm": 19.73,
+        "volume_mm3": 5592.0,
+        "sphericity": 0.63
+      },
+      "prediction_method": "Full-volume 1 mm inference in a single pass; no internal crop boundaries.",
+      "focus_mm": [
+        118.60000610351562,
+        8.090621948242188,
+        0.890625
+      ]
+    },
+    {
+      "id": "1_003",
+      "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_003_image.nii.gz",
+      "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_003_prob.nii.gz",
+      "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_003_mask.nii.gz",
+      "rgb": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_003_rgb.nii.gz",
+      "gt": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_003_mask_gt.nii.gz",
+      "metrics_pred": {
+        "d1_mm": 66.56761169433594,
+        "d2_mm": 38.675079345703125,
+        "d3_mm": 30.58987808227539,
+        "volume_mm3": 19054.0,
+        "sphericity": 0.7277711189398703
+      },
+      "metrics_gt": {
+        "d1_mm": 65.64,
+        "d2_mm": 35.92,
+        "d3_mm": 27.78,
+        "volume_mm3": 12310.0,
+        "sphericity": 0.56
+      },
+      "prediction_method": "Full-volume 1 mm inference in a single pass; no internal crop boundaries.",
+      "focus_mm": [
+        -82.5,
+        50.290626525878906,
+        -44.109375
+      ]
+    },
+    {
+      "id": "1_005",
+      "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_005_image.nii.gz",
+      "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_005_prob.nii.gz",
+      "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_005_mask.nii.gz",
+      "rgb": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_005_rgb.nii.gz",
+      "gt": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_005_mask_gt.nii.gz",
+      "metrics_pred": {
+        "d1_mm": 72.65283203125,
+        "d2_mm": 63.05213165283203,
+        "d3_mm": 49.93743133544922,
+        "volume_mm3": 50507.0,
+        "sphericity": 0.38075695745890104
+      },
+      "metrics_gt": {
+        "d1_mm": 79.49,
+        "d2_mm": 80.75,
+        "d3_mm": 51.44,
+        "volume_mm3": 63875.0,
+        "sphericity": 0.3
+      },
+      "prediction_method": "Full-volume 1 mm inference in a single pass; no internal crop boundaries.",
+      "focus_mm": [
+        -78.99991607666016,
+        40.65156555175781,
+        50.8515625
+      ]
+    },
+    {
+      "id": "1_007",
+      "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_007_image.nii.gz",
+      "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_007_prob.nii.gz",
+      "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_007_mask.nii.gz",
+      "rgb": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_007_rgb.nii.gz",
+      "gt": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_007_mask_gt.nii.gz",
+      "metrics_pred": {
+        "d1_mm": 34.831504821777344,
+        "d2_mm": 28.612096786499023,
+        "d3_mm": 23.33830451965332,
+        "volume_mm3": 8108.0,
+        "sphericity": 0.790790733798243
+      },
+      "metrics_gt": {
+        "d1_mm": 35.89,
+        "d2_mm": 29.33,
+        "d3_mm": 24.91,
+        "volume_mm3": 7991.0,
+        "sphericity": 0.58
+      },
+      "prediction_method": "Full-volume 1 mm inference in a single pass; no internal crop boundaries.",
+      "focus_mm": [
+        -87.96009826660156,
+        27.119659423828125,
+        31.242950439453125
+      ]
+    }
+  ]
+}

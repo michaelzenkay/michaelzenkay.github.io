@@ -16,3 +16,9 @@ DEMO_*.md
 # Local scratch
 *.tmp
 *.log
+
+# Local portfolio bundles and verification
+.local/
+
+# Python build/check bytecode
+__pycache__/

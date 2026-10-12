@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "tumor": {
+    "ready": true,
+    "url": "tumor.html?backend=local-seed&api=https%3A%2F%2Fintseg-test.michaelzenkay.com&manifest=tumor-manifest.json",
+    "mode": "live",
+    "api": "https://intseg-test.michaelzenkay.com"
+  },
+  "heart": {
+    "ready": true,
+    "url": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/heart/index.html?view=portfolio"
+  },
+  "knee": {
+    "ready": true,
+    "url": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/knee/index.html"
+  }
+}

@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ISPY Tumor Segmentation Viewer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #111;
+      color: #ddd;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      user-select: none;
+    }
+
+    #toolbar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding: 7px 12px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #2e2e2e;
+      flex-shrink: 0;
+    }
+
+    #toolbar > * { flex-shrink: 0; }
+    #toolbar { min-height: 46px; }
+    #nav-wrap { display: flex; align-items: center; gap: 4px; }
+    .nav-btn {
+      background: #2a2a2a;
+      color: #bbb;
+      border: 1px solid #444;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      line-height: 1.4;
+    }
+    .nav-btn:hover { background: #333; }
+    .nav-btn.seed-active { background: #6a3a20; color: #ffd7b8; border-color: #9a5a2a; }
+    .nav-btn.seg-run { background: #2a5a2a; color: #d7ffd7; border-color: #4a8a4a; }
+    .nav-btn:disabled,
+    .nav-btn.seg-run:disabled {
+      background: #242424;
+      color: #686868;
+      border-color: #383838;
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
+    #subject-select {
+      background: #222;
+      color: #eee;
+      border: 1px solid #444;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-size: 13px;
+      min-width: 120px;
+    }
+
+    .sep { width: 1px; height: 20px; background: #333; margin: 0 2px; }
+    .toggle-btn,
+    .mip-series-btn {
+      background: #2a2a2a;
+      color: #999;
+      border: 1px solid #444;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .toggle-btn:hover,
+    .mip-series-btn:hover { background: #333; }
+    .toggle-btn.active-rgb  { background: #1a3a1a; color: #8e8; border-color: #3a6a3a; }
+    .toggle-btn.active-pred { background: #3a1a10; color: #f96; border-color: #6a3a20; }
+    .toggle-btn.active-prob { background: #2a1a3a; color: #d9a; border-color: #5a3a7a; }
+    .toggle-btn.active-gt   { background: #10203a; color: #8af; border-color: #204a7a; }
+    .mip-series-btn.active  { background: #183038; color: #9ee7ff; border-color: #2f5968; }
+    .lbl { font-size: 11px; color: #555; }
+
+    #opacity-wrap { display: flex; align-items: center; gap: 5px; }
+    #opacity-slider { width: 80px; accent-color: #888; }
+
+    .seg-tooltip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .seg-tooltip[data-disabled="true"]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      transform: translateX(-50%);
+      z-index: 30;
+      width: max-content;
+      max-width: 220px;
+      padding: 6px 8px;
+      border: 1px solid #454545;
+      border-radius: 4px;
+      background: #202020;
+      color: #d0d0d0;
+      font-size: 11px;
+      line-height: 1.3;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+    .seg-tooltip[data-disabled="true"]:hover::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 3px);
+      transform: translateX(-50%);
+      border-width: 5px 5px 0 5px;
+      border-style: solid;
+      border-color: #454545 transparent transparent transparent;
+      pointer-events: none;
+    }
+    #status { display: block; height: 28px; line-height: 18px; padding: 4px 12px;
+      overflow-x: auto; white-space: nowrap; font-size: 11px; color: #aaa;
+      user-select: text; background: #141414; flex-shrink: 0; }
+
+    #main-layout {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      overflow: hidden;
+    }
+
+    #canvas-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    #gl { width: 100%; height: 100%; display: block; }
+
+    #metrics-bar {
+      padding: 6px 14px; background: #161a16; border-top: 1px solid #1e2a1e;
+      font-size: 12px; color: #d7dde4; display: flex; gap: 28px; flex-shrink: 0;
+      flex-wrap: wrap; align-items: baseline;
+    }
+
+    #mip-panel {
+      width: 360px;
+      max-width: 42vw;
+      background: linear-gradient(180deg, #13171b 0%, #0d1013 100%);
+      border-left: 1px solid #23272b;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      flex-shrink: 0;
+    }
+    #mip-panel.is-hidden { display: none; }
+
+    #mip-head {
+      padding: 12px 12px 8px;
+      border-bottom: 1px solid #1f2328;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    #mip-title { font-size: 13px; color: #d8dee4; font-weight: 600; }
+    #mip-subtitle { font-size: 11px; color: #6f7a84; }
+    #mip-series {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    #mip-focus-wrap {
+      padding: 12px;
+      border-bottom: 1px solid #1f2328;
+      flex-shrink: 0;
+    }
+    #mip-focus-frame {
+      background: #060708;
+      border: 1px solid #1f2328;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 1.1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #mip-focus-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    #mip-focus-caption {
+      font-size: 11px;
+      color: #7d8790;
+      margin-top: 8px;
+    }
+
+    #mip-grid {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      overflow: auto;
+    }
+    .mip-card {
+      background: #0b0d10;
+      border: 1px solid #1f2328;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      text-align: left;
+    }
+    .mip-card.active { border-color: #4f93a6; box-shadow: 0 0 0 1px #4f93a6 inset; }
+    .mip-thumb {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+    .mip-meta {
+      padding: 7px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .mip-view {
+      font-size: 11px;
+      color: #d7dde3;
+      text-transform: capitalize;
+    }
+    .mip-series-label {
+      font-size: 10px;
+      color: #6f7a84;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    #mip-empty {
+      padding: 18px 14px;
+      font-size: 12px;
+      color: #65717b;
+    }
+    #mip-empty.is-hidden { display: none; }
+
+    #metrics-bar {
+      padding: 6px 14px;
+      background: #161a16;
+      border-top: 1px solid #1e2a1e;
+      font-size: 12px;
+      color: #d7dde4;
+      display: flex;
+      gap: 28px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      align-items: baseline;
+    }
+    #metrics-bar .m-label { color: #d7dde4; font-size: 11px; margin-right: 4px; }
+    #metrics-bar .m-pred  { color: #ffe7d6; }
+    #metrics-bar .m-gt    { color: #e6f0ff; }
+    #metrics-bar .m-group { display: flex; flex-direction: column; gap: 2px; }
+    #metrics-bar .m-title {
+      font-size: 10px;
+      color: #f8fafc;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    #tool-bar {
+      padding: 6px 12px;
+      background: #171717;
+      border-top: 1px solid #232323;
+      font-size: 12px;
+      color: #c9d2cb;
+      display: flex;
+      gap: 20px;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      overflow-x: auto;
+      height: 34px;
+      flex-shrink: 0;
+    }
+    #tool-bar > * { flex-shrink: 0; }
+
+    #info-bar {
+      padding: 3px 12px;
+      background: #141414;
+      border-top: 1px solid #222;
+      font-size: 11px;
+      color: #666;
+      display: flex;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    #data-notice {
+      padding: 6px 12px;
+      background: #10151a;
+      border-top: 1px solid #222a31;
+      color: #7e8b96;
+      font-size: 11px;
+      line-height: 1.45;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1080px) {
+      #main-layout { flex-direction: column; }
+      #mip-panel {
+        width: 100%;
+        max-width: none;
+        height: 42vh;
+        border-left: none;
+        border-top: 1px solid #23272b;
+      }
+      #mip-focus-frame { aspect-ratio: 2 / 1; }
+      #mip-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      #mip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .tour-target { outline: 2px solid #79d9ff !important; outline-offset: -2px; box-shadow: inset 0 0 0 2px #79d9ff; }
+    #metrics-bar.tour-target { background: #203440; }
+    #tour-panel {
+      position: fixed; z-index: 1000; width: min(360px, calc(100vw - 24px));
+      max-height: calc(100dvh - 24px); overflow: auto; padding: 18px;
+      background: #17232f; color: #edf5fc; border: 1px solid #79d9ff;
+      border-radius: 12px; box-shadow: 0 12px 40px #0009; user-select: text;
+    }
+    #tour-panel[hidden] { display: none; }
+    #tour-progress { font-size: 12px; color: #92defa; margin-bottom: 8px; }
+    #tour-title { font-size: 18px; margin-bottom: 10px; }
+    #tour-kind { display: inline-block; border: 1px solid #667d90; border-radius: 4px;
+      padding: 2px 6px; font-size: 11px; margin-bottom: 10px; }
+    #tour-copy { font-size: 14px; line-height: 1.5; }
+    #tour-actions { display: flex; gap: 8px; margin-top: 16px; }
+    #tour-actions button { padding: 7px 12px; }
+    #tour-next { margin-left: auto; background: #b0e8ff; color: #10212e; }
+    #tour-panel button:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+  </style>
+</head>
+<body>
+<div id="toolbar" tabindex="0" aria-label="Viewer controls; scroll horizontally on narrow screens">
+  <div id="nav-wrap">
+    <select id="subject-select" aria-label="Case"><option>Loading...</option></select>
+  </div>
+
+  <div class="sep"></div>
+
+  <span class="lbl">base</span>
+  <button class="toggle-btn active-rgb" id="btn-rgb">RGB dynamics</button>
+
+  <div class="sep"></div>
+
+  <span class="lbl">overlay</span>
+  <button class="toggle-btn active-pred" id="btn-pred">Prediction</button>
+  <button class="toggle-btn" id="btn-prob">Prob map</button>
+  <button class="toggle-btn" id="btn-gt">Training label</button>
+  <button class="toggle-btn" id="btn-seeded">Seeded seg</button>
+
+  <div id="opacity-wrap">
+    <span class="lbl">opacity</span>
+    <input type="range" id="opacity-slider" min="0" max="1" step="0.05" value="0.45" />
+  </div>
+
+  <div class="sep"></div>
+
+  <button class="nav-btn" id="btn-place-seed">Place Seed</button>
+  <button class="nav-btn" id="btn-clear-seed">Clear Seed</button>
+  <span class="seg-tooltip" id="seg-run-tooltip" data-disabled="false" data-tip="Requires local GPU inference backend">
+    <button class="nav-btn seg-run" id="btn-run-interactive">Run Interactive Seg</button>
+  </span>
+
+</div>
+
+<div id="main-layout">
+  <div id="canvas-wrap">
+    <canvas id="gl"></canvas>
+  </div>
+
+  <aside id="mip-panel" class="is-hidden">
+    <div id="mip-head">
+      <div>
+        <div id="mip-title">Companion MIPs</div>
+        <div id="mip-subtitle">Fixed-angle gallery</div>
+      </div>
+      <div id="mip-series"></div>
+    </div>
+
+    <div id="mip-focus-wrap">
+      <div id="mip-focus-frame">
+        <img id="mip-focus-image" alt="Selected MIP view" />
+      </div>
+      <div id="mip-focus-caption">--</div>
+    </div>
+
+    <div id="mip-grid"></div>
+    <div id="mip-empty">No companion MIPs available for this subject.</div>
+  </aside>
+</div>
+
+<div id="metrics-bar">
+  <div class="m-group">
+    <span class="m-title">Longest diameter</span>
+    <span><span class="m-label">pred</span><span class="m-pred" id="m-ld-pred">--</span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-ld-gt">--</span></span>
+  </div>
+  <div class="m-group">
+    <span class="m-title">d2 (perp.)</span>
+    <span><span class="m-label">pred</span><span class="m-pred" id="m-d2-pred">--</span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-d2-gt">--</span></span>
+  </div>
+  <div class="m-group">
+    <span class="m-title">d3 (short)</span>
+    <span><span class="m-label">pred</span><span class="m-pred" id="m-d3-pred">--</span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-d3-gt">--</span></span>
+  </div>
+  <div class="m-group">
+    <span class="m-title">Volume</span>
+    <span><span class="m-label">pred</span><span class="m-pred" id="m-vol-pred">--</span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-vol-gt">--</span></span>
+  </div>
+  <div class="m-group">
+    <span class="m-title">Sphericity</span>
+    <span><span class="m-label">pred</span><span class="m-pred" id="m-sph-pred">--</span>
+          &nbsp;<span class="m-label" title="Training label">train</span><span class="m-gt" id="m-sph-gt">--</span></span>
+  </div>
+</div>
+
+<div id="tool-bar" tabindex="0" aria-label="Seed and inference details">
+  <span id="live-state" role="status">Live GPU: checking</span>
+  <span id="tool-state">Seed mode: off</span>
+  <span id="seed-state">Seed: none</span>
+  <span id="run-state">Interactive run: not started</span>
+  <span id="runner-state">Runner target: auto subject header</span>
+</div>
+<div id="status" role="status" aria-live="polite" tabindex="0" aria-label="Viewer status; scroll horizontally for long messages">Loading...</div>
+
+<div id="info-bar">
+  <span id="info-subject">--</span>
+  <span id="info-dims">--</span>
+  <span id="info-overlay">--</span>
+  <span style="margin-left:auto">scroll = slice &nbsp;|&nbsp; &larr;&rarr; = subject</span>
+</div>
+
+<div id="data-notice">
+  Research/demo viewer using public TCIA I-SPY imaging data under CC BY 4.0. Cite The Cancer Imaging Archive and the I-SPY dataset when reusing; not for clinical decision-making.
+</div>
+
+<section id="tour-panel" role="dialog" aria-modal="false" aria-labelledby="tour-title" aria-describedby="tour-copy" hidden>
+  <div id="tour-progress" aria-live="polite"></div>
+  <span id="tour-kind"></span>
+  <h2 id="tour-title" tabindex="-1"></h2>
+  <p id="tour-copy"></p>
+  <div id="tour-actions">
+    <button class="nav-btn" id="tour-skip">Skip tour</button>
+    <button class="nav-btn" id="tour-back">Back</button>
+    <button class="nav-btn" id="tour-next">Next</button>
+  </div>
+</section>
+
+<script type="module">
+import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.50.0/+esm";
+
+const QUERY = new URLSearchParams(location.search);
+const MANIFEST_QUERY_URL = QUERY.get("manifest")
+  ?? "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json";
+const MANIFEST_URL = new URL(MANIFEST_QUERY_URL, window.location.href).href;
+const API_QUERY_BASE = QUERY.get("api");
+const API_BASE = API_QUERY_BASE ?? "http://127.0.0.1:8080";
+const LOCAL_SEED_API = QUERY.get("backend") === "local-seed";
+const IS_LOCAL_PAGE = location.protocol === "file:"
+  || location.hostname === "localhost"
+  || location.hostname === "127.0.0.1";
+const INTERACTIVE_ENABLED = Boolean(API_QUERY_BASE) || IS_LOCAL_PAGE;
+const INTERACTIVE_OFFLINE_MSG = "Interactive seeded segmentation requires a local GPU inference backend; public backend is offline.";
+const INITIAL_STUDY_UID = QUERY.get("study_uid") ?? "";
+const INITIAL_RUNNER_CASE_DIR = QUERY.get("runner_case_dir") ?? "";
+const ACTOR_TOKEN = QUERY.get("token") ?? "patient-demo";
+
+const COLORMAP_PRED = "warm";
+const COLORMAP_PROB = "hot";
+const COLORMAP_GT = "blue";
+const COLORMAP_SEEDED = "red";
+const MIP_VIEW_ORDER = ["axial", "coronal", "sagittal", "oblique_045", "oblique_135"];
+function publicCaseLabel(idx) {
+  return `Case ${idx + 1}`;
+}
+
+const MIP_SERIES_PREFERENCE = [
+  "tumor_overlay",
+  "analysis_mask_overlay",
+  "enhancement",
+  "peak",
+  "post",
+  "pre",
+];
+const MIP_SERIES_LABELS = {
+  tumor_overlay: "Tumor overlay",
+  analysis_mask_overlay: "Analysis mask overlay",
+  enhancement: "Enhancement",
+  peak: "Peak",
+  post: "Post",
+  pre: "Pre",
+};
+let nv = null;
+let manifest = null;
+let subjects = [];
+let currentIdx = 0;
+let showRgb = true;
+let showPred = true;
+let showProb = false;
+let showGt = false;
+let showSeeded = false;
+let loading = false;
+let seedMode = false;
+let currentCrosshair = { x: 112, y: 94, z: 51 };
+let activeSeed = null;
+let seededMaskUrl = null;
+let inferenceBusy = false;
+let liveState = null;
+let cropBoundary = null;
+let cropPreviewVersion = 0;
+let overlayVersion = 0;
+let runtimeStudyUID = INITIAL_STUDY_UID;
+let runnerCaseDir = INITIAL_RUNNER_CASE_DIR;
+let currentMipSeries = null;
+let currentMipIndex = 0;
+const mipManifestCache = new Map();
+
+function runnerCaseIdFromPath(path) {
+  if (!path) return "";
+  const normalized = String(path).replace(/[\\/]+$/, "");
+  const parts = normalized.split(/[\\/]/).filter(Boolean);
+  return parts.length ? parts[parts.length - 1] : "";
+}
+
+function subjectIndexForCaseId(caseID) {
+  if (!caseID) return -1;
+  return subjects.findIndex((s) => String(s.id).toLowerCase() === String(caseID).toLowerCase());
+}
+
+function syncSubjectToRunnerCase() {
+  const runnerCaseID = runnerCaseIdFromPath(runnerCaseDir);
+  if (!runnerCaseID) return false;
+  const idx = subjectIndexForCaseId(runnerCaseID);
+  if (idx < 0 || idx === currentIdx) return false;
+  currentIdx = idx;
+  return true;
+}
+
+async function init() {
+  if (LOCAL_SEED_API) {
+    document.getElementById('live-state').textContent = 'Connecting to GPU...';
+    checkAvailability();
+  }
+  nv = new Niivue({ backColor: [0.07, 0.07, 0.07, 1], show3Dcrosshair: true, isColorbar: false });
+  await nv.attachTo("gl");
+  nv.addColormap('crop-boundary', {R:[0,0], G:[255,255], B:[255,255], A:[0,255], I:[0,255]});
+  nv.setSliceType(nv.sliceTypeMultiplanar);
+  nv.onLocationChange = (data) => {
+    if (data?.vox && data.vox.length >= 3) {
+      currentCrosshair = {
+        x: Math.round(data.vox[0]),
+        y: Math.round(data.vox[1]),
+        z: Math.round(data.vox[2]),
+      };
+      if (seedMode) {
+        applySeed(currentCrosshair);
+      }
+    }
+  };
+
+  manifest = await fetchManifest();
+  if (!manifest) return;
+  subjects = manifest.subjects ?? [];
+  syncSubjectToRunnerCase();
+  populateSelect();
+  bindInteractiveControls();
+  if (!LOCAL_SEED_API) document.getElementById('live-state').textContent = INTERACTIVE_ENABLED ? 'Live GPU: legacy endpoint' : 'Saved demo';
+  await loadSubject(currentIdx);
+}
+
+async function fetchManifest() {
+  setStatus("Fetching manifest...");
+  try {
+    const r = await fetch(MANIFEST_URL);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    setStatus(`${data.subjects.length} cases`);
+    return data;
+  } catch (e) {
+    setStatus(`Error: ${e.message}`);
+    return null;
+  }
+}
+
+function populateSelect() {
+  const sel = document.getElementById("subject-select");
+  sel.innerHTML = "";
+  for (const [idx, s] of subjects.entries()) {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = publicCaseLabel(idx);
+    sel.appendChild(opt);
+  }
+  sel.addEventListener("change", () => {
+    const idx = subjects.findIndex((x) => x.id === sel.value);
+    if (idx >= 0) loadSubject(idx);
+  });
+}
+
+function updateNav() {
+  document.getElementById("subject-select").value = subjects[currentIdx].id;
+}
+
+function manifestBaseUrl() {
+  return new URL(".", MANIFEST_URL).href;
+}
+
+function resolveAssetUrl(path, baseUrl) {
+  if (!path) return null;
+  const normalized = String(path).replace(/\\/g, "/");
+  if (/^https?:\/\//i.test(normalized) || normalized.startsWith("data:")) return normalized;
+  if (/^[a-zA-Z]:\//.test(normalized)) return normalized;
+  return new URL(normalized, baseUrl).href;
+}
+
+function viewLabel(view) {
+  if (!view) return "--";
+  const text = String(view);
+  const sweepMatch = text.match(/^sweep_(\d+(?:\.\d+)?)$/i);
+  if (sweepMatch) return `${Number(sweepMatch[1])} deg`;
+  return text.replace(/_/g, " ");
+}
+
+function seriesLabel(series) {
+  return MIP_SERIES_LABELS[series] ?? series.replace(/_/g, " ");
+}
+
+function sortSeriesNames(names) {
+  return [...names].sort((a, b) => {
+    const ai = MIP_SERIES_PREFERENCE.indexOf(a);
+    const bi = MIP_SERIES_PREFERENCE.indexOf(b);
+    const ao = ai >= 0 ? ai : MIP_SERIES_PREFERENCE.length + 1;
+    const bo = bi >= 0 ? bi : MIP_SERIES_PREFERENCE.length + 1;
+    return ao - bo || a.localeCompare(b);
+  });
+}
+
+function chooseDefaultMipSeries(seriesNames) {
+  const prefs = [];
+  if (showGt) prefs.push("analysis_mask_overlay");
+  if (showPred) prefs.push("tumor_overlay");
+  prefs.push(...MIP_SERIES_PREFERENCE);
+  for (const pref of prefs) {
+    if (seriesNames.includes(pref)) return pref;
+  }
+  return seriesNames[0] ?? null;
+}
+
+function groupMipEntries(payload) {
+  const grouped = {};
+  for (const entry of payload.entries ?? []) {
+    if (!grouped[entry.series]) grouped[entry.series] = [];
+    grouped[entry.series].push(entry);
+  }
+  for (const entries of Object.values(grouped)) {
+    entries.sort((a, b) => {
+      const ai = MIP_VIEW_ORDER.indexOf(a.view);
+      const bi = MIP_VIEW_ORDER.indexOf(b.view);
+      const ao = ai >= 0 ? ai : MIP_VIEW_ORDER.length + 1;
+      const bo = bi >= 0 ? bi : MIP_VIEW_ORDER.length + 1;
+      return ao - bo || String(a.view).localeCompare(String(b.view));
+    });
+  }
+  return grouped;
+}
+
+function getSubjectMipManifestPath(subject) {
+  return (
+    subject.mip_manifest
+    ?? subject.prepeakpost_mip_manifest_path
+    ?? subject.first3_mip_manifest_path
+    ?? null
+  );
+}
+
+async function loadSubjectMipManifest(subject) {
+  const relPath = getSubjectMipManifestPath(subject);
+  if (!relPath) return null;
+  const manifestUrl = resolveAssetUrl(relPath, manifestBaseUrl());
+  if (!manifestUrl) return null;
+  if (mipManifestCache.has(manifestUrl)) return mipManifestCache.get(manifestUrl);
+
+  const promise = fetch(manifestUrl)
+    .then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then((payload) => ({ ...payload, __manifestUrl: manifestUrl }));
+  mipManifestCache.set(manifestUrl, promise);
+  return promise;
+}
+
+function setMipUnavailable(message) {
+  document.getElementById("mip-panel").classList.add("is-hidden");
+  document.getElementById("mip-series").innerHTML = "";
+  document.getElementById("mip-grid").innerHTML = "";
+  document.getElementById("mip-empty").textContent = message;
+  document.getElementById("mip-empty").classList.remove("is-hidden");
+  document.getElementById("mip-focus-image").removeAttribute("src");
+  document.getElementById("mip-focus-caption").textContent = "--";
+}
+
+function renderMipSeriesButtons(seriesNames, grouped, payload) {
+  const wrap = document.getElementById("mip-series");
+  wrap.innerHTML = "";
+  for (const series of sortSeriesNames(seriesNames)) {
+    const btn = document.createElement("button");
+    btn.className = "mip-series-btn" + (series === currentMipSeries ? " active" : "");
+    btn.textContent = seriesLabel(series);
+    btn.addEventListener("click", () => {
+      currentMipSeries = series;
+      currentMipIndex = 0;
+      renderMipSeriesButtons(seriesNames, grouped, payload);
+      renderMipEntries(grouped[currentMipSeries] ?? [], payload);
+    });
+    wrap.appendChild(btn);
+  }
+}
+
+function renderMipEntries(entries, payload) {
+  const panel = document.getElementById("mip-panel");
+  const grid = document.getElementById("mip-grid");
+  const empty = document.getElementById("mip-empty");
+  const focusImage = document.getElementById("mip-focus-image");
+  const focusCaption = document.getElementById("mip-focus-caption");
+  const mipBaseUrl = new URL(".", payload.__manifestUrl).href;
+
+  if (!entries.length) {
+    panel.classList.remove("is-hidden");
+    grid.innerHTML = "";
+    empty.textContent = "No rendered views for this MIP series.";
+    empty.classList.remove("is-hidden");
+    focusImage.removeAttribute("src");
+    focusCaption.textContent = "--";
+    return;
+  }
+
+  if (currentMipIndex >= entries.length) currentMipIndex = 0;
+  const selected = entries[currentMipIndex];
+  const selectedUrl = resolveAssetUrl(selected.path, mipBaseUrl);
+
+  panel.classList.remove("is-hidden");
+  empty.classList.add("is-hidden");
+  focusImage.src = selectedUrl;
+  focusCaption.textContent =
+    `${seriesLabel(selected.series)}  · ${viewLabel(selected.view)}  · ${payload.mode ?? "MIP"}`;
+
+  grid.innerHTML = "";
+  for (const [idx, entry] of entries.entries()) {
+    const button = document.createElement("button");
+    button.className = "mip-card" + (idx === currentMipIndex ? " active" : "");
+    button.type = "button";
+    button.addEventListener("click", () => {
+      currentMipIndex = idx;
+      renderMipEntries(entries, payload);
+    });
+
+    const img = document.createElement("img");
+    img.className = "mip-thumb";
+    img.loading = "lazy";
+    img.alt = `${seriesLabel(entry.series)} ${viewLabel(entry.view)}`;
+    img.src = resolveAssetUrl(entry.path, mipBaseUrl);
+    button.appendChild(img);
+
+    const meta = document.createElement("div");
+    meta.className = "mip-meta";
+
+    const view = document.createElement("div");
+    view.className = "mip-view";
+    view.textContent = viewLabel(entry.view);
+    meta.appendChild(view);
+
+    const series = document.createElement("div");
+    series.className = "mip-series-label";
+    series.textContent = seriesLabel(entry.series);
+    meta.appendChild(series);
+
+    button.appendChild(meta);
+    grid.appendChild(button);
+  }
+}
+
+async function refreshMipGallery() {
+  if (!subjects.length) {
+    setMipUnavailable("No subjects loaded.");
+    return;
+  }
+  const subject = subjects[currentIdx];
+  const relPath = getSubjectMipManifestPath(subject);
+  if (!relPath) {
+    setMipUnavailable("No companion MIPs available for this subject.");
+    return;
+  }
+
+  try {
+    const payload = await loadSubjectMipManifest(subject);
+    const grouped = groupMipEntries(payload);
+    const seriesNames = Object.keys(grouped);
+    if (!seriesNames.length) {
+      setMipUnavailable("MIP manifest loaded, but it contains no entries.");
+      return;
+    }
+
+    if (!currentMipSeries || !grouped[currentMipSeries]) {
+      currentMipSeries = chooseDefaultMipSeries(seriesNames);
+      currentMipIndex = 0;
+    }
+
+    document.getElementById("mip-title").textContent = "Companion MIPs";
+    document.getElementById("mip-subtitle").textContent =
+      `${publicCaseLabel(currentIdx)}  · ${payload.mode ?? "prepeakpost"}  · ${payload.label_kind ?? "none"}`;
+
+    renderMipSeriesButtons(seriesNames, grouped, payload);
+    renderMipEntries(grouped[currentMipSeries] ?? [], payload);
+  } catch (e) {
+    console.error(e);
+    setMipUnavailable(`Unable to load MIPs: ${e.message}`);
+  }
+}
+
+function overlayChoice(subject) {
+  if (showSeeded && seededMaskUrl) return { url: seededMaskUrl, map: COLORMAP_SEEDED };
+  if (showGt && subject.gt) return { file: subject.gt, map: COLORMAP_GT };
+  if (showProb && subject.pred) return { file: subject.pred, map: COLORMAP_PROB };
+  if (showPred && subject.pred_binary) return { file: subject.pred_binary, map: COLORMAP_PRED };
+  return null;
+}
+
+async function loadSubject(idx, preserveSeed = false) {
+  if (loading || inferenceBusy) return;
+  loading = true;
+  overlayVersion++;
+  currentIdx = idx;
+  currentMipSeries = null;
+  currentMipIndex = 0;
+
+  const subject = subjects[idx];
+  const caseLabel = publicCaseLabel(idx);
+  document.getElementById('btn-pred').title = subject.prediction_method || 'Saved model prediction';
+  if (!preserveSeed) {
+    cropPreviewVersion++;
+    cropBoundary = null;
+    activeSeed = null;
+    if (seededMaskUrl?.startsWith('blob:')) URL.revokeObjectURL(seededMaskUrl);
+    seededMaskUrl = null;
+    showSeeded = false;
+  }
+  const openingPosition = preserveSeed ? Array.from(nv.scene.crosshairPos) : null;
+  updateNav();
+  updateRunnerState();
+  updateSeedState();
+  syncButtons();
+  setStatus(`Loading ${caseLabel}...`);
+  document.getElementById("info-subject").textContent = caseLabel;
+  if (!preserveSeed) document.getElementById("run-state").textContent = `Interactive run: not started for ${caseLabel}`;
+
+  const baseFile = (showRgb && subject.rgb) ? subject.rgb : subject.image;
+  const ov = overlayChoice(subject);
+  const volumes = [{
+    url: resolveAssetUrl(baseFile, manifestBaseUrl()),
+    colormap: "gray",
+    opacity: 1.0,
+  }];
+  if (ov) {
+    volumes.push({
+      url: ov.url || resolveAssetUrl(ov.file, manifestBaseUrl()),
+      name: ov.url ? 'seeded-mask.nii.gz' : undefined,
+      colormap: ov.map,
+      opacity: parseFloat(document.getElementById("opacity-slider").value),
+    });
+  }
+
+  try {
+    await nv.loadVolumes(volumes);
+    const focus = subject.focus_mm;
+    const position = openingPosition || (Array.isArray(focus) && focus.length === 3 && focus.every(Number.isFinite)
+      ? Array.from(nv.mm2frac(focus, 0, true)) : [0.5, 0.5, 0.5]);
+    nv.scene.crosshairPos = position.map(value => Math.max(0, Math.min(1, value)));
+    nv.createOnLocationChange();
+    nv.drawScene();
+    if (showSeeded && cropBoundary) nv.addVolume(cropBoundary);
+    renderSeedMarker();
+    const hdr = nv.volumes[0]?.hdr;
+    if (hdr) {
+      document.getElementById("info-dims").textContent = `${hdr.dims[1]} x ${hdr.dims[2]} x ${hdr.dims[3]} vox`;
+    }
+    updateOverlayInfo();
+    updateMetrics(subject);
+    await refreshMipGallery();
+    setStatus(caseLabel);
+  } catch (e) {
+    console.error(e);
+    setStatus(`Load error: ${e.message}`);
+    setMipUnavailable("Companion MIPs unavailable because the subject failed to load.");
+  }
+  loading = false;
+  syncButtons();
+}
+
+async function stepSubject(delta) {
+  const next = (currentIdx + delta + subjects.length) % subjects.length;
+  await loadSubject(next);
+}
+
+async function refreshBase() {
+  if (!subjects.length) return;
+  await loadSubject(currentIdx, true);
+}
+
+async function refreshOverlay() {
+  const version = ++overlayVersion;
+  if (!subjects.length || loading) return;
+  while (nv.volumes.length > 1) nv.removeVolume(nv.volumes[1]);
+  const subject = subjects[currentIdx];
+  const ov = overlayChoice(subject);
+  if (ov) {
+    const img = await NVImage.loadFromUrl({
+      url: ov.url || resolveAssetUrl(ov.file, manifestBaseUrl()),
+      colormap: ov.map,
+      name: ov.url ? 'seeded-mask.nii.gz' : undefined,
+      opacity: parseFloat(document.getElementById("opacity-slider").value),
+    });
+    if (version !== overlayVersion || loading) return;
+    nv.addVolume(img);
+  }
+  if (showSeeded && cropBoundary && !nv.volumes.includes(cropBoundary)) nv.addVolume(cropBoundary);
+  updateOverlayInfo();
+}
+
+function updateOverlayInfo() {
+  const base = showRgb ? "RGB" : "grayscale";
+  const overlay = showSeeded ? "Seeded seg (red)" : showGt ? "Training label (blue)" : showProb ? "Prob map (hot)" : showPred ? "Pred (orange)" : "none";
+  document.getElementById("info-overlay").textContent = `Base: ${base} | Overlay: ${overlay}`;
+}
+
+function syncButtons() {
+  if (LOCAL_SEED_API) {
+    const supported = !liveState?.case_ids || liveState.case_ids.includes(subjects[currentIdx]?.id);
+    const unavailable = liveState && !['available', 'busy'].includes(liveState.state);
+    document.getElementById('btn-run-interactive').disabled = inferenceBusy || loading || !activeSeed || !!unavailable || !supported;
+    document.getElementById('btn-run-interactive').title = !supported ? 'Live inference is not configured for this case; saved results remain available.' : '';
+  }
+  document.getElementById("btn-rgb").classList.toggle("active-rgb", showRgb);
+  document.getElementById("btn-pred").classList.toggle("active-pred", showPred);
+  document.getElementById("btn-prob").classList.toggle("active-prob", showProb);
+  document.getElementById("btn-gt").classList.toggle("active-gt", showGt);
+  document.getElementById("btn-seeded").classList.toggle("active-gt", showSeeded);
+  document.getElementById("btn-seeded").disabled = !seededMaskUrl;
+  document.getElementById("btn-place-seed").classList.toggle("seed-active", INTERACTIVE_ENABLED && seedMode);
+  document.getElementById("tool-state").textContent = INTERACTIVE_ENABLED
+    ? `Seed mode: ${seedMode ? "armed" : "off"}`
+    : "Seed mode: local backend required";
+}
+
+function setStatus(msg) {
+  document.getElementById("status").textContent = msg;
+}
+
+function setRunState(msg) {
+  document.getElementById("run-state").textContent = msg;
+}
+
+function updateRunnerState() {
+  const runnerCaseID = runnerCaseIdFromPath(runnerCaseDir);
+  const subjectID = subjects[currentIdx]?.id ?? "";
+  if (!runnerCaseDir) {
+    document.getElementById("runner-state").textContent = "Runner target: auto subject header";
+    return;
+  }
+  if (runnerCaseID && subjectID && runnerCaseID.toLowerCase() !== String(subjectID).toLowerCase()) {
+    document.getElementById("runner-state").textContent = `Runner target: ${runnerCaseID} (view mismatch)`;
+    return;
+  }
+  document.getElementById("runner-state").textContent = `Runner target: ${runnerCaseDir}`;
+}
+
+function updateMetrics(subject) {
+  const fmtMm = (v) => (v != null ? `${v.toFixed(1)} mm` : "--");
+  const fmtCc = (v) => (v != null ? `${(v / 1000).toFixed(2)} cm3` : "--");
+  const fmtSph = (v) => (v != null ? v.toFixed(3) : "--");
+  const p = subject.metrics_pred ?? {};
+  const g = subject.metrics_gt ?? {};
+  document.getElementById("m-ld-pred").textContent = fmtMm(p.d1_mm);
+  document.getElementById("m-ld-gt").textContent = fmtMm(g.d1_mm);
+  document.getElementById("m-d2-pred").textContent = fmtMm(p.d2_mm);
+  document.getElementById("m-d2-gt").textContent = fmtMm(g.d2_mm);
+  document.getElementById("m-d3-pred").textContent = fmtMm(p.d3_mm);
+  document.getElementById("m-d3-gt").textContent = fmtMm(g.d3_mm);
+  document.getElementById("m-vol-pred").textContent = fmtCc(p.volume_mm3);
+  document.getElementById("m-vol-gt").textContent = fmtCc(g.volume_mm3);
+  document.getElementById("m-sph-pred").textContent = fmtSph(p.sphericity);
+  document.getElementById("m-sph-gt").textContent = fmtSph(g.sphericity);
+}
+
+function discardSeededResult() {
+  const wasVisible = showSeeded;
+  if (seededMaskUrl?.startsWith('blob:')) URL.revokeObjectURL(seededMaskUrl);
+  seededMaskUrl = null;
+  showSeeded = false;
+  setRunState('Interactive run: not started for current seed');
+  if (wasVisible) refreshOverlay();
+  syncButtons();
+}
+
+function applySeed(seed) {
+  discardSeededResult();
+  activeSeed = { x: seed.x, y: seed.y, z: seed.z, space: "voxel" };
+  seedMode = false;
+  syncButtons();
+  updateSeedState();
+  renderSeedMarker();
+  setStatus(`Seed placed for ${publicCaseLabel(currentIdx)}`);
+  updateCropBoundary();
+}
+
+async function updateCropBoundary() {
+  const version = ++cropPreviewVersion;
+  if (cropBoundary && nv.volumes.includes(cropBoundary)) nv.removeVolume(cropBoundary);
+  cropBoundary = null;
+  if (!LOCAL_SEED_API || !activeSeed) return;
+  let url;
+  try {
+    const response = await fetch(`${API_BASE.replace(/\/+$/, '')}/api/v1/crop-world`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({case_id:subjects[currentIdx].id, seed_mm:seedWorldMM()}),
+      signal:AbortSignal.timeout(10000),
+    });
+    if (!response.ok) throw new Error(await response.text());
+    if (response.headers.get('X-API-Version') !== '1') throw new Error('Expected seed API v1');
+    url = URL.createObjectURL(await response.blob());
+    const boundary = await NVImage.loadFromUrl({url, name:'crop-boundary.nii.gz', colormap:'crop-boundary',
+      opacity:0.8, cal_min:0, cal_max:1});
+    if (version !== cropPreviewVersion) return;
+    cropBoundary = boundary;
+    if (!loading && showSeeded) nv.addVolume(boundary);
+    setStatus('Crop boundary ready; shown only with Seeded seg. Outside that boundary is not evaluated.');
+  } catch (error) {
+    if (version === cropPreviewVersion) setStatus(`Crop boundary unavailable: ${error.message}`);
+  } finally {if (url) URL.revokeObjectURL(url);}
+}
+
+function renderSeedMarker() {
+  if (!nv?.back?.dims) return;
+  nv.createEmptyDrawing();
+  if (activeSeed) {
+    // Location events and drawing voxels both use Niivue's display/RAS grid.
+    const point = [activeSeed.x, activeSeed.y, activeSeed.z];
+    const radius = 2;
+    nv.opts.penSize = 1;
+    nv.setDrawOpacity(1);
+    for (let dz = -radius; dz <= radius; dz++) {
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          if ((dx * dx) + (dy * dy) + (dz * dz) > radius * radius) continue;
+          const p = [point[0] + dx, point[1] + dy, point[2] + dz];
+          if (p.every((v, i) => v >= 0 && v < nv.back.dims[i + 1])) nv.drawPt(...p, 1);
+        }
+      }
+    }
+  }
+  nv.refreshDrawing(true);
+}
+
+function updateSeedState() {
+  if (activeSeed) {
+    document.getElementById("seed-state").textContent = "Seed placed";
+  } else {
+    document.getElementById("seed-state").textContent = "Seed: none";
+  }
+}
+
+function clearSeed() {
+  cropPreviewVersion++;
+  if (cropBoundary && nv.volumes.includes(cropBoundary)) nv.removeVolume(cropBoundary);
+  cropBoundary = null;
+  activeSeed = null;
+  seedMode = false;
+  discardSeededResult();
+  syncButtons();
+  updateSeedState();
+  renderSeedMarker();
+  setStatus(`Seed cleared for ${subjects.length ? publicCaseLabel(currentIdx) : "current case"}`);
+}
+
+function buildDemoDICOM() {
+  const bytes = new Uint8Array(132);
+  bytes.set([68, 73, 67, 77], 128);
+  return bytes;
+}
+
+async function ensureInteractiveStudy() {
+  if (runtimeStudyUID) {
+    const existing = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/studies/${encodeURIComponent(runtimeStudyUID)}`, {
+      headers: { "Authorization": `Bearer ${ACTOR_TOKEN}` },
+    });
+    if (existing.ok) return runtimeStudyUID;
+    if (existing.status !== 404) {
+      const body = await existing.json().catch(() => null);
+      throw new Error(body?.error?.message || `study lookup failed with HTTP ${existing.status}`);
+    }
+  }
+
+  setStatus("Bootstrapping demo study on local API...");
+  const createRes = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/upload-sessions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${ACTOR_TOKEN}`,
+    },
+    body: JSON.stringify({ expires_in_minutes: 30, max_bytes: 1024 * 1024 }),
+  });
+  const createBody = await createRes.json().catch(() => null);
+  if (!createRes.ok) {
+    throw new Error(createBody?.error?.message || `upload bootstrap failed with HTTP ${createRes.status}`);
+  }
+
+  const sessionId = createBody?.session_id;
+  const uploadURL = createBody?.upload_url;
+  const uploadToken = uploadURL ? new URL(uploadURL).searchParams.get("token") : null;
+  if (!sessionId || !uploadToken) {
+    throw new Error("upload bootstrap response missing session id or token");
+  }
+
+  const objectId = `demo-${Date.now()}`;
+  const uploadRes = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/upload-sessions/${encodeURIComponent(sessionId)}/objects/${encodeURIComponent(objectId)}`, {
+    method: "PUT",
+    headers: { "X-Upload-Token": uploadToken },
+    body: buildDemoDICOM(),
+  });
+  const uploadBody = await uploadRes.json().catch(() => null);
+  if (!uploadRes.ok) {
+    throw new Error(uploadBody?.error?.message || `demo DICOM upload failed with HTTP ${uploadRes.status}`);
+  }
+
+  const finalizeRes = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/upload-sessions/${encodeURIComponent(sessionId)}/finalize`, {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${ACTOR_TOKEN}` },
+  });
+  const finalizeBody = await finalizeRes.json().catch(() => null);
+  if (!finalizeRes.ok) {
+    throw new Error(finalizeBody?.error?.message || `study finalize failed with HTTP ${finalizeRes.status}`);
+  }
+
+  runtimeStudyUID = finalizeBody?.study_uids?.[0] ?? "";
+  if (!runtimeStudyUID) {
+    throw new Error("study finalize response missing study uid");
+  }
+  return runtimeStudyUID;
+}
+
+async function addReturnedMaskOverlay(artifacts) {
+  const maskArtifact = Array.isArray(artifacts) ? artifacts.find((a) => a.kind === "mask" && a.url) : null;
+  if (!maskArtifact) {
+    return { loaded: false, reason: "no mask artifact returned", url: null };
+  }
+  seededMaskUrl = maskArtifact.url.startsWith("http") ? maskArtifact.url : `${API_BASE.replace(/\/+$/, "")}${maskArtifact.url}`;
+  showSeeded = true;
+  showPred = false;
+  showProb = false;
+  showGt = false;
+  syncButtons();
+  try {
+    await refreshOverlay();
+    return { loaded: true, reason: null, url: seededMaskUrl };
+  } catch (err) {
+    console.error("Seeded seg load failed", err);
+    return { loaded: false, reason: err?.message || String(err), url: seededMaskUrl };
+  }
+}
+
+function seedWorldMM() {
+  const frac = nv.vox2frac([activeSeed.x, activeSeed.y, activeSeed.z]);
+  return Array.from(nv.frac2mm(frac, 0, true)).slice(0, 3);
+}
+
+async function checkAvailability() {
+  try {
+    const response = await fetch(`${API_BASE.replace(/\/+$/, '')}/health`, {cache:'no-store', signal:AbortSignal.timeout(4000)});
+    if (!response.ok) throw new Error('Unavailable');
+    if (response.headers.get('X-API-Version') !== '1') throw new Error('Expected seed API v1');
+    const body = await response.json();
+    liveState = {...body, state:body.state || (body.ready ? 'available' : 'offline')};
+  } catch (_) { liveState = {state:'offline'}; }
+  const labels = {available:'Live GPU available', busy:`Live GPU busy (${liveState.queued || 0} waiting)`,
+    paused:'Live GPU paused - saved results available', offline:'Live GPU unavailable - saved results available'};
+  document.getElementById('live-state').textContent = labels[liveState.state] || labels.offline;
+  syncButtons();
+  setTimeout(checkAvailability, 5000);
+}
+
+async function runLocalSeedSegmentation() {
+  if (inferenceBusy || loading) return;
+  if (!activeSeed) { setStatus('Place a seed before running interactive segmentation'); return; }
+  discardSeededResult();
+  const controls = Array.from(document.querySelectorAll('#toolbar button, #toolbar input, #toolbar select'));
+  const disabled = controls.map(el => el.disabled);
+  inferenceBusy = true;
+  seedMode = false;
+  controls.forEach(el => { el.disabled = true; });
+  const started = performance.now();
+  try {
+    setRunState('Interactive run: queued / running (queue wait limited to 10 seconds)');
+    const response = await fetch(`${API_BASE.replace(/\/+$/, '')}/api/v1/segment-world`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({case_id: subjects[currentIdx].id, seed_mm: seedWorldMM()}),
+      signal: AbortSignal.timeout(60000),
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(typeof body.detail === 'string' ? body.detail : `Service unavailable (HTTP ${response.status})`);
+    }
+    if (response.headers.get('X-API-Version') !== '1') throw new Error('Expected seed API v1');
+    const url = URL.createObjectURL(await response.blob());
+    if (seededMaskUrl?.startsWith('blob:')) URL.revokeObjectURL(seededMaskUrl);
+    seededMaskUrl = url;
+    showSeeded = true; showPred = false; showProb = false; showGt = false;
+    await refreshOverlay();
+    const elapsed = Math.round(performance.now() - started);
+    setRunState(`Interactive run: Seeded seg loaded in ${elapsed} ms; ${response.headers.get('X-Mask-Voxels')} voxels`);
+    setStatus('Local mask loaded. Measurements below remain the saved prediction / training-label measurements.');
+  } catch (error) {
+    setRunState('Interactive run: unavailable; saved results remain usable');
+    setStatus(`Live inference: ${error.message}. Use Prediction, Prob map, or Training label; no saved results were removed.`);
+  } finally {
+    inferenceBusy = false;
+    controls.forEach((el, i) => { el.disabled = disabled[i]; });
+    syncButtons();
+  }
+}
+
+async function runInteractiveSegmentation() {
+  if (LOCAL_SEED_API) return runLocalSeedSegmentation();
+  if (!INTERACTIVE_ENABLED) {
+    setRunState("Interactive run: offline on public site");
+    setStatus(INTERACTIVE_OFFLINE_MSG);
+    return;
+  }
+  if (!subjects.length) return;
+  if (syncSubjectToRunnerCase()) {
+    updateNav();
+    updateRunnerState();
+    await loadSubject(currentIdx);
+  }
+  if (!activeSeed) {
+    setStatus("Place a seed before running interactive segmentation");
+    return;
+  }
+  const subject = subjects[currentIdx];
+  const caseLabel = publicCaseLabel(currentIdx);
+  try {
+    const studyUID = await ensureInteractiveStudy();
+    const payload = {
+      study_uid: studyUID,
+      runner_case_dir: runnerCaseDir || undefined,
+      seed: activeSeed,
+      crop_size: [96, 96, 96],
+      mode: "local_crop",
+    };
+    setStatus(`Running interactive segmentation for ${caseLabel}...`);
+    setRunState(`Interactive run: running on ${caseLabel}`);
+    const res = await fetch(`${API_BASE.replace(/\/+$/, "")}/api/v1/ai/tumor-segmentation/interactive`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${ACTOR_TOKEN}`,
+        "X-Case-Id": subject.id,
+      },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body?.error?.message || `HTTP ${res.status}`);
+    const m = body?.metadata?.metrics || {};
+    document.getElementById("m-ld-pred").textContent = m.d1_mm != null ? `${Number(m.d1_mm).toFixed(1)} mm` : "--";
+    document.getElementById("m-d2-pred").textContent = m.d2_mm != null ? `${Number(m.d2_mm).toFixed(1)} mm` : "--";
+    document.getElementById("m-d3-pred").textContent = m.d3_mm != null ? `${Number(m.d3_mm).toFixed(1)} mm` : "--";
+    document.getElementById("m-vol-pred").textContent = m.volume_mm3 != null ? `${(Number(m.volume_mm3) / 1000).toFixed(2)} cm3` : "--";
+    document.getElementById("m-sph-pred").textContent = m.sphericity != null ? Number(m.sphericity).toFixed(3) : "--";
+    const responseCaseID = body?.metadata?.case_id || runnerCaseIdFromPath(body?.metadata?.runner_case_dir);
+    const responseIdx = subjectIndexForCaseId(responseCaseID);
+    if (responseIdx >= 0 && responseIdx !== currentIdx) {
+      currentIdx = responseIdx;
+      updateNav();
+      await loadSubject(currentIdx);
+    }
+    const maskResult = await addReturnedMaskOverlay(body.artifacts);
+    currentMipSeries = null;
+    await refreshMipGallery();
+    const activeCaseLabel = subjects[currentIdx] ? publicCaseLabel(currentIdx) : "current case";
+    updateRunnerState();
+    if (maskResult.loaded) {
+      setRunState(`Interactive run: ${body.job_id || "complete"} on ${activeCaseLabel} (Seeded seg loaded)`);
+      setStatus(`Interactive segmentation complete for ${activeCaseLabel}; Seeded seg loaded`);
+    } else {
+      setRunState(`Interactive run: ${body.job_id || "complete"} on ${activeCaseLabel} (no Seeded seg loaded)`);
+      setStatus(`Interactive segmentation complete for ${activeCaseLabel}, but Seeded seg did not load: ${maskResult.reason}`);
+      console.warn("Interactive segmentation mask artifact issue", { maskResult, artifacts: body.artifacts, response: body });
+    }
+  } catch (err) {
+    setRunState(`Interactive run: failed on ${caseLabel}`);
+    const msg = err?.message === "Failed to fetch"
+      ? `Interactive segmentation error: backend not reachable at ${API_BASE}`
+      : `Interactive segmentation error: ${err.message}`;
+    setStatus(msg);
+    console.error(err);
+  }
+}
+
+function bindInteractiveControls() {
+  document.getElementById("btn-place-seed").addEventListener("click", () => {
+    if (!INTERACTIVE_ENABLED) {
+      setStatus(INTERACTIVE_OFFLINE_MSG);
+      return;
+    }
+    if (loading || inferenceBusy || !nv?.volumes.length) return;
+    const voxel = nv.frac2vox(nv.scene.crosshairPos);
+    applySeed({x: voxel[0], y: voxel[1], z: voxel[2]});
+  });
+  document.getElementById("btn-clear-seed").addEventListener("click", clearSeed);
+  document.getElementById("btn-run-interactive").addEventListener("click", runInteractiveSegmentation);
+  updateSeedState();
+  updateRunnerState();
+  if (!INTERACTIVE_ENABLED) {
+    ["btn-place-seed", "btn-clear-seed", "btn-run-interactive"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = true;
+    });
+    document.getElementById("btn-run-interactive").title = INTERACTIVE_OFFLINE_MSG;
+    document.getElementById("btn-place-seed").title = INTERACTIVE_OFFLINE_MSG;
+    document.getElementById("seg-run-tooltip").dataset.disabled = "true";
+    setRunState("Interactive run: local backend only");
+  }
+  syncButtons();
+}
+
+document.getElementById("btn-rgb").addEventListener("click", () => { showRgb = !showRgb; syncButtons(); refreshBase(); });
+document.getElementById("btn-pred").addEventListener("click", () => { showPred = !showPred; if (showPred) { showProb = false; showGt = false; showSeeded = false; } currentMipSeries = null; syncButtons(); refreshOverlay(); refreshMipGallery(); });
+document.getElementById("btn-prob").addEventListener("click", () => { showProb = !showProb; if (showProb) { showPred = false; showGt = false; showSeeded = false; } currentMipSeries = null; syncButtons(); refreshOverlay(); refreshMipGallery(); });
+document.getElementById("btn-gt").addEventListener("click", () => { showGt = !showGt; if (showGt) { showPred = false; showProb = false; showSeeded = false; } currentMipSeries = null; syncButtons(); refreshOverlay(); refreshMipGallery(); });
+document.getElementById("btn-seeded").addEventListener("click", () => { if (!seededMaskUrl) return; showSeeded = !showSeeded; if (showSeeded) { showPred = false; showProb = false; showGt = false; } syncButtons(); refreshOverlay(); });
+document.getElementById("opacity-slider").addEventListener("input", () => { if (nv.volumes.length > 1 && nv.volumes[1] !== cropBoundary) nv.setOpacity(1, parseFloat(document.getElementById("opacity-slider").value)); });
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("#tour-panel") || e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+  if (e.key === "ArrowLeft") stepSubject(-1);
+  if (e.key === "ArrowRight") stepSubject(+1);
+});
+
+// Nonmodal walkthrough: the viewer stays usable and inference is always explicit.
+const tourSteps = [
+  {target:'#nav-wrap, #btn-rgb', title:'Cases and MRI phases', kind:'Explore the MRI',
+   copy:'Choose a case and scroll through its slices. RGB dynamics combines three MRI phases in color; turn it off for grayscale.'},
+  {target:'#btn-pred', title:'Inspect the prediction', kind:'Precomputed model output',
+   copy:'Prediction shows the saved model contour in orange. Toggle it to compare with the underlying MRI.'},
+  {target:'#btn-gt', title:'Compare the training label', kind:'Human reference',
+   copy:'Training label shows the manually drawn tumor outline. These are non-expert training annotations, not independent expert validation.'},
+  {target:'#btn-place-seed', title:'Place a seed in the tumor', kind:'Optional live interaction',
+   copy:'Scroll to the tumor and click inside it on an MRI view to position the crosshair. Then click Place Seed to mark that location. To try another location, click in the image and Place Seed again; this clears the previous live result.'},
+  {target:'#btn-run-interactive', title:'Run a live segmentation', kind:'Live model output: only after running',
+   copy:'Click Run Interactive Seg to run the model around your seed. The new mask appears when inference finishes.'},
+  {target:'#metrics-bar', title:'Read the saved measurements', kind:'Precomputed measurements',
+   copy:'Compare diameters, volume and sphericity for the saved prediction and training label. These measurements exclude the live seeded mask.'},
+
+];
+let tourIndex = -1;
+let tourTarget = null;
+let tourTargets = [];
+const tourPanel = document.getElementById('tour-panel');
+function positionTour() {
+  if (tourPanel.hidden || !tourTarget) return;
+  const rect = tourTarget.getBoundingClientRect();
+  const width = tourPanel.offsetWidth, height = tourPanel.offsetHeight;
+  const left = Math.max(12, Math.min(rect.left, window.innerWidth - width - 12));
+  const below = rect.bottom + 12;
+  const top = below + height <= window.innerHeight - 12 ? below : Math.max(12, rect.top - height - 12);
+  tourPanel.style.left = `${left}px`;
+  tourPanel.style.top = `${top}px`;
+}
+function showTourStep(index) {
+  tourTargets.forEach(target => target.classList.remove('tour-target'));
+  tourIndex = index;
+  const step = tourSteps[index];
+  tourTargets = Array.from(document.querySelectorAll(step.target));
+  tourTarget = tourTargets[tourTargets.length - 1];
+  tourTargets.forEach(target => target.classList.add('tour-target'));
+  tourTarget.scrollIntoView({block:'nearest', inline:'nearest'});
+  document.getElementById('tour-progress').textContent = `Step ${index + 1} of ${tourSteps.length}`;
+  document.getElementById('tour-kind').textContent = step.kind;
+  document.getElementById('tour-title').textContent = `${index + 1}. ${step.title}`;
+  document.getElementById('tour-copy').textContent = step.copy;
+  document.getElementById('tour-back').disabled = index === 0;
+  document.getElementById('tour-next').textContent = index === tourSteps.length - 1 ? 'Finish' : 'Next';
+  tourPanel.hidden = false;
+  positionTour();
+  document.getElementById('tour-title').focus({preventScroll:true});
+}
+function closeTour() {
+  tourPanel.hidden = true;
+  tourTargets.forEach(target => target.classList.remove('tour-target'));
+  tourTargets = [];
+  tourTarget = null;
+  tourIndex = -1;
+  document.getElementById('subject-select').focus({preventScroll:true});
+}
+document.getElementById('tour-skip').addEventListener('click', closeTour);
+document.getElementById('tour-back').addEventListener('click', () => showTourStep(Math.max(0, tourIndex - 1)));
+document.getElementById('tour-next').addEventListener('click', () => {
+  if (tourIndex === tourSteps.length - 1) closeTour();
+  else showTourStep(tourIndex + 1);
+});
+document.addEventListener('keydown', event => {
+  if (!tourPanel.hidden && event.key === 'Escape') { event.preventDefault(); closeTour(); }
+});
+window.addEventListener('resize', positionTour);
+document.getElementById('toolbar').addEventListener('scroll', positionTour);
+
+showTourStep(0);
+init();
+</script>
+</body>
+</html>
