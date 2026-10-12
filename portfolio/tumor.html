@@ -470,18 +470,20 @@
 
 <script type="module">
 import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.50.0/+esm";
+import { visitorVerification } from './visitor-verification.js';
 
 const QUERY = new URLSearchParams(location.search);
-const MANIFEST_QUERY_URL = QUERY.get("manifest")
-  ?? "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/manifest.json";
-const MANIFEST_URL = new URL(MANIFEST_QUERY_URL, window.location.href).href;
-const API_QUERY_BASE = QUERY.get("api");
-const API_BASE = API_QUERY_BASE ?? "http://127.0.0.1:8080";
-const LOCAL_SEED_API = QUERY.get("backend") === "local-seed";
 const IS_LOCAL_PAGE = location.protocol === "file:"
   || location.hostname === "localhost"
   || location.hostname === "127.0.0.1";
-const INTERACTIVE_ENABLED = Boolean(API_QUERY_BASE) || IS_LOCAL_PAGE;
+const MANIFEST_QUERY_URL = IS_LOCAL_PAGE
+  ? (QUERY.get("manifest") ?? 'tumor-manifest.json') : 'tumor-manifest.json';
+const MANIFEST_URL = new URL(MANIFEST_QUERY_URL, window.location.href).href;
+const API_QUERY_BASE = QUERY.get("api");
+const API_BASE = IS_LOCAL_PAGE ? (API_QUERY_BASE ?? "http://127.0.0.1:8080") : 'https://intseg-test.michaelzenkay.com';
+const LOCAL_SEED_API = !IS_LOCAL_PAGE || QUERY.get("backend") === "local-seed";
+const verificationToken = LOCAL_SEED_API ? visitorVerification(API_BASE) : null;
+const INTERACTIVE_ENABLED = LOCAL_SEED_API || Boolean(API_QUERY_BASE) || IS_LOCAL_PAGE;
 const INTERACTIVE_OFFLINE_MSG = "Interactive seeded segmentation requires a local GPU inference backend; public backend is offline.";
 const INITIAL_STUDY_UID = QUERY.get("study_uid") ?? "";
 const INITIAL_RUNNER_CASE_DIR = QUERY.get("runner_case_dir") ?? "";
@@ -1221,9 +1223,11 @@ async function runLocalSeedSegmentation() {
   controls.forEach(el => { el.disabled = true; });
   const started = performance.now();
   try {
+    setRunState('Interactive run: checking availability');
+    const token = await verificationToken();
     setRunState('Interactive run: queued / running (queue wait limited to 10 seconds)');
     const response = await fetch(`${API_BASE.replace(/\/+$/, '')}/api/v1/segment-world`, {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
+      method: 'POST', headers: {'Content-Type': 'application/json', ...(token ? {'X-Turnstile-Token':token} : {})},
       body: JSON.stringify({case_id: subjects[currentIdx].id, seed_mm: seedWorldMM()}),
       signal: AbortSignal.timeout(60000),
     });
