@@ -301,6 +301,9 @@
       flex-shrink: 0;
     }
 
+    #live-state { color: #edbc79; }
+    #live-state.ready { color: #76d5c8; }
+
     #data-notice {
       padding: 6px 12px;
       background: #10151a;
@@ -471,6 +474,7 @@
 <script type="module">
 import { Niivue, NVImage } from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.50.0/+esm";
 import { visitorVerification } from './visitor-verification.js';
+import { monitorLiveService, renderLiveStatus, liveStatusText } from './live-status.js?v=20261013';
 
 const QUERY = new URLSearchParams(location.search);
 const IS_LOCAL_PAGE = location.protocol === "file:"
@@ -529,7 +533,7 @@ let currentCrosshair = { x: 112, y: 94, z: 51 };
 let activeSeed = null;
 let seededMaskUrl = null;
 let inferenceBusy = false;
-let liveState = null;
+let liveMonitor;
 let cropBoundary = null;
 let cropPreviewVersion = 0;
 let overlayVersion = 0;
@@ -562,8 +566,10 @@ function syncSubjectToRunnerCase() {
 
 async function init() {
   if (LOCAL_SEED_API) {
-    document.getElementById('live-state').textContent = 'Connecting to GPU...';
-    checkAvailability();
+    liveMonitor = monitorLiveService(API_BASE, state => {
+      renderLiveStatus(document.getElementById('live-state'), state);
+      syncButtons();
+    });
   }
   nv = new Niivue({ backColor: [0.07, 0.07, 0.07, 1], show3Dcrosshair: true, isColorbar: false });
   await nv.attachTo("gl");
@@ -959,10 +965,11 @@ function updateOverlayInfo() {
 
 function syncButtons() {
   if (LOCAL_SEED_API) {
-    const supported = !liveState?.case_ids || liveState.case_ids.includes(subjects[currentIdx]?.id);
-    const unavailable = liveState && !['available', 'busy'].includes(liveState.state);
+    const liveState = liveMonitor?.current();
+    const supported = liveState?.case_ids?.includes(subjects[currentIdx]?.id);
+    const unavailable = !liveState?.ready || (liveState.active && liveState.queued >= liveState.queue_capacity);
     document.getElementById('btn-run-interactive').disabled = inferenceBusy || loading || !activeSeed || !!unavailable || !supported;
-    document.getElementById('btn-run-interactive').title = !supported ? 'Live inference is not configured for this case; saved results remain available.' : '';
+    document.getElementById('btn-run-interactive').title = unavailable ? liveStatusText(liveState || {state:'checking'}) : !supported ? 'Live inference is not configured for this case; saved results remain available.' : '';
   }
   document.getElementById("btn-rgb").classList.toggle("active-rgb", showRgb);
   document.getElementById("btn-pred").classList.toggle("active-pred", showPred);
@@ -1197,19 +1204,11 @@ function seedWorldMM() {
   return Array.from(nv.frac2mm(frac, 0, true)).slice(0, 3);
 }
 
-async function checkAvailability() {
-  try {
-    const response = await fetch(`${API_BASE.replace(/\/+$/, '')}/health`, {cache:'no-store', signal:AbortSignal.timeout(4000)});
-    if (!response.ok) throw new Error('Unavailable');
-    if (response.headers.get('X-API-Version') !== '1') throw new Error('Expected seed API v1');
-    const body = await response.json();
-    liveState = {...body, state:body.state || (body.ready ? 'available' : 'offline')};
-  } catch (_) { liveState = {state:'offline'}; }
-  const labels = {available:'Live GPU available', busy:`Live GPU busy (${liveState.queued || 0} waiting)`,
-    paused:'Live GPU paused - saved results available', offline:'Live GPU unavailable - saved results available'};
-  document.getElementById('live-state').textContent = labels[liveState.state] || labels.offline;
-  syncButtons();
-  setTimeout(checkAvailability, 5000);
+async function requireLiveReady() {
+  const state = await liveMonitor.check();
+  if (!state.ready) throw new Error(liveStatusText(state));
+  if (!state.case_ids?.includes(subjects[currentIdx]?.id)) throw new Error('Live inference is not configured for this case');
+  if (state.active && state.queued >= state.queue_capacity) throw new Error('GPU queue is full; please try again shortly');
 }
 
 async function runLocalSeedSegmentation() {
@@ -1222,9 +1221,17 @@ async function runLocalSeedSegmentation() {
   seedMode = false;
   controls.forEach(el => { el.disabled = true; });
   const started = performance.now();
+  let stage = 'checking';
   try {
     setRunState('Interactive run: checking availability');
+    await requireLiveReady();
+    stage = 'verification';
+    setRunState('Interactive run: verifying visitor; complete the checkbox if shown');
     const token = await verificationToken();
+    stage = 'checking';
+    setRunState('Interactive run: rechecking GPU availability');
+    await requireLiveReady();
+    stage = 'inference';
     setRunState('Interactive run: queued / running (queue wait limited to 10 seconds)');
     const response = await fetch(`${API_BASE.replace(/\/+$/, '')}/api/v1/segment-world`, {
       method: 'POST', headers: {'Content-Type': 'application/json', ...(token ? {'X-Turnstile-Token':token} : {})},
@@ -1233,24 +1240,33 @@ async function runLocalSeedSegmentation() {
     });
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
-      throw new Error(typeof body.detail === 'string' ? body.detail : `Service unavailable (HTTP ${response.status})`);
+      const error = new Error(typeof body.detail === 'string' ? body.detail : `Service unavailable (HTTP ${response.status})`);
+      error.status = response.status;
+      throw error;
     }
     if (response.headers.get('X-API-Version') !== '1') throw new Error('Expected seed API v1');
     const url = URL.createObjectURL(await response.blob());
     if (seededMaskUrl?.startsWith('blob:')) URL.revokeObjectURL(seededMaskUrl);
     seededMaskUrl = url;
     showSeeded = true; showPred = false; showProb = false; showGt = false;
+    stage = 'overlay';
     await refreshOverlay();
     const elapsed = Math.round(performance.now() - started);
     setRunState(`Interactive run: Seeded seg loaded in ${elapsed} ms; ${response.headers.get('X-Mask-Voxels')} voxels`);
     setStatus('Local mask loaded. Measurements below remain the saved prediction / training-label measurements.');
   } catch (error) {
-    setRunState('Interactive run: unavailable; saved results remain usable');
+    const verificationFailed = stage === 'verification' || [401,403].includes(error.status);
+    setRunState(verificationFailed ? 'Interactive run: visitor verification needed; GPU inference was not started' : error.status === 429 ? 'Interactive run: request limit reached; try again shortly' : 'Interactive run: unavailable; saved results remain usable');
+    if (stage === 'inference' && !verificationFailed && error.status !== 429) {
+      liveMonitor.invalidate('disconnected');
+      liveMonitor.check();
+    }
     setStatus(`Live inference: ${error.message}. Use Prediction, Prob map, or Training label; no saved results were removed.`);
   } finally {
     inferenceBusy = false;
     controls.forEach((el, i) => { el.disabled = disabled[i]; });
     syncButtons();
+    liveMonitor.check();
   }
 }
 

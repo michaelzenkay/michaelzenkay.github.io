@@ -1,3 +1,4 @@
+import {monitorLiveService, renderLiveStatus} from './live-status.js?v=20261013';
 const requested=new URLSearchParams(location.search).get('project'),key=Object.hasOwn(PORTFOLIO,requested)?requested:'tumor',p=PORTFOLIO[key],$=id=>document.getElementById(id);
 document.title=p.name+' | Michael Z. Liu';
 for(const [id,value] of Object.entries({eyebrow:p.eyebrow,title:p.name,description:p.description,try:p.try,summary:p.summary,context:p.context,'methods-title':p.methodsTitle,metric:p.metric,'metric-label':p.metricLabel,'metric-note':p.metricNote,'short-limit':p.shortLimit,'output-type':p.mode,'output-detail':p.modeDetail,'reference-title':p.reference,'reference-detail':p.referenceDetail,'method-text':p.methods,'evidence-text':p.evidence,limits:p.limits,'code-status':p.codeStatus,watch:p.watch,'fallback-summary':p.description}))$(id).textContent=value;
@@ -12,7 +13,7 @@ for(const item of p.methodDetails){const heading=document.createElement('h3');he
 $('source-note').textContent=p.sourceNote;
 for(const [label,url] of p.sourceFiles){const li=document.createElement('li'),a=document.createElement('a');a.textContent=label+' \u2197';a.href=url;a.target='_blank';a.rel='noopener';li.append(a);$('source-files').append(li);}
 const order=Object.keys(PORTFOLIO),next=order[(order.indexOf(key)+1)%order.length];$('next-title').textContent=PORTFOLIO[next].name;$('next-link').href='?project='+next;
-let connection=0,frameObserver;
+let connection=0,frameObserver,liveMonitor;
 $('demo').dataset.project=key;
 function fitKnee(){if(key!=='knee'||document.body.classList.contains('demo-focused'))return;const main=$('viewer').contentDocument?.querySelector('main');if(main)$('viewer').style.height=Math.ceil(main.getBoundingClientRect().height+32)+'px';}
 $('viewer').addEventListener('load',()=>{frameObserver?.disconnect();if(key!=='knee')return;try{const main=$('viewer').contentDocument?.querySelector('main');if(main){frameObserver=new ResizeObserver(fitKnee);frameObserver.observe(main);fitKnee();}}catch{/* External deployments retain the full-viewer link. */}});
@@ -25,7 +26,7 @@ window.addEventListener('message',event=>{
 function focusDemo(value){document.body.classList.toggle('demo-focused',value);$('focus-demo').setAttribute('aria-pressed',String(value));$('focus-demo').textContent=value?'Exit focus':'Focus demo';if(!value){$('focus-demo').focus();fitKnee();}}
 $('focus-demo').onclick=()=>focusDemo(!document.body.classList.contains('demo-focused'));
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('demo-focused'))focusDemo(false);});
-async function connect(){const token=++connection;$('service-status').textContent='Checking viewer\u2026';$('retry').disabled=true;try{
+async function connect(){liveMonitor?.stop();const token=++connection;$('service-status').textContent='Checking viewer\u2026';$('retry').disabled=true;try{
  const r=await fetch('runtime.json',{cache:'no-store',signal:AbortSignal.timeout(5000)});if(!r.ok)throw Error('Demo services are not configured.');const runtime=await r.json(),service=runtime[key];if(token!==connection)return;
  if(!service?.ready)throw Error(service?.message||'Viewer service or prepared data is unavailable.');
  $('live-viewer').hidden=!service.liveUrl;if(service.liveUrl){$('live-viewer').href=service.liveUrl;$('live-viewer').textContent=service.authentication==='access'?'Open live segmentation (sign-in) \u2197':'Open live segmentation \u2197';}
@@ -33,11 +34,9 @@ async function connect(){const token=++connection;$('service-status').textConten
  if(key==='heart')url.searchParams.set('presentation','portfolio');
  if(key==='tumor'&&service.mode==='saved'){$('output-type').textContent='Saved model outputs';$('output-detail').textContent='Inspect saved predictions and annotations. Live seeded segmentation needs a connected inference service.';$('try').textContent='Start the tour and inspect the saved MRI, masks and measurements. Live seed inference will be connected separately.';}
  $('viewer').src=url.href;$('viewer').hidden=false;$('fallback').hidden=true;$('full-viewer').href=url.href;$('full-viewer').hidden=false;$('focus-demo').hidden=false;
- $('service-status').textContent=key==='tumor'?(service.mode==='saved'?(service.liveUrl?'Saved viewer \u00b7 live segmentation opens separately':'Saved segmentation demo \u00b7 live inference offline'):'Live seed inference connected'):key==='heart'?'Saved model outputs \u00b7 interactive review':'Saved V4 scores \u00b7 companion anatomy predictions';$('service-status').classList.add('ready');
+ $('service-status').textContent=key==='tumor'?(service.mode==='saved'?(service.liveUrl?'Saved viewer \u00b7 live segmentation opens separately':'Saved segmentation demo \u00b7 live inference offline'):'Checking live connection...'):key==='heart'?'Saved model outputs \u00b7 interactive review':'Saved V4 scores \u00b7 companion anatomy predictions';$('service-status').classList.add('ready');
  if(key==='tumor'&&service.mode==='live'&&service.api){
-  $('service-status').textContent='Connecting to GPU...';
-  try{const health=await fetch(service.api.replace(/\/+$/,'')+'/health',{cache:'no-store',signal:AbortSignal.timeout(4000)});if(!health.ok||health.headers.get('X-API-Version')!=='1')throw Error('Offline');const state=await health.json();if(token!==connection)return;const available=state.ready&&['available','busy'].includes(state.state);$('service-status').textContent=available?'Live GPU connected':'Saved viewer ready; live GPU '+(state.state==='paused'?'paused':'unavailable');}
-  catch{if(token===connection)$('service-status').textContent='Saved viewer ready; live GPU unavailable';}
+  liveMonitor=monitorLiveService(service.api,state=>{if(token===connection)renderLiveStatus($('service-status'),state);});
  }
 }catch(error){if(token!==connection)return;if(document.body.classList.contains('demo-focused'))focusDemo(false);$('viewer').hidden=true;$('viewer').removeAttribute('src');$('fallback').hidden=false;$('full-viewer').hidden=true;$('focus-demo').hidden=true;$('live-viewer').hidden=true;$('service-status').classList.remove('ready');$('service-status').textContent='Preview unavailable';$('unavailable').textContent=error.message+' The overview, methods and evidence are still available.';}finally{if(token===connection)$('retry').disabled=false;}}
 function renderResearch(){
