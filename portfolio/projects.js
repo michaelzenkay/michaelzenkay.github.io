@@ -114,7 +114,7 @@ window.PORTFOLIO={
     "eyebrow": "01 / Breast MRI",
     "description": "A 3D U-Net for tumor segmentation in dynamic contrast-enhanced breast MRI from the I-SPY1 dataset.",
     "image": "/figures/tumor-seg-preview-crop.png",
-    "try": "Choose a case, inspect its RGB dynamics and saved prediction, then place a seed to run an interactive segmentation.",
+    "try": "Explore five cases, from a compact lesion to complex multifocal disease. Read the case notes, compare Prediction with Training label, then place a seed to try a local segmentation.",
     "methods": "Three aligned contrast phases feed a 3D U-Net. The demo combines saved whole-volume predictions with image-placed seed inference and physical measurements of the resulting masks.",
     "evidence": "The demo uses U-Net weights from the recovered joint segmentation/pCR model; it displays segmentation only. The audit reproduced historical Dice 0.7405 by averaging batch-pooled Dice on the checkpoint-selection cohort, using 1 mm resampling and image-centered validation crops. This is separate from the current segmentation-only trainer and does not measure arbitrary-seed or full-volume performance.",
     "limits": "Reference contours are Michael’s non-expert primary-tumor training annotations created in ITK-SNAP. They are not expert ground truth. Native-grid demo inference differs from the resampled training/evaluation path.",
@@ -129,7 +129,7 @@ window.PORTFOLIO={
     "mode": "Live inference",
     "modeDetail": "The seed runs the model. The saved mask and training annotation are separate overlays.",
     "summary": "I-SPY1 contains breast MRI examinations of patients with breast cancer. This project uses pre-contrast, early post-contrast and later post-contrast images to predict the primary tumor. The viewer combines these three phases as RGB dynamics, making differences in contrast enhancement visible in color.",
-    "watch": "Compare the seeded contour with the saved prediction. Move the seed to see how the inference crop changes.",
+    "watch": "The case notes highlight what the model captures, where the original annotation may be incomplete, and where coverage or thin boundaries remain difficult. They reflect the author's visual review, not an independent evaluation.",
     "metric": "0.7405",
     "metricLabel": "Historical validation Dice",
     "metricNote": "Batch-pooled metric on the checkpoint-selection cohort.",
@@ -162,7 +162,7 @@ window.PORTFOLIO={
     ],
     "sourceFiles": [],
     "sourceNote": "The breast-mri-public contains the 3D U-Net, preprocessing, whole-volume and seed inference, mask measurements, and segmentation-only training/evaluation. It loads the demonstrated segmentation weights; its trainer does not recreate joint pCR training.",
-    "context": "The demo shows five examinations with full-volume model predictions and manually drawn training labels. You can inspect the MRI in three planes, then place a seed to run a new local segmentation with the same 3D U-Net.",
+    "context": "Five examinations show different segmentation challenges: extension beyond the original label, a compact focal lesion, multifocal morphology, broad tumor extent and thin projections. Inspect the saved full-volume predictions alongside the original training contours, then use live seed inference to explore a local region with the same 3D U-Net.",
     "methodsTitle": "Breast MRI segmentation"
   },
   "heart": {

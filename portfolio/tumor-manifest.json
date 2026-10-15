@@ -2,6 +2,11 @@
   "subjects": [
     {
       "id": "1_001",
+      "review": {
+        "title": "Beyond the original label",
+        "text": "The prediction extends beyond the original primary-tumor contour, following additional enhancing tissue that appears tumor-like on visual review. This is a useful example of how a model can highlight regions omitted from its training annotations.",
+        "detail": "Compare Prediction with Training label across slices. The additional regions are candidates for review, not independently confirmed tumor; some may be false positives."
+      },
       "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_001_image.nii.gz",
       "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_001_prob.nii.gz",
       "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_001_mask.nii.gz",
@@ -30,6 +35,11 @@
     },
     {
       "id": "1_002",
+      "review": {
+        "title": "Compact lesion, close diameter agreement",
+        "text": "A small, single focal lesion with close agreement in the first two measured diameters: 30.0 vs 29.1 mm and 28.3 vs 28.2 mm for prediction vs training label.",
+        "detail": "The overall size agrees more closely than the full contour: predicted volume is 8.69 vs 5.59 cm³. Compare the boundaries as well as the diameter values."
+      },
       "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_002_image.nii.gz",
       "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_002_prob.nii.gz",
       "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_002_mask.nii.gz",
@@ -58,6 +68,11 @@
     },
     {
       "id": "1_003",
+      "review": {
+        "title": "Complex, multifocal morphology",
+        "text": "An irregular tumor with multiple foci makes this a more demanding example than a single compact lesion. Review the dominant mass and smaller separate regions through all three planes.",
+        "detail": "The first diameter is close to the training label (66.6 vs 65.6 mm), but that alone does not establish coverage of every focus or agreement along the irregular boundary."
+      },
       "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_003_image.nii.gz",
       "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_003_prob.nii.gz",
       "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_003_mask.nii.gz",
@@ -86,6 +101,11 @@
     },
     {
       "id": "1_005",
+      "review": {
+        "title": "Broad extent and local coverage",
+        "text": "This broad, irregular tumor is a useful stress case for spatial coverage. The saved whole-volume prediction captures much of its extent but is smaller than the training label, particularly along the second measured axis.",
+        "detail": "For live seed inference, a single 96³-voxel crop may miss parts of the lesion. Stitching overlapping crops is a possible improvement to that tool. The saved prediction already evaluates the whole volume, so its remaining differences are not caused by a single-crop cutoff."
+      },
       "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_005_image.nii.gz",
       "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_005_prob.nii.gz",
       "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_005_mask.nii.gz",
@@ -114,6 +134,11 @@
     },
     {
       "id": "1_007",
+      "review": {
+        "title": "Main lesion captured, thin extensions weaker",
+        "text": "The main lesion is captured reasonably well on visual review, with close overall dimensions and volume. Thinner extensions are less consistently delineated, giving the predicted contour a smoother appearance.",
+        "detail": "Toggle the training label and inspect the narrow projections across slices. Similar total volume (8.11 vs 7.99 cm³) can still conceal meaningful local boundary differences."
+      },
       "image": "https://mz-tumor-seg-demo.s3.amazonaws.com/tumor-seg-demo/1_007_image.nii.gz",
       "pred": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_007_prob.nii.gz",
       "pred_binary": "https://mz-tumor-seg-demo.s3.amazonaws.com/portfolio/2026-10-12/tumor/1_007_mask.nii.gz",

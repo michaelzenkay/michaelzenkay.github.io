@@ -126,6 +126,17 @@
       overflow-x: auto; white-space: nowrap; font-size: 11px; color: #aaa;
       user-select: text; background: #141414; flex-shrink: 0; }
 
+    #case-review {
+      flex-shrink: 0; padding: 10px 14px; background: #172126;
+      border-bottom: 1px solid #30434d; user-select: text;
+      font-size: 13px; line-height: 1.5;
+    }
+    #case-review summary { cursor: pointer; color: #eef4f6; }
+    #case-review summary:focus-visible { outline: 2px solid #79d9ff; outline-offset: 3px; }
+    #case-review .review-kind { color: #a9cedc; font-size: 11px; margin-right: 10px; }
+    #case-review p { max-width: 110ch; margin-top: 6px; }
+    #case-review-detail { color: #b4c2c9; }
+
     #main-layout {
       flex: 1;
       min-height: 0;
@@ -384,6 +395,12 @@
   </span>
 
 </div>
+
+<details id="case-review" hidden open aria-label="Author's visual review of the saved prediction">
+  <summary><span class="review-kind">Author's visual review · Saved prediction</span><strong id="case-review-title"></strong></summary>
+  <p id="case-review-text"></p>
+  <p id="case-review-detail"></p>
+</details>
 
 <div id="main-layout">
   <div id="canvas-wrap">
@@ -856,6 +873,15 @@ function overlayChoice(subject) {
   return null;
 }
 
+function updateCaseReview(subject, caseLabel) {
+  const review = subject.review;
+  const panel = document.getElementById('case-review');
+  panel.hidden = !review;
+  document.getElementById('case-review-title').textContent = review ? `${caseLabel}: ${review.title}` : '';
+  document.getElementById('case-review-text').textContent = review?.text || '';
+  document.getElementById('case-review-detail').textContent = review?.detail || '';
+}
+
 async function loadSubject(idx, preserveSeed = false) {
   if (loading || inferenceBusy) return;
   loading = true;
@@ -866,6 +892,7 @@ async function loadSubject(idx, preserveSeed = false) {
 
   const subject = subjects[idx];
   const caseLabel = publicCaseLabel(idx);
+  updateCaseReview(subject, caseLabel);
   document.getElementById('btn-pred').title = subject.prediction_method || 'Saved model prediction';
   if (!preserveSeed) {
     cropPreviewVersion++;
@@ -1389,7 +1416,7 @@ document.addEventListener("keydown", (e) => {
 // Nonmodal walkthrough: the viewer stays usable and inference is always explicit.
 const tourSteps = [
   {target:'#nav-wrap, #btn-rgb', title:'Cases and MRI phases', kind:'Explore the MRI',
-   copy:'Choose a case and scroll through its slices. RGB dynamics combines three MRI phases in color; turn it off for grayscale.'},
+   copy:'Choose a case and read its visual-review note for what to look for. Scroll through the slices; RGB dynamics combines three MRI phases in color, and turning it off shows grayscale.'},
   {target:'#btn-pred', title:'Inspect the prediction', kind:'Precomputed model output',
    copy:'Prediction shows the saved model contour in orange. Toggle it to compare with the underlying MRI.'},
   {target:'#btn-gt', title:'Compare the training label', kind:'Human reference',
